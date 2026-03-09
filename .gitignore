@@ -1,0 +1,94 @@
+###################################
+
+# STM32CubeMX + Makefile GitIgnore
+
+###################################
+
+# Build output
+
+build/
+Build/
+Debug/
+Release/
+out/
+
+# Object files
+
+*.o
+*.d
+*.su
+
+# Binaries
+
+*.elf
+*.bin
+*.hex
+*.map
+*.srec
+*.list
+
+# Dependency files
+
+*.dep
+
+# Logs
+
+*.log
+
+# Coverage / profiling
+
+*.gcno
+*.gcda
+*.gcov
+
+# Temporary files
+
+*~
+*.swp
+*.tmp
+
+# macOS
+
+.DS_Store
+
+# VSCode
+
+.vscode/
+
+# CLion / JetBrains
+
+.idea/
+cmake-build-*/
+
+# Eclipse / STM32CubeIDE leftovers
+
+.project
+.cproject
+.settings/
+
+# OpenOCD temp files
+
+*.cfg.bak
+
+# Python virtual environments
+
+venv/
+.env/
+
+# CMake (if experiments are done)
+
+# CMakeFiles/
+# CMakeCache.txt
+# cmake_install.cmake
+# Makefile.cmake
+
+###################################
+
+# Keep important project files
+
+###################################
+
+!*.ioc
+!Makefile
+!*.ld
+!startup*.s
