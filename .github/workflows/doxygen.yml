@@ -1,4 +1,4 @@
-name: Build Docs
+name: Build Doxygen Docs
 
 on:
   push:
@@ -9,14 +9,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Check out the repo
       - uses: actions/checkout@v4
 
+      # 2. Install Doxygen + Graphviz
       - name: Install Doxygen
-        run: sudo apt install doxygen graphviz
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
 
+      # 3. Generate Doxygen docs
       - name: Generate docs
         run: doxygen Doxyfile
 
+      # 4. Create .nojekyll to prevent GitHub Pages errors
+      - name: Add .nojekyll
+        run: touch docs/html/.nojekyll
+
+      # 5. Deploy to GitHub Pages
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
