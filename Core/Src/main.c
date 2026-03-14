@@ -50,7 +50,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+/** @brief Массив данных для генерации синуса (DAC1) */
 uint16_t sine_wave[SINE_WAVE_SAMPLES];
+
+/** @brief Буфер значений ADC1 (сигнал ЭКГ) */
+uint16_t adc_buffer[ADC_BUF_SIZE];
 
 /* USER CODE END PV */
 
@@ -100,6 +105,14 @@ int main(void)
   MX_ADC1_Init();
   MX_USB_Device_Init();
   /* USER CODE BEGIN 2 */
+
+  /** @brief Старт таймера TIM6 для ADC (чтение сигнала ЭКГ) и DAC (генерация синуса)  */
+  HAL_TIM_Base_Start(&htim6);
+
+  /** @brief Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
+
+  /** @brief Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
   HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
   /* USER CODE END 2 */
 
@@ -162,6 +175,7 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+/** @brief Функция для генерации значений синусоидального сигнала перед стартом основного цикла программы */
 void GenerateSineWave(void)
 {
   for (uint16_t i = 0; i < SINE_WAVE_SAMPLES; i++)
@@ -175,6 +189,24 @@ void GenerateSineWave(void)
 
     // scale to DAC range
     sine_wave[i] = (uint16_t)(sine * DAC_RESOLUTION);
+  }
+}
+
+/** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении первой половины буфера*/
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  if (hadc->Instance == ADC1)
+  {
+    //TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[0], ADC_BUF_SIZE/2);
+  }
+}
+
+/** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении второй половины буфера*/
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  if (hadc->Instance == ADC1)
+  {
+    //TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[ADC_BUF_SIZE / 2], ADC_BUF_SIZE / 2);
   }
 }
 

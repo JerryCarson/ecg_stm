@@ -82,6 +82,8 @@ void Error_Handler(void);
 #define SINE_WAVE_SAMPLES 100
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
+#define ADC_BUF_SIZE 1024
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
