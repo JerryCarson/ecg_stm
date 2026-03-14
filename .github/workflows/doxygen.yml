@@ -4,15 +4,15 @@ on:
   push:
     branches:
       - main
-      - feature/**   # trigger on any feature branch
+      - feature/**   # triggers on any feature branch
 
 jobs:
   deploy-docs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
-      - name: Checkout repo
+      # 1. Checkout the repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       # 2. Install Doxygen + Graphviz
@@ -23,19 +23,15 @@ jobs:
       - name: Generate Doxygen docs
         run: doxygen Doxyfile
 
-      # 4. Add .nojekyll to prevent GitHub Pages from processing HTML
-      - name: Prevent Jekyll processing
+      # 4. Prevent Jekyll processing
+      - name: Add .nojekyll
         run: touch docs/html/.nojekyll
 
-      # 5. Deploy to GitHub Pages using a PAT
+      # 5. Deploy to GitHub Pages using PAT
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          # Folder where Doxygen outputs HTML
-          publish_dir: docs/html
-          # Use your PAT stored as a secret (e.g., GH_PAT)
-          github_token: ${{ secrets.TEST }}
-          # Target branch for GitHub Pages
-          publish_branch: gh-pages
-          # Overwrite gh-pages branch completely
-          force_orphan: true
+          publish_dir: docs/html          # Doxygen HTML folder
+          github_token: ${{ secrets.TEST }}  # Use your PAT stored in secrets
+          publish_branch: gh-pages        # Target branch
+          force_orphan: true              # Overwrite branch completely
