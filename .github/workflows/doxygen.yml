@@ -34,7 +34,7 @@ jobs:
           # Folder where Doxygen outputs HTML
           publish_dir: docs/html
           # Use your PAT stored as a secret (e.g., GH_PAT)
-          github_token: ${{ secrets.GH_PAT }}
+          github_token: ${{ secrets.TEST }}
           # Target branch for GitHub Pages
           publish_branch: gh-pages
           # Overwrite gh-pages branch completely
