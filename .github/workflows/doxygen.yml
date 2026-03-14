@@ -4,33 +4,28 @@ on:
   push:
     branches:
       - main
-      - feature/**   # triggers on any feature branch
+      - feature/**
 
 jobs:
   docs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out the repository
       - uses: actions/checkout@v4
 
-      # 2. Install Doxygen + Graphviz (needed for diagrams)
-      - name: Install Doxygen
+      - name: Install Doxygen + Graphviz
         run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
 
-      # 3. Generate Doxygen documentation
       - name: Generate Doxygen Docs
         run: doxygen Doxyfile
 
-      # 4. Prevent Jekyll processing on GitHub Pages
-      - name: Add .nojekyll
+      - name: Prevent Jekyll
         run: touch docs/html/.nojekyll
 
-      # 5. Deploy generated docs to gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          publish_dir: docs/html          # folder containing Doxygen HTML
-          github_token: ${{ secrets.TEST }}  # or GH_PAT if you use a personal token
-          publish_branch: gh-pages        # target branch for GitHub Pages
-          force_orphan: true              # optional: overwrite gh-pages completely
+          publish_dir: docs/html
+          github_token: ${{ secrets.TEST }}   # or GH_PAT if needed
+          publish_branch: gh-pages
+          force_orphan: true
