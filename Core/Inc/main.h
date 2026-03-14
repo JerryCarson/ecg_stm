@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ring_buffer.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -79,10 +79,15 @@ void Error_Handler(void);
 #define DRDY_1_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+
+// RINGBUFFER_DEFINE(uint8_t, RingBuffer_8, 256);
+// RINGBUFFER_DEFINE(uint16_t, RingBuffer_16, 256);
+// RINGBUFFER_DEFINE(uint32_t, RingBuffer_32, 1024);
+
 #define SINE_WAVE_SAMPLES 100
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
-#define ADC_BUF_SIZE 1024
+#define ADC_BUF_SIZE 32
 
 /* USER CODE END Private defines */
 

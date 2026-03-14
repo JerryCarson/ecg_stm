@@ -80,6 +80,7 @@ Core/Src/dac.c \
 Core/Src/dma.c \
 Core/Src/gpio.c \
 Core/Src/main.c \
+Core/Src/ring_buffer.c \
 Core/Src/spi.c \
 Core/Src/stm32g4xx_hal_msp.c \
 Core/Src/stm32g4xx_it.c \

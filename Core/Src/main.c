@@ -29,6 +29,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <math.h>
+#include "ring_buffer.h"
 // #include <stdint.h>
 /* USER CODE END Includes */
 
@@ -51,22 +52,36 @@
 
 /* USER CODE BEGIN PV */
 
-/** @brief Массив данных для генерации синуса (DAC1) */
-uint16_t sine_wave[SINE_WAVE_SAMPLES];
-
-/** @brief Буфер значений ADC1 (сигнал ЭКГ) */
-uint16_t adc_buffer[ADC_BUF_SIZE];
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void GenerateSineWave(void);
+void init_buffers(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/** @brief Массив данных для генерации синуса (DAC1) */
+uint16_t sine_wave[SINE_WAVE_SAMPLES];
+
+/** @brief Буфер значений ADC1 (сигнал ЭКГ) */
+uint16_t adc_buffer[ADC_BUF_SIZE];
+
+// /** @brief Буфер для ЭКГ-сигнала с ADC1 */
+// RingBuffer_16 ADC_ECG_BUF;
+
+// /** @brief Буфер для приема команд с ПК */
+// RingBuffer_8 PC_RX_BUF;
+
+// /** @brief Буфер для приема команд с ПК */
+// RingBuffer_8 PC_TX_BUF;
+
+// /** @brief Буфер для записи сэмплов с внешних ADC */
+// RingBuffer_32 SAMPLES_BUF;
+
 /* USER CODE END 0 */
 
 /**
@@ -106,6 +121,9 @@ int main(void)
   MX_USB_Device_Init();
   /* USER CODE BEGIN 2 */
 
+  // /* Инициализация буферов: установка head и tail в 0 */
+  // init_buffers();
+
   /* Старт таймера TIM6 для ADC (чтение сигнала ЭКГ) и DAC (генерация синуса)  */
   HAL_TIM_Base_Start(&htim6);
 
@@ -114,6 +132,7 @@ int main(void)
 
   /* Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
   HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -197,7 +216,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
   if (hadc->Instance == ADC1)
   {
-    //TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[0], ADC_BUF_SIZE/2);
+    // TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[0], ADC_BUF_SIZE/2);
   }
 }
 
@@ -206,9 +225,18 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
   if (hadc->Instance == ADC1)
   {
-    //TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[ADC_BUF_SIZE / 2], ADC_BUF_SIZE / 2);
+    // TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[ADC_BUF_SIZE / 2], ADC_BUF_SIZE / 2);
   }
 }
+
+// /** @brief Инициализация объявленных буфероа */
+// void init_buffers(void)
+// {
+//   ADC_ECG_BUF.head = ADC_ECG_BUF.tail = 0;
+//   PC_RX_BUF.head = PC_RX_BUF.tail = 0;
+//   PC_TX_BUF.head = PC_TX_BUF.tail = 0;
+//   SAMPLES_BUF.head = SAMPLES_BUF.tail = 0;
+// }
 
 /* USER CODE END 4 */
 
