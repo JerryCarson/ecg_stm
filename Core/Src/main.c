@@ -106,13 +106,13 @@ int main(void)
   MX_USB_Device_Init();
   /* USER CODE BEGIN 2 */
 
-  /** @brief Старт таймера TIM6 для ADC (чтение сигнала ЭКГ) и DAC (генерация синуса)  */
+  /* Старт таймера TIM6 для ADC (чтение сигнала ЭКГ) и DAC (генерация синуса)  */
   HAL_TIM_Base_Start(&htim6);
 
-  /** @brief Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
+  /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
 
-  /** @brief Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
+  /* Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
   HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
   /* USER CODE END 2 */
 
