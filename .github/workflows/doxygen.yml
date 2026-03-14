@@ -1,0 +1,24 @@
+name: Build Docs
+
+on:
+  push:
+    branches: [feature/test_documentation]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: sudo apt install doxygen graphviz
+
+      - name: Generate docs
+        run: doxygen Doxyfile
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_dir: docs/html
+          github_token: ${{ secrets.GITHUB_TOKEN }}
