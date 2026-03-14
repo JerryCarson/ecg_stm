@@ -7,7 +7,8 @@ typedef enum
 {
     DATA_SPI_0,
     DATA_SPI_1,
-    DATA_ADC_ECG
+    DATA_ADC_ECG,
+    DATA_PACKET_ERROR
 } StreamDataType;
 
 typedef struct
@@ -16,6 +17,8 @@ typedef struct
     uint16_t length; // in bytes
     uint8_t *data;   // pointer to buffer
 } StreamPacket_t;
+
+void pushPacket(StreamPacket_t *packet);
 
 /*
 #define RINGBUFFER_DEFINE(type, name, size)                \

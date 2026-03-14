@@ -119,13 +119,15 @@ int main(void)
   MX_TIM6_Init();
   MX_ADC1_Init();
   MX_USB_Device_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
   // /* Инициализация буферов: установка head и tail в 0 */
   // init_buffers();
 
-  /* Старт таймера TIM6 для ADC (чтение сигнала ЭКГ) и DAC (генерация синуса)  */
+  /* Старт таймера TIM6 для DAC (генерация синуса) и TIM7 для ADC (чтение сигнала ЭКГ)  */
   HAL_TIM_Base_Start(&htim6);
+  HAL_TIM_Base_Start(&htim7);
 
   /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
@@ -217,6 +219,17 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
   if (hadc->Instance == ADC1)
   {
     // TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[0], ADC_BUF_SIZE/2);
+    static uint8_t adcPacketBuffer[ADC_BUF_SIZE];
+    for (int i = 0; i < ADC_BUF_SIZE / 2; i++)
+    {
+      adcPacketBuffer[i * 2] = adc_buffer[i] & 0xFF;
+      adcPacketBuffer[i * 2 + 1] = (adc_buffer[i] >> 8) & 0xFF;
+    }
+    StreamPacket_t packet = {
+        .dataType = DATA_ADC_ECG,
+        .length = sizeof(adcPacketBuffer),
+        .data = adcPacketBuffer};
+    pushPacket(&packet);
   }
 }
 
@@ -226,6 +239,17 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
   if (hadc->Instance == ADC1)
   {
     // TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[ADC_BUF_SIZE / 2], ADC_BUF_SIZE / 2);
+    static uint8_t adcPacketBuffer[ADC_BUF_SIZE];
+    for (int i = 0; i < ADC_BUF_SIZE / 2; i++)
+    {
+      adcPacketBuffer[i * 2] = adc_buffer[i + ADC_BUF_SIZE / 2] & 0xFF;
+      adcPacketBuffer[i * 2 + 1] = (adc_buffer[i + ADC_BUF_SIZE / 2] >> 8) & 0xFF;
+    }
+    StreamPacket_t packet = {
+        .dataType = DATA_ADC_ECG,
+        .length = sizeof(adcPacketBuffer),
+        .data = adcPacketBuffer};
+    pushPacket(&packet);
   }
 }
 
