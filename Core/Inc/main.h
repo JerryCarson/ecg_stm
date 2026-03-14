@@ -23,35 +23,34 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
 
-  /* Private includes ----------------------------------------------------------*/
-  /* USER CODE BEGIN Includes */
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 
-  /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-  /* Exported types ------------------------------------------------------------*/
-  /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-  /* USER CODE END ET */
+/* USER CODE END ET */
 
-  /* Exported constants --------------------------------------------------------*/
-  /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-  /* USER CODE END EC */
+/* USER CODE END EC */
 
-  /* Exported macro ------------------------------------------------------------*/
-  /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-  /* USER CODE END EM */
+/* USER CODE END EM */
 
-  /* Exported functions prototypes ---------------------------------------------*/
-  void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -60,14 +59,16 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define LO_M_Pin GPIO_PIN_1
 #define LO_M_GPIO_Port GPIOF
-#define LO_P_Pin GPIO_PIN_10
-#define LO_P_GPIO_Port GPIOG
+#define LO_P_Pin GPIO_PIN_0
+#define LO_P_GPIO_Port GPIOA
 #define CS_2_Pin GPIO_PIN_6
 #define CS_2_GPIO_Port GPIOC
 #define RESET_2_Pin GPIO_PIN_8
 #define RESET_2_GPIO_Port GPIOA
 #define START_2_Pin GPIO_PIN_9
 #define START_2_GPIO_Port GPIOA
+#define DRDY_2_Pin GPIO_PIN_10
+#define DRDY_2_GPIO_Port GPIOA
 #define CS_1_Pin GPIO_PIN_10
 #define CS_1_GPIO_Port GPIOC
 #define RESET_1_Pin GPIO_PIN_11
@@ -81,7 +82,7 @@ extern "C"
 #define SINE_WAVE_SAMPLES 100
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
-  /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

@@ -41,7 +41,6 @@ void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -67,11 +66,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(LO_P_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CS_2_Pin RESET_1_Pin */
-  GPIO_InitStruct.Pin = CS_2_Pin|RESET_1_Pin;
+  /*Configure GPIO pins : CS_2_Pin CS_1_Pin */
+  GPIO_InitStruct.Pin = CS_2_Pin|CS_1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RESET_2_Pin START_2_Pin */
@@ -81,12 +80,18 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : CS_1_Pin */
-  GPIO_InitStruct.Pin = CS_1_Pin;
+  /*Configure GPIO pin : DRDY_2_Pin */
+  GPIO_InitStruct.Pin = DRDY_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(DRDY_2_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : RESET_1_Pin */
+  GPIO_InitStruct.Pin = RESET_1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(CS_1_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(RESET_1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : START_1_Pin */
   GPIO_InitStruct.Pin = START_1_Pin;
@@ -97,7 +102,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : DRDY_1_Pin */
   GPIO_InitStruct.Pin = DRDY_1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_EVT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(DRDY_1_GPIO_Port, &GPIO_InitStruct);
 
