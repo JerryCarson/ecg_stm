@@ -3,6 +3,7 @@ name: Build Doxygen Docs
 on:
   push:
     branches: [main, feature/**]  # triggers on main and any feature branch
+    branches: [main, feature/**]  # triggers on main and any feature branch
 
 jobs:
   docs:
@@ -10,20 +11,26 @@ jobs:
 
     steps:
       # 1. Check out the repository
+      # 1. Check out the repository
       - uses: actions/checkout@v4
 
+      # 2. Install Doxygen + Graphviz (needed for diagrams)
       # 2. Install Doxygen + Graphviz (needed for diagrams)
       - name: Install Doxygen
         run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
 
       # 3. Generate Doxygen docs
       - name: Generate Doxygen Docs
+      - name: Generate Doxygen Docs
         run: doxygen Doxyfile
 
+      # 4. Prevent Jekyll processing (important for pure Doxygen HTML)
       # 4. Prevent Jekyll processing (important for pure Doxygen HTML)
       - name: Add .nojekyll
         run: touch docs/html/.nojekyll
 
+      # 5. Deploy generated docs to gh-pages branch
+      - name: Deploy to GitHub Pages
       # 5. Deploy generated docs to gh-pages branch
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
