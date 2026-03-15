@@ -263,15 +263,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
   }
 }
 
-// /** @brief Инициализация объявленных буфероа */
-// void init_buffers(void)
-// {
-//   ADC_ECG_BUF.head = ADC_ECG_BUF.tail = 0;
-//   PC_RX_BUF.head = PC_RX_BUF.tail = 0;
-//   PC_TX_BUF.head = PC_TX_BUF.tail = 0;
-//   SAMPLES_BUF.head = SAMPLES_BUF.tail = 0;
-// }
-
 /* USER CODE END 4 */
 
 /**
