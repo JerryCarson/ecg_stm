@@ -84,19 +84,21 @@ extern "C"
 
     /* USER CODE BEGIN Private defines */
 
+    /**
+     * @brief Типы данных, отправляемых на ПК.
+     * Тип данных записывается во второй байт пакета,
+     * при желании каждому типу данных можно присвоить
+     * пользовательское значение.
+     * Список можно редактировать.
+     * */
     typedef enum
     {
-        DATA_SPI_0,
-        DATA_SPI_1,
-        DATA_ADC_ECG,
-        DATA_PC_CMD,
-        DATA_PACKET_ERROR
+        DATA_SPI_0,       /**< Данные от первого внешнего ADC */
+        DATA_SPI_1,       /**< Данные от второго внешнего ADC */
+        DATA_ADC_ECG,     /**< Отсчеты сигнала ЭКГ с внутркеннего ADC */
+        DATA_PC_CMD,      /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
+        DATA_PACKET_ERROR /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
     } StreamDataType;
-    typedef enum
-    {
-        DATA_READY,
-        DATA_WAIT
-    } USBDataStatus;
 
     /*
     RINGBUFFER_DEFINE(uint8_t, RingBuffer_8, 256);
@@ -109,17 +111,16 @@ extern "C"
 #define SINE_WAVE_SAMPLES 100
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
-#define MAX_PACKET_SIZE 256
-#define ADC_BUF_SIZE 32
+#define MAX_PACKET_SIZE 256 /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
+
+#define ADC_BUF_SIZE 32 /** Задает размер DMA буфера для внутреннего АЦП */
 
     _Static_assert(MAX_PACKET_SIZE >= ADC_BUF_SIZE,
                    "Too large ADC_BUF_SIZE");
 
-#define CMD_HEADER 0xAA
+#define CMD_HEADER 0xAA /** Заголовочный байт пакетов */
 
     extern uint8_t usb_rx_buf[USB_BUF_SIZE];
-
-    extern USBDataStatus USB_Status;
 
     /* USER CODE END Private defines */
 

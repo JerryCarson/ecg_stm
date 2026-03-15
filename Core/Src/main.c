@@ -73,8 +73,6 @@ uint16_t sine_wave[SINE_WAVE_SAMPLES];
 /** @brief Буфер значений ADC1 (сигнал ЭКГ) */
 uint16_t adc_buffer[ADC_BUF_SIZE];
 
-USBDataStatus USB_Status = DATA_WAIT;
-
 /** @brief Кольцевой буфер для потока данных с ПК */
 USBStream usbStream;
 
@@ -129,6 +127,8 @@ int main(void)
   MX_USB_Device_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+
+  usbStream.head = usbStream.tail = 0;
 
   // /* Инициализация буферов: установка head и tail в 0 */
   // init_buffers();
