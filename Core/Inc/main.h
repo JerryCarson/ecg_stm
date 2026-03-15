@@ -23,34 +23,38 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+    /* Includes ------------------------------------------------------------------*/
+
 #include "stm32g4xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include "ring_buffer.h"
-/* USER CODE END Includes */
+    /* Private includes ----------------------------------------------------------*/
+    /* USER CODE BEGIN Includes */
+#include "string.h"
+    // #include "ring_buffer.h"
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+    /* USER CODE END Includes */
 
-/* USER CODE END ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+    /* USER CODE END ET */
 
-/* USER CODE END EC */
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+    /* USER CODE END EC */
 
-/* USER CODE END EM */
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+    /* USER CODE END EM */
+
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -78,18 +82,46 @@ void Error_Handler(void);
 #define DRDY_1_Pin GPIO_PIN_4
 #define DRDY_1_GPIO_Port GPIOB
 
-/* USER CODE BEGIN Private defines */
+    /* USER CODE BEGIN Private defines */
 
-// RINGBUFFER_DEFINE(uint8_t, RingBuffer_8, 256);
-// RINGBUFFER_DEFINE(uint16_t, RingBuffer_16, 256);
-// RINGBUFFER_DEFINE(uint32_t, RingBuffer_32, 1024);
+    typedef enum
+    {
+        DATA_SPI_0,
+        DATA_SPI_1,
+        DATA_ADC_ECG,
+        DATA_PC_CMD,
+        DATA_PACKET_ERROR
+    } StreamDataType;
+    typedef enum
+    {
+        DATA_READY,
+        DATA_WAIT
+    } USBDataStatus;
+
+    /*
+    RINGBUFFER_DEFINE(uint8_t, RingBuffer_8, 256);
+    RINGBUFFER_DEFINE(uint16_t, RingBuffer_16, 256);
+    RINGBUFFER_DEFINE(uint32_t, RingBuffer_32, 1024);
+    */
+
+#define USB_BUF_SIZE 1024
 
 #define SINE_WAVE_SAMPLES 100
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
+#define MAX_PACKET_SIZE 256
 #define ADC_BUF_SIZE 32
 
-/* USER CODE END Private defines */
+    _Static_assert(MAX_PACKET_SIZE >= ADC_BUF_SIZE,
+                   "Too large ADC_BUF_SIZE");
+
+#define CMD_HEADER 0xAA
+
+    extern uint8_t usb_rx_buf[USB_BUF_SIZE];
+
+    extern USBDataStatus USB_Status;
+
+    /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

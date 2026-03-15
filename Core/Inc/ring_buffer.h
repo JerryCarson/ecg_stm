@@ -3,22 +3,48 @@
 
 #include "main.h"
 
-typedef enum
-{
-    DATA_SPI_0,
-    DATA_SPI_1,
-    DATA_ADC_ECG,
-    DATA_PACKET_ERROR
-} StreamDataType;
-
 typedef struct
 {
     StreamDataType dataType;
     uint16_t length; // in bytes
-    uint8_t *data;   // pointer to buffer
+    uint8_t data[MAX_PACKET_SIZE];   // pointer to buffer
 } StreamPacket_t;
 
 void pushPacket(StreamPacket_t *packet);
+
+//TODO add this to sending logic
+// #include "usbd_cdc_if.h" // for CDC_Transmit_FS 
+
+// int sendPacketCDC(const StreamPacket_t *packet)
+// {
+//     // Packet size: header(1) + type(1) + len(2) + data + crc(1)
+//     uint16_t txLen = 1 + 1 + 2 + packet->length + 1;
+
+//     // Make sure it fits USB max packet (usually 64 bytes for full-speed)
+//     if (txLen > 256)  // adjust if you want larger buffers
+//         return -1;     // too big
+
+//     uint8_t txBuf[256];  // local buffer
+
+//     uint16_t idx = 0;
+//     txBuf[idx++] = 0xAA;                // header
+//     txBuf[idx++] = packet->dataType;    // data type
+//     txBuf[idx++] = (packet->length >> 8) & 0xFF; // MSB
+//     txBuf[idx++] = packet->length & 0xFF;        // LSB
+
+//     // Copy data bytes
+//     for (uint16_t i = 0; i < packet->length; i++)
+//         txBuf[idx++] = packet->data[i];
+
+//     // CRC8 over [data type, length MSB, length LSB, data bytes]
+//     txBuf[idx++] = crc8(&txBuf[1], 1 + 2 + packet->length);
+
+//     // Transmit via USB CDC
+//     if (CDC_Transmit_FS(txBuf, idx) != USBD_OK)
+//         return -2; // transmission failed
+
+//     return 0; // success
+// }
 
 /*
 #define RINGBUFFER_DEFINE(type, name, size)                \

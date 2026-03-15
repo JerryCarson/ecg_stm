@@ -88,6 +88,7 @@ Core/Src/syscalls.c \
 Core/Src/sysmem.c \
 Core/Src/system_stm32g4xx.c \
 Core/Src/tim.c \
+Core/Src/usb_parser.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc_ex.c \

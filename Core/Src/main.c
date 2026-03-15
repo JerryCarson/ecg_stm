@@ -30,6 +30,7 @@
 /* USER CODE BEGIN Includes */
 #include <math.h>
 #include "ring_buffer.h"
+#include "usb_parser.h"
 // #include <stdint.h>
 /* USER CODE END Includes */
 
@@ -58,17 +59,24 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void GenerateSineWave(void);
-void init_buffers(void);
+// void init_buffers(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+uint8_t usb_rx_buf[USB_BUF_SIZE];
 
 /** @brief Массив данных для генерации синуса (DAC1) */
 uint16_t sine_wave[SINE_WAVE_SAMPLES];
 
 /** @brief Буфер значений ADC1 (сигнал ЭКГ) */
 uint16_t adc_buffer[ADC_BUF_SIZE];
+
+USBDataStatus USB_Status = DATA_WAIT;
+
+/** @brief Кольцевой буфер для потока данных с ПК */
+USBStream usbStream;
 
 // /** @brief Буфер для ЭКГ-сигнала с ADC1 */
 // RingBuffer_16 ADC_ECG_BUF;
@@ -141,6 +149,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    parser_process(&usbStream); // TODO manage this
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -218,17 +228,17 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
   if (hadc->Instance == ADC1)
   {
-    // TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[0], ADC_BUF_SIZE/2);
-    static uint8_t adcPacketBuffer[ADC_BUF_SIZE];
+    // TODO Перепроверить
+    StreamPacket_t packet;
+    packet.dataType = DATA_ADC_ECG;
+    packet.length = ADC_BUF_SIZE;
+
     for (int i = 0; i < ADC_BUF_SIZE / 2; i++)
     {
-      adcPacketBuffer[i * 2] = adc_buffer[i] & 0xFF;
-      adcPacketBuffer[i * 2 + 1] = (adc_buffer[i] >> 8) & 0xFF;
+      packet.data[i * 2] = adc_buffer[i] & 0xFF;
+      packet.data[i * 2 + 1] = (adc_buffer[i] >> 8) & 0xFF;
     }
-    StreamPacket_t packet = {
-        .dataType = DATA_ADC_ECG,
-        .length = sizeof(adcPacketBuffer),
-        .data = adcPacketBuffer};
+
     pushPacket(&packet);
   }
 }
@@ -238,17 +248,17 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
   if (hadc->Instance == ADC1)
   {
-    // TODO Сделать обработку. Шаблон: process_samples(&adc_buffer[ADC_BUF_SIZE / 2], ADC_BUF_SIZE / 2);
-    static uint8_t adcPacketBuffer[ADC_BUF_SIZE];
+    // TODO Перепроверить
+    StreamPacket_t packet;
+    packet.dataType = DATA_ADC_ECG;
+    packet.length = ADC_BUF_SIZE;
+
     for (int i = 0; i < ADC_BUF_SIZE / 2; i++)
     {
-      adcPacketBuffer[i * 2] = adc_buffer[i + ADC_BUF_SIZE / 2] & 0xFF;
-      adcPacketBuffer[i * 2 + 1] = (adc_buffer[i + ADC_BUF_SIZE / 2] >> 8) & 0xFF;
+      packet.data[i * 2] = adc_buffer[i + ADC_BUF_SIZE / 2] & 0xFF;
+      packet.data[i * 2 + 1] = (adc_buffer[i + ADC_BUF_SIZE / 2] >> 8) & 0xFF;
     }
-    StreamPacket_t packet = {
-        .dataType = DATA_ADC_ECG,
-        .length = sizeof(adcPacketBuffer),
-        .data = adcPacketBuffer};
+
     pushPacket(&packet);
   }
 }

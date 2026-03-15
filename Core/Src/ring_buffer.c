@@ -1,13 +1,16 @@
 #include "ring_buffer.h"
 
-#define MAX_QUEUE 8
+#define MAX_QUEUE 16
+_Static_assert((MAX_QUEUE & (MAX_QUEUE - 1)) == 0,
+               "MAX_QUEUE must be power of two");
+
 StreamPacket_t packetQueue[MAX_QUEUE];
 volatile uint8_t queueHead = 0;
 volatile uint8_t queueTail = 0;
 
 static inline int queueFull()
 {
-    return ((queueHead + 1) % MAX_QUEUE) == queueTail;
+    return ((queueHead + 1) & (MAX_QUEUE - 1)) == queueTail;
 }
 
 static inline int queueEmpty()
@@ -17,13 +20,22 @@ static inline int queueEmpty()
 
 void pushPacket(StreamPacket_t *packet)
 {
-    if (!queueFull())
+    int full;
+    uint8_t idx;
+    __disable_irq();
+    full = queueFull();
+    if (!full)
     {
-        packetQueue[queueHead] = *packet; // shallow copy, data must persist
-        queueHead = (queueHead + 1) % MAX_QUEUE;
+        idx = queueHead;
+        queueHead = (queueHead + 1) & (MAX_QUEUE - 1);
     }
-    else
+    __enable_irq();
+
+    if (!full)
     {
-        // Queue full, drop packet or set an error flag
+        StreamPacket_t *qPacket = &packetQueue[idx];
+        qPacket->dataType = packet->dataType;
+        qPacket->length = packet->length > MAX_PACKET_SIZE ? MAX_PACKET_SIZE : packet->length;
+        memcpy(qPacket->data, packet->data, qPacket->length);
     }
 }
