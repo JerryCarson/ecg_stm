@@ -23,48 +23,50 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    /* Includes ------------------------------------------------------------------*/
-
+/* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
 
-    /* Private includes ----------------------------------------------------------*/
-    /* USER CODE BEGIN Includes */
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include "string.h"
     // #include "ring_buffer.h"
 
-    /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-    /* Exported types ------------------------------------------------------------*/
-    /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-    /* USER CODE END ET */
+/* USER CODE END ET */
 
-    /* Exported constants --------------------------------------------------------*/
-    /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-    /* USER CODE END EC */
+/* USER CODE END EC */
 
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-    /* USER CODE END EM */
+/* USER CODE END EM */
 
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
+// void start_dev1();
+// void start_dev2();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
 #define LO_M_Pin GPIO_PIN_1
 #define LO_M_GPIO_Port GPIOF
+#define LO_M_EXTI_IRQn EXTI1_IRQn
 #define LO_P_Pin GPIO_PIN_0
 #define LO_P_GPIO_Port GPIOA
+#define LO_P_EXTI_IRQn EXTI0_IRQn
 #define CS_2_Pin GPIO_PIN_6
 #define CS_2_GPIO_Port GPIOC
 #define RESET_2_Pin GPIO_PIN_8
@@ -73,6 +75,7 @@ extern "C"
 #define START_2_GPIO_Port GPIOA
 #define DRDY_2_Pin GPIO_PIN_10
 #define DRDY_2_GPIO_Port GPIOA
+#define DRDY_2_EXTI_IRQn EXTI15_10_IRQn
 #define CS_1_Pin GPIO_PIN_10
 #define CS_1_GPIO_Port GPIOC
 #define RESET_1_Pin GPIO_PIN_11
@@ -81,8 +84,9 @@ extern "C"
 #define START_1_GPIO_Port GPIOB
 #define DRDY_1_Pin GPIO_PIN_4
 #define DRDY_1_GPIO_Port GPIOB
+#define DRDY_1_EXTI_IRQn EXTI4_IRQn
 
-    /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
     /**
      * @brief Типы данных, отправляемых на ПК.
@@ -93,18 +97,28 @@ extern "C"
      * */
     typedef enum
     {
-        DATA_SPI_0,       /**< Данные от первого внешнего ADC */
-        DATA_SPI_1,       /**< Данные от второго внешнего ADC */
-        DATA_ADC_ECG,     /**< Отсчеты сигнала ЭКГ с внутркеннего ADC */
-        DATA_PC_CMD,      /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
-        DATA_PACKET_ERROR /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
+        DATA_SPI_0,        /**< Данные от первого внешнего ADC */
+        DATA_SPI_1,        /**< Данные от второго внешнего ADC */
+        DATA_ADC_ECG,      /**< Отсчеты сигнала ЭКГ с внутркеннего ADC */
+        DATA_PC_CMD,       /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
+        DATA_PACKET_ERROR, /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
+        DATA_NULL
     } StreamDataType;
+
+    typedef enum
+    {
+        SPI_SOURCE_ADC0,
+        SPI_SOURCE_ADC1,
+        SPI_SOURCE_BLANK
+    } SPI_Source;
 
     /*
     RINGBUFFER_DEFINE(uint8_t, RingBuffer_8, 256);
     RINGBUFFER_DEFINE(uint16_t, RingBuffer_16, 256);
     RINGBUFFER_DEFINE(uint32_t, RingBuffer_32, 1024);
     */
+
+#define SPI_PACKET_LEN 3
 
 #define USB_BUF_SIZE 1024
 
@@ -122,7 +136,16 @@ extern "C"
 
     extern uint8_t usb_rx_buf[USB_BUF_SIZE];
 
-    /* USER CODE END Private defines */
+    extern uint8_t SPI_Request[];
+    extern uint8_t SPI_Answer[3];
+    extern StreamDataType source;
+    extern volatile uint16_t active_cs_pin;
+    extern GPIO_TypeDef *active_cs_port;
+    extern volatile uint8_t spi_busy;
+    extern volatile uint8_t pending1;
+    extern volatile uint8_t pending2;
+
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

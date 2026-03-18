@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    stm32g4xx_it.c
-  * @brief   Interrupt Service Routines.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32g4xx_it.c
+ * @brief   Interrupt Service Routines.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -22,6 +22,7 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "ring_buffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,6 +60,7 @@ extern PCD_HandleTypeDef hpcd_USB_FS;
 extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_dac1_ch1;
 extern DMA_HandleTypeDef hdma_spi1_rx;
+extern DMA_HandleTypeDef hdma_spi1_tx;
 extern SPI_HandleTypeDef hspi1;
 /* USER CODE BEGIN EV */
 
@@ -76,7 +78,7 @@ void NMI_Handler(void)
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-   while (1)
+  while (1)
   {
   }
   /* USER CODE END NonMaskableInt_IRQn 1 */
@@ -203,6 +205,48 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles EXTI line0 interrupt.
+  */
+void EXTI0_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI0_IRQn 0 */
+
+  /* USER CODE END EXTI0_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(LO_P_Pin);
+  /* USER CODE BEGIN EXTI0_IRQn 1 */
+
+  /* USER CODE END EXTI0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI line1 interrupt.
+  */
+void EXTI1_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI1_IRQn 0 */
+
+  /* USER CODE END EXTI1_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(LO_M_Pin);
+  /* USER CODE BEGIN EXTI1_IRQn 1 */
+
+  /* USER CODE END EXTI1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI line4 interrupt.
+  */
+void EXTI4_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_IRQn 0 */
+
+  /* USER CODE END EXTI4_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(DRDY_1_Pin);
+  /* USER CODE BEGIN EXTI4_IRQn 1 */
+
+  /* USER CODE END EXTI4_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 channel1 global interrupt.
   */
 void DMA1_Channel1_IRQHandler(void)
@@ -210,7 +254,6 @@ void DMA1_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
 
   /* USER CODE END DMA1_Channel1_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_dac1_ch1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
   /* USER CODE END DMA1_Channel1_IRQn 1 */
@@ -222,9 +265,38 @@ void DMA1_Channel1_IRQHandler(void)
 void DMA1_Channel2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
+  if (DMA1->ISR & DMA_ISR_TCIF2)
+  {
+    DMA1->IFCR = DMA_IFCR_CTCIF2; // clear flag
 
+    // Release CS
+    active_cs_port->BSRR = active_cs_pin;
+
+    spi_busy = 0;
+
+    // Push received packet
+    StreamPacket_t packet;
+    packet.dataType = source;
+    packet.length = SPI_PACKET_LEN;
+    for (int i = 0; i < SPI_PACKET_LEN; i++)
+      packet.data[i] = SPI_Answer[i];
+    pushPacket(&packet);
+
+    source = SPI_SOURCE_BLANK;
+
+    // Handle pending DRDY events
+    if (pending1)
+    {
+      pending1 = 0;
+      start_device(CS_1_GPIO_Port, CS_1_Pin, SPI_SOURCE_ADC0);
+    }
+    else if (pending2)
+    {
+      pending2 = 0;
+      start_device(CS_2_GPIO_Port, CS_2_Pin, SPI_SOURCE_ADC1);
+    }
+  }
   /* USER CODE END DMA1_Channel2_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_spi1_rx);
   /* USER CODE BEGIN DMA1_Channel2_IRQn 1 */
 
   /* USER CODE END DMA1_Channel2_IRQn 1 */
@@ -236,12 +308,28 @@ void DMA1_Channel2_IRQHandler(void)
 void DMA1_Channel3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
-
+  // TX DMA usually doesn’t need processing for 3-byte transfers,
+  // but clear transfer complete flag if needed
+  if (DMA1->ISR & DMA_ISR_TCIF3) // Channel3 TX
+  {
+    DMA1->IFCR = DMA_IFCR_CTCIF3; // clear flag
   /* USER CODE END DMA1_Channel3_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
 
   /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel4 global interrupt.
+  */
+void DMA1_Channel4_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel4_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel4_IRQn 0 */
+  /* USER CODE BEGIN DMA1_Channel4_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel4_IRQn 1 */
 }
 
 /**
@@ -280,10 +368,23 @@ void SPI1_IRQHandler(void)
   /* USER CODE BEGIN SPI1_IRQn 0 */
 
   /* USER CODE END SPI1_IRQn 0 */
-  HAL_SPI_IRQHandler(&hspi1);
   /* USER CODE BEGIN SPI1_IRQn 1 */
 
   /* USER CODE END SPI1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI line[15:10] interrupts.
+  */
+void EXTI15_10_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+
+  /* USER CODE END EXTI15_10_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(DRDY_2_Pin);
+  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+
+  /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
