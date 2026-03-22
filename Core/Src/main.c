@@ -31,6 +31,7 @@
 #include <math.h>
 #include "ring_buffer.h"
 #include "usb_parser.h"
+#include "adc_handler.h"
 // #include <stdint.h>
 /* USER CODE END Includes */
 
@@ -59,6 +60,7 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void GenerateSineWave(void);
+void processAdcBatches(void);
 // void init_buffers(void);
 /* USER CODE END PFP */
 
@@ -100,9 +102,9 @@ volatile uint8_t pending2 = 0;
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -135,7 +137,9 @@ int main(void)
   MX_ADC1_Init();
   MX_USB_Device_Init();
   MX_TIM7_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
+  ADC_Handler_Init();
 
   usbStream.head = usbStream.tail = 0;
 
@@ -159,7 +163,7 @@ int main(void)
   while (1)
   {
     parser_process(&usbStream); // TODO manage this
-
+    processAdcBatches();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -168,22 +172,22 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48;
+   * in the RCC_OscInitTypeDef structure.
+   */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
@@ -200,9 +204,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -273,59 +276,97 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
   }
 }
 
-// --- Start SPI transfer using DMA channels ---
-inline void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src)
+void processAdcBatches(void)
 {
-  spi_busy = 1;
-  source = src;
-  active_cs_port = cs_port;
-  active_cs_pin = cs_pin;
+  StreamPacket_t packet;
 
-  // Pull CS low directly
-  cs_port->BSRR = (uint32_t)cs_pin << 16;
+  if (adc1_batch_size_reached)
+  {
+    adc1_batch_size_reached = false;
 
-  // Disable DMA channels
-  DMA1_Channel3->CCR &= ~DMA_CCR_EN; // TX
-  DMA1_Channel2->CCR &= ~DMA_CCR_EN; // RX
+    packet.dataType = DATA_SPI_1;
+    packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
+    {
+      uint32_t idx = (adc1_buf.tail + i) & (USB_BUFFER_ELEMENTS - 1);
+      memcpy(&packet.data[i * ADC_BYTES_PER_SAMPLE], adc1_buf.buffer[idx].data, ADC_BYTES_PER_SAMPLE);
+    }
+    // advance tail
+    adc1_buf.tail = (adc1_buf.tail + ADC_BATCH_SIZE) & (USB_BUFFER_ELEMENTS - 1);
 
-  // Configure memory address and transfer length
-  DMA1_Channel3->CMAR = (uint32_t)SPI_Request;
-  DMA1_Channel3->CNDTR = SPI_PACKET_LEN;
+    pushPacket(&packet);
+  }
 
-  DMA1_Channel2->CMAR = (uint32_t)SPI_Answer;
-  DMA1_Channel2->CNDTR = SPI_PACKET_LEN;
+  if (adc2_batch_size_reached)
+  {
+    adc2_batch_size_reached = false;
 
-  // Enable DMA channels
-  DMA1_Channel3->CCR |= DMA_CCR_EN; // TX
-  DMA1_Channel2->CCR |= DMA_CCR_EN; // RX
+    packet.dataType = DATA_SPI_2;
+    packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
+    {
+      uint32_t idx = (adc2_buf.tail + i) & (USB_BUFFER_ELEMENTS - 1);
+      memcpy(&packet.data[i * ADC_BYTES_PER_SAMPLE], adc2_buf.buffer[idx].data, ADC_BYTES_PER_SAMPLE);
+    }
+    adc2_buf.tail = (adc2_buf.tail + ADC_BATCH_SIZE) & (USB_BUFFER_ELEMENTS - 1);
 
-  // Enable SPI DMA requests
-  SPI1->CR2 |= SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN;
+    pushPacket(&packet);
+  }
 }
 
-// --- EXTI Callback for both ADC DRDY signals ---
-void EXTI4_IRQHandler(void)
-{
-  // Check and clear EXTI pending flag
-  if (EXTI->PR1 & EXTI_PR1_PIF4)
-    EXTI->PR1 = EXTI_PR1_PIF4;
+// // --- Start SPI transfer using DMA channels ---
+// inline void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src)
+// {
+//   spi_busy = 1;
+//   source = src;
+//   active_cs_port = cs_port;
+//   active_cs_pin = cs_pin;
 
-  if (spi_busy)
-    pending1 = 1; // ADC1
-  else
-    start_device(CS_1_GPIO_Port, CS_1_Pin, SPI_SOURCE_ADC0);
-}
+//   // Pull CS low directly
+//   cs_port->BSRR = (uint32_t)cs_pin << 16;
 
-void EXTI10_IRQHandler(void)
-{
-  if (EXTI->PR1 & EXTI_PR1_PIF10)
-    EXTI->PR1 = EXTI_PR1_PIF10;
+//   // Disable DMA channels
+//   DMA1_Channel3->CCR &= ~DMA_CCR_EN; // TX
+//   DMA1_Channel2->CCR &= ~DMA_CCR_EN; // RX
 
-  if (spi_busy)
-    pending2 = 1; // ADC2
-  else
-    start_device(CS_2_GPIO_Port, CS_2_Pin, SPI_SOURCE_ADC1);
-}
+//   // Configure memory address and transfer length
+//   DMA1_Channel3->CMAR = (uint32_t)SPI_Request;
+//   DMA1_Channel3->CNDTR = SPI_PACKET_LEN;
+
+//   DMA1_Channel2->CMAR = (uint32_t)SPI_Answer;
+//   DMA1_Channel2->CNDTR = SPI_PACKET_LEN;
+
+//   // Enable DMA channels
+//   DMA1_Channel3->CCR |= DMA_CCR_EN; // TX
+//   DMA1_Channel2->CCR |= DMA_CCR_EN; // RX
+
+//   // Enable SPI DMA requests
+//   SPI1->CR2 |= SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN;
+// }
+
+// // --- EXTI Callback for both ADC DRDY signals ---
+// void EXTI4_IRQHandler(void)
+// {
+//   // Check and clear EXTI pending flag
+//   if (EXTI->PR1 & EXTI_PR1_PIF4)
+//     EXTI->PR1 = EXTI_PR1_PIF4;
+
+//   if (spi_busy)
+//     pending1 = 1; // ADC1
+//   else
+//     start_device(CS_1_GPIO_Port, CS_1_Pin, SPI_SOURCE_ADC0);
+// }
+
+// void EXTI10_IRQHandler(void)
+// {
+//   if (EXTI->PR1 & EXTI_PR1_PIF10)
+//     EXTI->PR1 = EXTI_PR1_PIF10;
+
+//   if (spi_busy)
+//     pending2 = 1; // ADC2
+//   else
+//     start_device(CS_2_GPIO_Port, CS_2_Pin, SPI_SOURCE_ADC1);
+// }
 
 // // --- DMA1 Channel2 IRQ (SPI RX) ---
 // void DMA1_Channel2_IRQHandler(void)
@@ -430,9 +471,9 @@ Ensure DMA memory is aligned and SPI_PACKET_LEN <= 65535.
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -445,12 +486,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
