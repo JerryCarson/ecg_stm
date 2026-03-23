@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    stm32g4xx_it.h
-  * @brief   This file contains the headers of the interrupt handlers.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32g4xx_it.h
+ * @brief   This file contains the headers of the interrupt handlers.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -27,7 +27,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
+#include "adc_handler.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -60,14 +61,34 @@ void EXTI1_IRQHandler(void);
 void EXTI4_IRQHandler(void);
 void DMA1_Channel1_IRQHandler(void);
 void DMA1_Channel2_IRQHandler(void);
-void DMA1_Channel3_IRQHandler(void);
 void DMA1_Channel4_IRQHandler(void);
 void USB_LP_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
 void DMA2_Channel1_IRQHandler(void);
-void DMA2_Channel2_IRQHandler(void);
 /* USER CODE BEGIN EFP */
+  typedef struct
+  {
+    DMA_TypeDef *dma;
+    uint32_t teif;
+    uint32_t tcif;
 
+    DMA_Channel_TypeDef *rx;
+    DMA_Channel_TypeDef *tx;
+
+    SPI_TypeDef *spi;
+
+    GPIO_TypeDef *cs_port;
+    uint16_t cs_pin;
+
+    volatile uint32_t *error_count;
+
+    AdcRingBuffer_t *ring;
+
+    volatile uint32_t batch_count;
+    volatile bool *batch_ready_flag;
+    volatile uint8_t *spi_buf;
+
+  } adc_dma_ctx_t;
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

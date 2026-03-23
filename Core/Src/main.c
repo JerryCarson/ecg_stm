@@ -139,6 +139,10 @@ int main(void)
   MX_TIM7_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn);  // SPI1 TX - not used
+  HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn);  // SPI2 TX - not used
+
   ADC_Handler_Init();
 
   usbStream.head = usbStream.tail = 0;
@@ -288,11 +292,11 @@ void processAdcBatches(void)
     packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
     for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
     {
-      uint32_t idx = (adc1_buf.tail + i) & (USB_BUFFER_ELEMENTS - 1);
+      uint32_t idx = (adc1_buf.tail + i) & (ADC_BUFFER_ELEMENTS - 1);
       memcpy(&packet.data[i * ADC_BYTES_PER_SAMPLE], adc1_buf.buffer[idx].data, ADC_BYTES_PER_SAMPLE);
     }
     // advance tail
-    adc1_buf.tail = (adc1_buf.tail + ADC_BATCH_SIZE) & (USB_BUFFER_ELEMENTS - 1);
+    adc1_buf.tail = (adc1_buf.tail + ADC_BATCH_SIZE) & (ADC_BUFFER_ELEMENTS - 1);
 
     pushPacket(&packet);
   }
@@ -305,10 +309,10 @@ void processAdcBatches(void)
     packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
     for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
     {
-      uint32_t idx = (adc2_buf.tail + i) & (USB_BUFFER_ELEMENTS - 1);
+      uint32_t idx = (adc2_buf.tail + i) & (ADC_BUFFER_ELEMENTS - 1);
       memcpy(&packet.data[i * ADC_BYTES_PER_SAMPLE], adc2_buf.buffer[idx].data, ADC_BYTES_PER_SAMPLE);
     }
-    adc2_buf.tail = (adc2_buf.tail + ADC_BATCH_SIZE) & (USB_BUFFER_ELEMENTS - 1);
+    adc2_buf.tail = (adc2_buf.tail + ADC_BATCH_SIZE) & (ADC_BUFFER_ELEMENTS - 1);
 
     pushPacket(&packet);
   }

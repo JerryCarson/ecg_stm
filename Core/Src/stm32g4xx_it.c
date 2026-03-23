@@ -66,12 +66,25 @@ extern DMA_HandleTypeDef hdma_spi2_rx;
 extern DMA_HandleTypeDef hdma_spi2_tx;
 /* USER CODE BEGIN EV */
 
-static volatile uint32_t adc1_batch_count = 0;
-static volatile uint32_t adc2_batch_count = 0;
-static inline bool adc_push(AdcRingBuffer_t *rb, uint8_t *data)
+// static volatile uint32_t adc1_batch_count = 0;
+// static volatile uint32_t adc2_batch_count = 0;
+
+// static inline void adc1_sample_ready(void)
+// {
+//   if (!adc_push(&adc1_buf, (uint8_t *)g_spi1_buf))
+//     g_adc1_error_count++;
+// }
+
+// static inline void adc2_sample_ready(void)
+// {
+//   if (!adc_push(&adc2_buf, (uint8_t *)g_spi2_buf))
+//     g_adc2_error_count++;
+// }
+
+static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
 {
   uint32_t head = rb->head;
-  uint32_t next = (head + 1) & (USB_BUFFER_ELEMENTS - 1);
+  uint32_t next = (head + 1) & (ADC_BUFFER_ELEMENTS - 1);
 
   if (next == rb->tail)
     return false;
@@ -105,21 +118,23 @@ static inline void ADC1_DRDY_ISR(void)
   {
     (void)SPI1->DR;
     (void)SPI1->SR;
+    SPI1->CR1 &= ~SPI_CR1_SPE; // Disable SPI
+    SPI1->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
     g_adc1_error_count++;
   }
 
   /* CS LOW */
   __DMB();
-  CS_1_GPIO_Port->BSRR = (uint32_t)CS_1_Pin << 16U;
-  __DMB();
 
   /* Configure DMA */
   DMA1_Channel2->CMAR = (uint32_t)g_spi1_buf;
   DMA1_Channel2->CNDTR = 3;
-
+  __DMB();
   DMA1_Channel3->CMAR = (uint32_t)SPI_DUMMY_TX;
   DMA1_Channel3->CNDTR = 3;
-
+  __DMB();
+  CS_1_GPIO_Port->BSRR = (uint32_t)CS_1_Pin << 16U;
+  __DMB();
   /* Enable RX first */
   DMA1_Channel2->CCR |= DMA_CCR_EN;
   __DMB();
@@ -141,6 +156,8 @@ static inline void ADC2_DRDY_ISR(void)
   {
     (void)SPI2->DR;
     (void)SPI2->SR;
+    SPI2->CR1 &= ~SPI_CR1_SPE; // Disable SPI
+    SPI2->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
     g_adc2_error_count++;
   }
 
@@ -150,25 +167,123 @@ static inline void ADC2_DRDY_ISR(void)
 
   DMA2_Channel1->CMAR = (uint32_t)g_spi2_buf;
   DMA2_Channel1->CNDTR = 3;
-
+  __DMB();
   DMA2_Channel2->CMAR = (uint32_t)SPI_DUMMY_TX;
   DMA2_Channel2->CNDTR = 3;
-
+  __DMB();
   DMA2_Channel1->CCR |= DMA_CCR_EN;
   __DMB();
   DMA2_Channel2->CCR |= DMA_CCR_EN;
 }
 
-static inline void adc1_sample_ready(void)
-{
-  if (!adc_push(&adc1_buf, (uint8_t *)g_spi1_buf))
-    g_adc1_error_count++;
-}
+adc_dma_ctx_t adc1_ctx =
+    {
+        .dma = DMA1,
+        .teif = DMA_ISR_TEIF2,
+        .tcif = DMA_ISR_TCIF2,
 
-static inline void adc2_sample_ready(void)
+        .rx = DMA1_Channel2,
+        .tx = DMA1_Channel3,
+
+        .spi = SPI1,
+
+        .cs_port = CS_1_GPIO_Port,
+        .cs_pin = CS_1_Pin,
+
+        .error_count = &g_adc1_error_count,
+
+        .ring = &adc1_buf,
+
+        .batch_count = 0,
+        .batch_ready_flag = &adc1_batch_size_reached,
+        .spi_buf = g_spi1_buf};
+
+adc_dma_ctx_t adc2_ctx =
+    {
+        .dma = DMA2,
+        .teif = DMA_ISR_TEIF1,
+        .tcif = DMA_ISR_TCIF1,
+
+        .rx = DMA2_Channel1,
+        .tx = DMA2_Channel2,
+
+        .spi = SPI2,
+
+        .cs_port = CS_2_GPIO_Port,
+        .cs_pin = CS_2_Pin,
+
+        .error_count = &g_adc2_error_count,
+
+        .ring = &adc2_buf,
+
+        .batch_count = 0,
+        .batch_ready_flag = &adc2_batch_size_reached,
+        .spi_buf = g_spi2_buf};
+
+static inline void adc_dma_isr(adc_dma_ctx_t *ctx) // TODO clear TX channels flags, Fix CS/DMA ordering
 {
-  if (!adc_push(&adc2_buf, (uint8_t *)g_spi2_buf))
-    g_adc2_error_count++;
+  uint32_t isr = ctx->dma->ISR;
+
+  /* --- Transfer Error --- */
+  if (isr & ctx->teif)
+  {
+    ctx->dma->IFCR = ctx->teif;
+
+    ctx->tx->CCR &= ~DMA_CCR_EN;
+    ctx->rx->CCR &= ~DMA_CCR_EN;
+
+    if (ctx->spi->SR & SPI_SR_OVR)
+    {
+      (void)ctx->spi->DR;
+      (void)ctx->spi->SR;
+      ctx->spi->CR1 &= ~SPI_CR1_SPE; // Disable SPI
+      ctx->spi->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
+    }
+
+    (*ctx->error_count)++;
+    return;
+  }
+
+  /* --- Transfer Complete --- */
+  if (isr & ctx->tcif)
+  {
+    ctx->dma->IFCR = ctx->tcif;
+
+    /* Wait until SPI fully finished */
+    uint32_t timeout = 1000;
+    while ((ctx->spi->SR & SPI_SR_BSY) && --timeout)
+      ;
+    if (!timeout)
+    {
+      (*ctx->error_count)++;
+      return;
+    }
+    __DMB();
+
+    /* Stop DMA safely */
+    ctx->rx->CCR &= ~DMA_CCR_EN;
+    ctx->tx->CCR &= ~DMA_CCR_EN;
+
+    ctx->cs_port->BSRR = ctx->cs_pin; // release ADC ASAP
+    __DMB();
+
+    (void)ctx->spi->DR;
+    (void)ctx->spi->SR;
+
+    /* Push sample */
+    if (!adc_push(ctx->ring, ctx->spi_buf))
+    {
+      (*ctx->error_count)++;
+    }
+
+    /* Batch logic */
+    ctx->batch_count++;
+    if (ctx->batch_count >= ADC_BATCH_SIZE)
+    {
+      *(ctx->batch_ready_flag) = true;
+      ctx->batch_count = 0;
+    }
+  }
 }
 /* USER CODE END EV */
 
@@ -373,17 +488,20 @@ void DMA1_Channel1_IRQHandler(void)
 void DMA1_Channel2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
+  adc_dma_isr(&adc1_ctx);
+
+  /*
   uint32_t isr = DMA1->ISR;
 
   if (isr & DMA_ISR_TEIF2)
   {
     DMA1->IFCR = DMA_IFCR_CTEIF2;
 
-    /* Force clean state */
+    // Force clean state
     DMA1_Channel3->CCR &= ~DMA_CCR_EN;
     DMA1_Channel2->CCR &= ~DMA_CCR_EN;
 
-    /* Optional: clear SPI in case of corruption */
+    // Optional: clear SPI in case of corruption
     if (SPI1->SR & SPI_SR_OVR)
     {
       (void)SPI1->DR;
@@ -398,25 +516,25 @@ void DMA1_Channel2_IRQHandler(void)
   {
     DMA1->IFCR = DMA_IFCR_CTCIF2;
 
-    /* Ensure SPI finished */
+    // Ensure SPI finished
     while (SPI1->SR & SPI_SR_BSY)
       ;
+    __DSB();
 
-    /* Disable DMA: TX first */
-    DMA1_Channel3->CCR &= ~DMA_CCR_EN;
+    // Disable DMA: TX first
     DMA1_Channel2->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel3->CCR &= ~DMA_CCR_EN;
 
-    /* CS HIGH */
-    __DMB();
-    CS_1_GPIO_Port->BSRR = CS_1_Pin;
-
-    /* OVR protection */
     if (SPI1->SR & SPI_SR_OVR)
     {
-      (void)SPI1->DR;
-      (void)SPI1->SR;
       g_adc1_error_count++;
     }
+    (void)SPI1->DR;
+    (void)SPI1->SR;
+
+    // CS HIGH
+    __DMB();
+    CS_1_GPIO_Port->BSRR = CS_1_Pin;
 
     adc1_sample_ready();
     adc1_batch_count++;
@@ -426,28 +544,12 @@ void DMA1_Channel2_IRQHandler(void)
       adc1_batch_count = 0; // reset counter
     }
   }
+  */
+
   /* USER CODE END DMA1_Channel2_IRQn 0 */
   /* USER CODE BEGIN DMA1_Channel2_IRQn 1 */
 
   /* USER CODE END DMA1_Channel2_IRQn 1 */
-}
-
-/**
- * @brief This function handles DMA1 channel3 global interrupt.
- */
-void DMA1_Channel3_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
-  // TX DMA usually doesn’t need processing for 3-byte transfers,
-  // but clear transfer complete flag if needed
-  if (DMA1->ISR & DMA_ISR_TCIF3) // Channel3 TX
-  {
-    DMA1->IFCR = DMA_IFCR_CTCIF3; // clear flag
-  }
-  /* USER CODE END DMA1_Channel3_IRQn 0 */
-  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel3_IRQn 1 */
 }
 
 /**
@@ -500,18 +602,21 @@ void EXTI15_10_IRQHandler(void)
 void DMA2_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Channel1_IRQn 0 */
+
+  adc_dma_isr(&adc2_ctx);
+  /*
   uint32_t isr = DMA2->ISR;
 
-  /* --- Transfer Error (must be handled first) --- */
+  // --- Transfer Error (must be handled first) ---
   if (isr & DMA_ISR_TEIF1)
   {
     DMA2->IFCR = DMA_IFCR_CTEIF1;
 
-    /* Force clean state */
+    // Force clean state
     DMA2_Channel2->CCR &= ~DMA_CCR_EN;
     DMA2_Channel1->CCR &= ~DMA_CCR_EN;
 
-    /* Optional: clear SPI in case of corruption */
+    // Optional: clear SPI in case of corruption
     if (SPI2->SR & SPI_SR_OVR)
     {
       (void)SPI2->DR;
@@ -522,24 +627,24 @@ void DMA2_Channel1_IRQHandler(void)
     return;
   }
 
-  /* --- Transfer Complete --- */
+  // --- Transfer Complete ---
   if (isr & DMA_ISR_TCIF1)
   {
     DMA2->IFCR = DMA_IFCR_CTCIF1;
 
-    /* Ensure last bit fully shifted out */
+    // Ensure last bit fully shifted out
     while (SPI2->SR & SPI_SR_BSY)
       ;
 
-    /* Disable DMA: TX first, then RX */
+    // Disable DMA: TX first, then RX
     DMA2_Channel2->CCR &= ~DMA_CCR_EN;
     DMA2_Channel1->CCR &= ~DMA_CCR_EN;
 
-    /* CS HIGH */
+    // CS HIGH
     __DMB();
     CS_2_GPIO_Port->BSRR = CS_2_Pin;
 
-    /* Overrun protection (rare but critical) */
+    // Overrun protection (rare but critical)
     if (SPI2->SR & SPI_SR_OVR)
     {
       (void)SPI2->DR;
@@ -547,7 +652,7 @@ void DMA2_Channel1_IRQHandler(void)
       g_adc2_error_count++;
     }
 
-    /* Push sample */
+    // Push sample
     adc2_sample_ready();
     adc2_batch_count++;
     if (adc2_batch_count >= ADC_BATCH_SIZE)
@@ -556,23 +661,12 @@ void DMA2_Channel1_IRQHandler(void)
       adc2_batch_count = 0;
     }
   }
+  */
+
   /* USER CODE END DMA2_Channel1_IRQn 0 */
   /* USER CODE BEGIN DMA2_Channel1_IRQn 1 */
 
   /* USER CODE END DMA2_Channel1_IRQn 1 */
-}
-
-/**
- * @brief This function handles DMA2 channel2 global interrupt.
- */
-void DMA2_Channel2_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Channel2_IRQn 0 */
-
-  /* USER CODE END DMA2_Channel2_IRQn 0 */
-  /* USER CODE BEGIN DMA2_Channel2_IRQn 1 */
-
-  /* USER CODE END DMA2_Channel2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

@@ -18,7 +18,7 @@
 
 // typedef struct
 // {
-//    AdcPair_t buffer[USB_BUFFER_ELEMENTS];
+//    AdcPair_t buffer[ADC_BUFFER_ELEMENTS];
 //    volatile uint32_t head;
 //    volatile uint32_t tail;
 // } UsbADCRingBuffer_t;
@@ -26,10 +26,10 @@
 #define ADC_BYTES_PER_SAMPLE 3 // 24-bit
 #define ADC_PAIR_BYTES (ADC_BYTES_PER_SAMPLE * 2U)
 #define ADC_BATCH_SIZE 16       // Send 16 pairs per USB packet
-#define USB_BUFFER_ELEMENTS 256 // Ring buffer size (pairs)
+#define ADC_BUFFER_ELEMENTS 256 // Ring buffer size (pairs)
 
-_Static_assert((USB_BUFFER_ELEMENTS & (USB_BUFFER_ELEMENTS - 1)) == 0,
-               "USB_BUFFER_ELEMENTS must be power of two");
+_Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1)) == 0,
+               "ADC_BUFFER_ELEMENTS must be power of two");
 
 typedef struct
 {
@@ -38,7 +38,7 @@ typedef struct
 
 typedef struct
 {
-   AdcSample_t buffer[USB_BUFFER_ELEMENTS];
+   volatile AdcSample_t buffer[ADC_BUFFER_ELEMENTS];
    volatile uint32_t head;
    volatile uint32_t tail;
 } AdcRingBuffer_t;
@@ -52,8 +52,8 @@ extern volatile bool adc1_batch_size_reached;
 extern volatile bool adc2_batch_size_reached;
 
 
-extern volatile uint8_t g_spi1_buf[3];
-extern volatile uint8_t g_spi2_buf[3];
+extern volatile uint8_t g_spi1_buf[];
+extern volatile uint8_t g_spi2_buf[];
 extern const uint8_t SPI_DUMMY_TX[];
 
 extern AdcRingBuffer_t adc1_buf;

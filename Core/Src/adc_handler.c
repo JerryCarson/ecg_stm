@@ -15,8 +15,8 @@ volatile bool adc2_batch_size_reached = false;
 //TODO 3-byte DMA buffer alignment is dangerous
 // volatile uint8_t g_spi1_buf[4] __attribute__((aligned(4)));
 // and ignore last byte.
-volatile uint8_t g_spi1_buf[3] __attribute__((aligned(4)));
-volatile uint8_t g_spi2_buf[3] __attribute__((aligned(4)));
+volatile uint8_t g_spi1_buf[4] __attribute__((aligned(4)));
+volatile uint8_t g_spi2_buf[4] __attribute__((aligned(4)));
 const uint8_t SPI_DUMMY_TX[] = {0x00, 0x00, 0x00};
 volatile uint32_t g_adc1_error_count = 0;
 volatile uint32_t g_adc2_error_count = 0;
@@ -59,7 +59,7 @@ void ADC_Handler_Init(void)
 //     }
 //     else
 //     {
-//         return USB_BUFFER_ELEMENTS - (tail - head);
+//         return ADC_BUFFER_ELEMENTS - (tail - head);
 //     }
 // }
 
@@ -67,7 +67,7 @@ void ADC_Handler_Init(void)
 
 // bool EXT_ADC_Buffer_Push(AdcPair_t *data)
 // {
-//     uint32_t next_head = (g_usb_ring_buffer.head + 1) & (USB_BUFFER_ELEMENTS - 1);
+//     uint32_t next_head = (g_usb_ring_buffer.head + 1) & (ADC_BUFFER_ELEMENTS - 1);
 
 //     if (next_head == g_usb_ring_buffer.tail)
 //     {
@@ -91,7 +91,7 @@ void ADC_Handler_Init(void)
 
 //     *data = g_usb_ring_buffer.buffer[g_usb_ring_buffer.tail];
 //     __DMB(); // Memory Barrier
-//     g_usb_ring_buffer.tail = (g_usb_ring_buffer.tail + 1) & (USB_BUFFER_ELEMENTS - 1);
+//     g_usb_ring_buffer.tail = (g_usb_ring_buffer.tail + 1) & (ADC_BUFFER_ELEMENTS - 1);
 
 //     return true;
 // }
