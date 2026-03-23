@@ -27,8 +27,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdbool.h>
-#include "adc_handler.h"
+// #include <stdbool.h>
+// #include "adc_handler.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -66,29 +66,7 @@ void USB_LP_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
 void DMA2_Channel1_IRQHandler(void);
 /* USER CODE BEGIN EFP */
-  typedef struct
-  {
-    DMA_TypeDef *dma;
-    uint32_t teif;
-    uint32_t tcif;
 
-    DMA_Channel_TypeDef *rx;
-    DMA_Channel_TypeDef *tx;
-
-    SPI_TypeDef *spi;
-
-    GPIO_TypeDef *cs_port;
-    uint16_t cs_pin;
-
-    volatile uint32_t *error_count;
-
-    AdcRingBuffer_t *ring;
-
-    volatile uint32_t batch_count;
-    volatile bool *batch_ready_flag;
-    volatile uint8_t *spi_buf;
-
-  } adc_dma_ctx_t;
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

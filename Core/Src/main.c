@@ -140,8 +140,8 @@ int main(void)
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn);  // SPI1 TX - not used
-  HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn);  // SPI2 TX - not used
+  HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn); // SPI1 TX - not used
+  HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn); // SPI2 TX - not used
 
   ADC_Handler_Init();
 
@@ -287,6 +287,7 @@ void processAdcBatches(void)
   if (adc1_batch_size_reached)
   {
     adc1_batch_size_reached = false;
+    __DMB();
 
     packet.dataType = DATA_SPI_1;
     packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
@@ -304,6 +305,7 @@ void processAdcBatches(void)
   if (adc2_batch_size_reached)
   {
     adc2_batch_size_reached = false;
+    __DMB();
 
     packet.dataType = DATA_SPI_2;
     packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
@@ -317,160 +319,6 @@ void processAdcBatches(void)
     pushPacket(&packet);
   }
 }
-
-// // --- Start SPI transfer using DMA channels ---
-// inline void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src)
-// {
-//   spi_busy = 1;
-//   source = src;
-//   active_cs_port = cs_port;
-//   active_cs_pin = cs_pin;
-
-//   // Pull CS low directly
-//   cs_port->BSRR = (uint32_t)cs_pin << 16;
-
-//   // Disable DMA channels
-//   DMA1_Channel3->CCR &= ~DMA_CCR_EN; // TX
-//   DMA1_Channel2->CCR &= ~DMA_CCR_EN; // RX
-
-//   // Configure memory address and transfer length
-//   DMA1_Channel3->CMAR = (uint32_t)SPI_Request;
-//   DMA1_Channel3->CNDTR = SPI_PACKET_LEN;
-
-//   DMA1_Channel2->CMAR = (uint32_t)SPI_Answer;
-//   DMA1_Channel2->CNDTR = SPI_PACKET_LEN;
-
-//   // Enable DMA channels
-//   DMA1_Channel3->CCR |= DMA_CCR_EN; // TX
-//   DMA1_Channel2->CCR |= DMA_CCR_EN; // RX
-
-//   // Enable SPI DMA requests
-//   SPI1->CR2 |= SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN;
-// }
-
-// // --- EXTI Callback for both ADC DRDY signals ---
-// void EXTI4_IRQHandler(void)
-// {
-//   // Check and clear EXTI pending flag
-//   if (EXTI->PR1 & EXTI_PR1_PIF4)
-//     EXTI->PR1 = EXTI_PR1_PIF4;
-
-//   if (spi_busy)
-//     pending1 = 1; // ADC1
-//   else
-//     start_device(CS_1_GPIO_Port, CS_1_Pin, SPI_SOURCE_ADC0);
-// }
-
-// void EXTI10_IRQHandler(void)
-// {
-//   if (EXTI->PR1 & EXTI_PR1_PIF10)
-//     EXTI->PR1 = EXTI_PR1_PIF10;
-
-//   if (spi_busy)
-//     pending2 = 1; // ADC2
-//   else
-//     start_device(CS_2_GPIO_Port, CS_2_Pin, SPI_SOURCE_ADC1);
-// }
-
-// // --- DMA1 Channel2 IRQ (SPI RX) ---
-// void DMA1_Channel2_IRQHandler(void)
-// {
-//   if (DMA1->ISR & DMA_ISR_TCIF2)
-//   {
-//     DMA1->IFCR = DMA_IFCR_CTCIF2; // clear flag
-
-//     // Release CS
-//     active_cs_port->BSRR = active_cs_pin;
-
-//     spi_busy = 0;
-
-//     // Push received packet
-//     StreamPacket_t packet;
-//     packet.dataType = source;
-//     packet.length = SPI_PACKET_LEN;
-//     for (int i = 0; i < SPI_PACKET_LEN; i++)
-//       packet.data[i] = SPI_Answer[i];
-//     pushPacket(&packet);
-
-//     source = SPI_SOURCE_BLANK;
-
-//     // Handle pending DRDY events
-//     if (pending1)
-//     {
-//       pending1 = 0;
-//       start_device(CS_1_GPIO_Port, CS_1_Pin, SPI_SOURCE_ADC0);
-//     }
-//     else if (pending2)
-//     {
-//       pending2 = 0;
-//       start_device(CS_2_GPIO_Port, CS_2_Pin, SPI_SOURCE_ADC1);
-//     }
-//   }
-// }
-
-/*TODO
-Make source volatile.
-
-Consider checking TXE before releasing CS (optional).
-
-Ensure pushPacket() is ISR-safe.
-
-Think about multi-event handling if ADCs fire very fast.
-
-Ensure DMA memory is aligned and SPI_PACKET_LEN <= 65535.
-
-*/
-
-// void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-// {
-//   if (spi_busy)
-//   {
-//     if (GPIO_Pin == DRDY_1_Pin)
-//       pending1 = 1;
-//     else if (GPIO_Pin == DRDY_2_Pin)
-//       pending2 = 1;
-//     return;
-//   }
-
-//   if (GPIO_Pin == DRDY_1_Pin)
-//   {
-//     start_dev1();
-//   }
-//   else if (GPIO_Pin == DRDY_2_Pin)
-//   {
-//     start_dev2();
-//   }
-// }
-
-// void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
-// {
-//   HAL_GPIO_WritePin(active_cs_port, active_cs_pin, SET);
-
-//   spi_busy = 0;
-
-//   if (source != DATA_NULL)
-//   {
-//     StreamPacket_t packet;
-//     packet.dataType = source;
-//     packet.length = 3;
-//     for (int i = 0; i < 3; i++)
-//     {
-//       packet.data[i] = SPI_Answer[i];
-//     }
-//     pushPacket(&packet);
-//   }
-//   source = DATA_NULL;
-//   if (pending1)
-//   {
-//     pending1 = 0;
-//     start_dev1();
-//   }
-//   else if (pending2)
-//   {
-//     pending2 = 0;
-//     start_dev2();
-//   }
-// }
 
 /* USER CODE END 4 */
 
