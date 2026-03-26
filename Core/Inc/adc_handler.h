@@ -1,3 +1,20 @@
+/**
+ * @file adc_handler.h
+ * @brief Обработчик работы с внешними 24-битными АЦП ADS127L21 через SPI с использованием DMA.
+ *
+ * Данный модуль реализует:
+ * - Обработку прерываний DRDY от АЦП;
+ * - Работа с кольцевым буфером для хранения данных;
+ * - Настройку и работу DMA для SPI с низкой задержкой;
+ * - Логику формирования батчей данных для передачи по USB.
+ *
+ * Рассчитан на высокую скорость и низкую задержку.
+ *
+ * @note Для корректной работы предполагается, что все периферийные модули
+ * и прерывания настроены через STM32CubeMX.
+ */
+
+
 #ifndef ADC_HANDLER_H
 #define ADC_HANDLER_H
 
@@ -60,10 +77,10 @@ typedef struct adc_dma_context_t
 extern adc_dma_context_t adc1_ctx;
 extern adc_dma_context_t adc2_ctx;
 
-extern volatile uint32_t g_adc_error_count;
+// extern volatile uint32_t g_adc_error_count;
 extern volatile uint32_t g_adc1_error_count;
 extern volatile uint32_t g_adc2_error_count;
-extern volatile bool batch_size_reached;
+// extern volatile bool batch_size_reached;
 extern volatile bool adc1_batch_size_reached;
 extern volatile bool adc2_batch_size_reached;
 
