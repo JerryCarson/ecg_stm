@@ -29,6 +29,7 @@
 #define ADC_PAIR_BYTES (ADC_BYTES_PER_SAMPLE * 2U)
 #define ADC_BATCH_SIZE 50       // Send 50 pairs per USB packet
 #define ADC_BUFFER_ELEMENTS 256 // Ring buffer size (pairs)
+#define ADC_SETUP_REGS_COUNT 15
 
 _Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1)) == 0,
                "ADC_BUFFER_ELEMENTS must be power of two");
@@ -95,6 +96,7 @@ extern AdcRingBuffer_t adc1_buf;
 extern AdcRingBuffer_t adc2_buf;
 
 void ADC_Handler_Init(void);
+void ADC_setup(adc_dma_context_t *ctx);
 
 static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
 {
@@ -139,9 +141,7 @@ static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
       ctx->error_count++;
    }
 
-   /* CS LOW */
    __DMB();
-
    /* Configure DMA */
    ctx->rx->CMAR = (uint32_t)ctx->spi_buf;
    ctx->rx->CNDTR = 3;

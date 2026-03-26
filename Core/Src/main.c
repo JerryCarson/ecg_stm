@@ -150,6 +150,9 @@ int main(void)
   HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn); // SPI1 TX - not used
   HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn); // SPI2 TX - not used
 
+  ADC_setup(&adc1_ctx);
+  ADC_setup(&adc2_ctx);//TODO дописать управление пинами START
+
   ADC_Handler_Init();
 
   usbStream.head = usbStream.tail = 0;
@@ -174,7 +177,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    parser_process(&usbStream); // TODO manage this
+    parser_process(&usbStream); 
     processAdcBatches();
     USB_stream_data();
     if (Latches.INTERNAL_DAC_LOCK)
@@ -288,7 +291,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
   if ((hadc->Instance == ADC1) && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))
   {
-    // TODO Перепроверить
+    // TODO Перепроверить, возможно схлопнуть в один колбэк
     StreamPacket_t packet;
     packet.dataType = DATA_ADC_ECG;
     packet.length = ADC_BUF_SIZE;

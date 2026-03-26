@@ -1,6 +1,6 @@
 #include "cmd_handler.h"
 
-const CommandEntry cmd_table[CMD_TABLE_SIZE] = {
+const CommandEntry cmd_table[CMD_TABLE_SIZE] = { //TODO дописать комадну для переконфигурирования ADC
     {RESET_LATCHES, reset_latches},
     {STOP_ALL_ANALOG, stop_all},
     {EXT_ADC_RST_CFG, EXT_ADC_RST_RECONFIG},
@@ -26,7 +26,7 @@ void reset_latches(Peripheral_latch_set *l)
 
 void EXT_ADC_RST_RECONFIG(Peripheral_latch_set *l) {}
 
-void stop_all(Peripheral_latch_set *l)
+void stop_all(Peripheral_latch_set *l) //TODO дописать управление пинами START
 {
     l->EXTERNAL_ADC_I_LOCK = 1;
     l->EXTERNAL_ADC_II_LOCK = 1;

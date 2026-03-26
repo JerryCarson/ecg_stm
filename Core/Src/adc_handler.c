@@ -94,3 +94,63 @@ void ADC_Handler_Init(void)
     CS_1_GPIO_Port->BSRR = (uint32_t)CS_1_Pin;
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
+
+uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] = {0x0000, 0x0000}; //TODO  заполнить регистры
+
+void ADC_setup(adc_dma_context_t *ctx) //TODO выяснить какие пины надо поднять и опустить для зашивки
+{
+    static uint8_t tx_buf[2];   // TX buffer for 1 register
+    static uint8_t rx_dummy[2]; // dummy RX buffer
+
+    // Disable EXTI interrupts to prevent DRDY ISR firing
+    if (ctx == &adc1_ctx)
+        NVIC_DisableIRQ(EXTI4_IRQn);
+    else if (ctx == &adc2_ctx)
+        NVIC_DisableIRQ(EXTI15_10_IRQn);
+
+    // Stop DMA channels if running
+    // ctx->rx->CCR &= ~DMA_CCR_EN;
+    // ctx->tx->CCR &= ~DMA_CCR_EN;
+
+    for (uint16_t i = 0; i < ADC_SETUP_REGS_COUNT; i++)
+    {
+        // Disable DMA channels
+        ctx->rx->CCR &= ~DMA_CCR_EN;
+        ctx->tx->CCR &= ~DMA_CCR_EN;
+
+        // Split 16-bit register into MSB/LSB
+        tx_buf[0] = (ADC_setup_regs[i] >> 8) & 0xFF;
+        tx_buf[1] = ADC_setup_regs[i] & 0xFF;
+
+        // Set DMA addresses and counts for this 2-byte transfer
+        ctx->tx->CMAR = (uint32_t)tx_buf;
+        ctx->tx->CNDTR = 2;
+
+        ctx->rx->CMAR = (uint32_t)rx_dummy;
+        ctx->rx->CNDTR = 2;
+
+        // Pull CS LOW for this register
+        ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
+
+        // Enable DMA channels
+        ctx->rx->CCR |= DMA_CCR_EN;
+        ctx->tx->CCR |= DMA_CCR_EN;
+
+        // Wait until TX DMA finishes
+        while (!(ctx->dma->ISR & ctx->tcif_tx_ch))
+            ;
+
+        // Pull CS HIGH
+        ctx->cs_port->BSRR = ctx->cs_pin;
+
+        // Clear DMA flags
+        ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
+                         ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
+    }
+
+    // Re-enable EXTI interrupts
+    if (ctx == &adc1_ctx)
+        NVIC_EnableIRQ(EXTI4_IRQn);
+    else if (ctx == &adc2_ctx)
+        NVIC_EnableIRQ(EXTI15_10_IRQn);
+}

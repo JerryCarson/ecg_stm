@@ -78,6 +78,7 @@ C_SOURCES =  \
 Core/Src/adc.c \
 Core/Src/adc_handler.c \
 Core/Src/cmd_handler.c \
+Core/Src/crc.c \
 Core/Src/dac.c \
 Core/Src/dma.c \
 Core/Src/gpio.c \
@@ -95,6 +96,8 @@ Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc_ex.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c \
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_crc.c \
+Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_crc_ex.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dac.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dac_ex.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma.c \

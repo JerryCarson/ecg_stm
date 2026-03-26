@@ -47,20 +47,20 @@ inline uint16_t stream_write(USBStream *s, const uint8_t *data, uint16_t len)
     return len;
 }
 
-static uint8_t crc8_update(uint8_t crc, uint8_t data)
-{
-    crc ^= data;
+// static uint8_t crc8_update(uint8_t crc, uint8_t data)
+// {
+//     crc ^= data;
 
-    for (uint8_t i = 0; i < 8; i++)
-    {
-        if (crc & 0x80)
-            crc = (crc << 1) ^ 0x07;
-        else
-            crc <<= 1;
-    }
+//     for (uint8_t i = 0; i < 8; i++)
+//     {
+//         if (crc & 0x80)
+//             crc = (crc << 1) ^ 0x07;
+//         else
+//             crc <<= 1;
+//     }
 
-    return crc;
-}
+//     return crc;
+// }
 
 void USB_stream_data()
 {
@@ -83,12 +83,21 @@ void USB_stream_data()
             buf[HEADER_SIZE + i] = pkt->data[i];
         }
         uint16_t total = HEADER_SIZE + pkt->length + CRC_SIZE - 1;
-        uint8_t crc = 0;
+
+        CRC->CR = CRC_CR_RESET;
 
         for (uint16_t i = 0; i < total; i++)
         {
-            crc = crc8_update(crc, buf[i]); // TODO use hardware CRC calc
+            *(volatile uint8_t *)&CRC->DR = buf[i];
         }
+
+        uint8_t crc = (uint8_t)CRC->DR;
+
+        // uint8_t crc = 0;
+        // for (uint16_t i = 0; i < total; i++)
+        // {
+        //     crc = crc8_update(crc, buf[i]); // TODO use hardware CRC calc
+        // }
 
         buf[HEADER_SIZE + pkt->length] = crc;
 
@@ -137,12 +146,21 @@ void parser_process(USBStream *s)
             return; // wait for full packet
         }
 
-        uint8_t crc = 0;
+        // uint8_t crc = 0;
+
+        // for (uint16_t i = 0; i < packet_size - 1; i++)
+        // {
+        //     crc = crc8_update(crc, stream_peek(s, i)); // TODO use hardware CRC calc
+        // }
+
+        CRC->CR = CRC_CR_RESET;
 
         for (uint16_t i = 0; i < packet_size - 1; i++)
         {
-            crc = crc8_update(crc, stream_peek(s, i)); // TODO use hardware CRC calc
+            *(volatile uint8_t *)&CRC->DR = stream_peek(s, i);
         }
+
+        uint8_t crc = (uint8_t)CRC->DR;
 
         uint8_t received_crc = stream_peek(s, packet_size - 1);
 
@@ -154,7 +172,6 @@ void parser_process(USBStream *s)
                 payload[i] = stream_peek(s, HEADER_SIZE + i);
             }
             process_command(payload, len);
-            // process_command(payload, len); TODO add func
 
             stream_consume(s, packet_size);
         }
