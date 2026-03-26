@@ -4,27 +4,6 @@
 #include "main.h"
 #include "string.h"
 
-// typedef enum
-// {
-//     STATE_WAIT_HEADER,
-//     STATE_WAIT_DATA_TYPE,
-//     STATE_WAIT_LEN0,
-//     STATE_WAIT_LEN1,
-//     STATE_WAIT_DATA,
-//     STATE_WAIT_CRC
-// } USBData_ParseState;
-
-// extern uint8_t flag;
-// extern uint32_t expected_len;
-// extern uint8_t tm_buf[8];
-// extern uint8_t payload[MAX_PAYLOAD];
-
-// uint8_t crc8_calc(uint8_t *data, uint32_t len);
-
-// void parse_usb_data(uint8_t byte);
-
-/*=================================================================*/
-
 /** @brief  Определение типа указателя на функцию, используется для создания таблицы команд.*/
 typedef void (*cmd_handler_t)(uint8_t *payload, uint16_t len);
 

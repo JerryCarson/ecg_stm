@@ -31,6 +31,7 @@
 #include <math.h>
 #include "ring_buffer.h"
 #include "usb_parser.h"
+#include "adc_handler.h"
 // #include <stdint.h>
 /* USER CODE END Includes */
 
@@ -59,6 +60,7 @@
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void GenerateSineWave(void);
+void processAdcBatches(void);
 // void init_buffers(void);
 /* USER CODE END PFP */
 
@@ -75,6 +77,15 @@ uint16_t adc_buffer[ADC_BUF_SIZE];
 
 /** @brief Кольцевой буфер для потока данных с ПК */
 USBStream usbStream;
+
+uint8_t SPI_Request[] = {0x00, 0x00, 0x00};
+uint8_t SPI_Answer[3];
+StreamDataType source = DATA_NULL;
+volatile uint16_t active_cs_pin;
+GPIO_TypeDef *active_cs_port;
+volatile uint8_t spi_busy = 0;
+volatile uint8_t pending1 = 0;
+volatile uint8_t pending2 = 0;
 
 // /** @brief Буфер для ЭКГ-сигнала с ADC1 */
 // RingBuffer_16 ADC_ECG_BUF;
@@ -126,7 +137,13 @@ int main(void)
   MX_ADC1_Init();
   MX_USB_Device_Init();
   MX_TIM7_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn); // SPI1 TX - not used
+  HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn); // SPI2 TX - not used
+
+  ADC_Handler_Init();
 
   usbStream.head = usbStream.tail = 0;
 
@@ -150,7 +167,7 @@ int main(void)
   while (1)
   {
     parser_process(&usbStream); // TODO manage this
-
+    processAdcBatches();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -258,6 +275,46 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
       packet.data[i * 2] = adc_buffer[i + ADC_BUF_SIZE / 2] & 0xFF;
       packet.data[i * 2 + 1] = (adc_buffer[i + ADC_BUF_SIZE / 2] >> 8) & 0xFF;
     }
+
+    pushPacket(&packet);
+  }
+}
+
+void processAdcBatches(void)
+{
+  StreamPacket_t packet;
+
+  if (adc1_batch_size_reached)
+  {
+    adc1_batch_size_reached = false;
+    __DMB();
+
+    packet.dataType = DATA_SPI_1;
+    packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
+    {
+      uint32_t idx = (adc1_buf.tail + i) & (ADC_BUFFER_ELEMENTS - 1);
+      memcpy(&packet.data[i * ADC_BYTES_PER_SAMPLE], adc1_buf.buffer[idx].data, ADC_BYTES_PER_SAMPLE);
+    }
+    // advance tail
+    adc1_buf.tail = (adc1_buf.tail + ADC_BATCH_SIZE) & (ADC_BUFFER_ELEMENTS - 1);
+
+    pushPacket(&packet);
+  }
+
+  if (adc2_batch_size_reached)
+  {
+    adc2_batch_size_reached = false;
+    __DMB();
+
+    packet.dataType = DATA_SPI_2;
+    packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
+    {
+      uint32_t idx = (adc2_buf.tail + i) & (ADC_BUFFER_ELEMENTS - 1);
+      memcpy(&packet.data[i * ADC_BYTES_PER_SAMPLE], adc2_buf.buffer[idx].data, ADC_BYTES_PER_SAMPLE);
+    }
+    adc2_buf.tail = (adc2_buf.tail + ADC_BATCH_SIZE) & (ADC_BUFFER_ELEMENTS - 1);
 
     pushPacket(&packet);
   }

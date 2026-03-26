@@ -76,6 +76,7 @@ endif
 # C sources
 C_SOURCES =  \
 Core/Src/adc.c \
+Core/Src/adc_handler.c \
 Core/Src/dac.c \
 Core/Src/dma.c \
 Core/Src/gpio.c \
