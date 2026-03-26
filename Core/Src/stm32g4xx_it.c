@@ -212,7 +212,18 @@ void SysTick_Handler(void)
 void EXTI0_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI0_IRQn 0 */
-
+  if (EXTI->PR1 & EXTI_PR1_PIF0) // TODO спросить и сделать нормально
+  {
+    EXTI->PR1 = EXTI_PR1_PIF0;
+    if ((!HAL_GPIO_ReadPin(LO_M_GPIO_Port, LO_M_Pin)) && (!HAL_GPIO_ReadPin(LO_P_GPIO_Port, LO_P_Pin)))
+    {
+      Latches.LO_DISRUPTED = 1;
+    }
+    else
+    {
+      Latches.LO_DISRUPTED = 0;
+    }
+  }
   /* USER CODE END EXTI0_IRQn 0 */
   /* USER CODE BEGIN EXTI0_IRQn 1 */
 
@@ -225,7 +236,18 @@ void EXTI0_IRQHandler(void)
 void EXTI1_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI1_IRQn 0 */
-
+  if (EXTI->PR1 & EXTI_PR1_PIF1)
+  {
+    EXTI->PR1 = EXTI_PR1_PIF1;
+    if ((!HAL_GPIO_ReadPin(LO_M_GPIO_Port, LO_M_Pin)) && (!HAL_GPIO_ReadPin(LO_P_GPIO_Port, LO_P_Pin)))
+    {
+      Latches.LO_DISRUPTED = 1;
+    }
+    else
+    {
+      Latches.LO_DISRUPTED = 0;
+    }
+  }
   /* USER CODE END EXTI1_IRQn 0 */
   /* USER CODE BEGIN EXTI1_IRQn 1 */
 
@@ -242,7 +264,10 @@ void EXTI4_IRQHandler(void)
   {
     EXTI->PR1 = EXTI_PR1_PIF4;
     __DSB();
-    ADC_DRDY_ISR(&adc1_ctx);
+    if ((!Latches.EXTERNAL_ADC_I_LOCK))
+    {
+      ADC_DRDY_ISR(&adc1_ctx);
+    }
   }
   /* USER CODE END EXTI4_IRQn 0 */
   /* USER CODE BEGIN EXTI4_IRQn 1 */
@@ -313,7 +338,10 @@ void EXTI15_10_IRQHandler(void)
   {
     EXTI->PR1 = EXTI_PR1_PIF10;
     __DSB();
-    ADC_DRDY_ISR(&adc2_ctx);
+    if ((!Latches.EXTERNAL_ADC_II_LOCK))
+    {
+      ADC_DRDY_ISR(&adc2_ctx);
+    }
   }
   /* USER CODE END EXTI15_10_IRQn 0 */
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */

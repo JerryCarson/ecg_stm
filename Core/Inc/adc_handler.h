@@ -27,11 +27,14 @@
 
 #define ADC_BYTES_PER_SAMPLE 3 // 24-bit
 #define ADC_PAIR_BYTES (ADC_BYTES_PER_SAMPLE * 2U)
-#define ADC_BATCH_SIZE 16       // Send 16 pairs per USB packet
+#define ADC_BATCH_SIZE 50       // Send 50 pairs per USB packet
 #define ADC_BUFFER_ELEMENTS 256 // Ring buffer size (pairs)
 
 _Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1)) == 0,
                "ADC_BUFFER_ELEMENTS must be power of two");
+
+_Static_assert(ADC_BATCH_SIZE < MAX_PACKET_SIZE,
+               "ADC_BATCH_SIZE must fit in StreamPacket_t max packet size");
 
 typedef struct
 {
@@ -113,7 +116,7 @@ static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
 }
 
 static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
-{
+{ 
    /* Check if DMA still active */
    if (ctx->rx->CCR & DMA_CCR_EN)
    {

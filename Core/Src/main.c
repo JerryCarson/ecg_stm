@@ -32,6 +32,7 @@
 #include "ring_buffer.h"
 #include "usb_parser.h"
 #include "adc_handler.h"
+#include "cmd_handler.h"
 // #include <stdint.h>
 /* USER CODE END Includes */
 
@@ -84,8 +85,11 @@ StreamDataType source = DATA_NULL;
 volatile uint16_t active_cs_pin;
 GPIO_TypeDef *active_cs_port;
 volatile uint8_t spi_busy = 0;
-volatile uint8_t pending1 = 0;
-volatile uint8_t pending2 = 0;
+
+bool dac_running;
+bool adc_running;
+
+Peripheral_latch_set Latches;
 
 // /** @brief Буфер для ЭКГ-сигнала с ADC1 */
 // RingBuffer_16 ADC_ECG_BUF;
@@ -139,6 +143,7 @@ int main(void)
   MX_TIM7_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
+  reset_latches(&Latches);
 
   HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn); // SPI1 TX - not used
   HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn); // SPI2 TX - not used
@@ -154,12 +159,13 @@ int main(void)
   HAL_TIM_Base_Start(&htim6);
   HAL_TIM_Base_Start(&htim7);
 
-  /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
+  /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */ // TODO перепроверить таймеры
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
 
   /* Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
   HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
-
+  dac_running = true;
+  adc_running = true;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -168,6 +174,40 @@ int main(void)
   {
     parser_process(&usbStream); // TODO manage this
     processAdcBatches();
+    USB_stream_data();
+    if (Latches.INTERNAL_DAC_LOCK)
+    {
+      if (dac_running)
+      {
+        HAL_TIM_Base_Stop(&htim6);
+        dac_running = false;
+      }
+    }
+    else
+    {
+      if (!dac_running)
+      {
+        HAL_TIM_Base_Start(&htim6);
+        dac_running = true;
+      }
+    }
+
+    if (Latches.INTERNAL_ADC_LOCK)
+    {
+      if (adc_running)
+      {
+        HAL_TIM_Base_Stop(&htim7);
+        adc_running = false;
+      }
+    }
+    else
+    {
+      if (!adc_running)
+      {
+        HAL_TIM_Base_Start(&htim7);
+        adc_running = true;
+      }
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -243,7 +283,7 @@ void GenerateSineWave(void)
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении первой половины буфера*/
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if (hadc->Instance == ADC1)
+  if ((hadc->Instance == ADC1) && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))
   {
     // TODO Перепроверить
     StreamPacket_t packet;
@@ -263,7 +303,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении второй половины буфера*/
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if (hadc->Instance == ADC1)
+  if ((hadc->Instance == ADC1) && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))
   {
     // TODO Перепроверить
     StreamPacket_t packet;

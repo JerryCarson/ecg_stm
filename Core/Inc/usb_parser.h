@@ -4,9 +4,6 @@
 #include "main.h"
 #include "string.h"
 
-/** @brief  Определение типа указателя на функцию, используется для создания таблицы команд.*/
-typedef void (*cmd_handler_t)(uint8_t *payload, uint16_t len);
-
 #define PARSER_BUFFER_SIZE 512 /**< Размер кольцевого буфера с которым работает парсер команд от ПК (в байтах). */
 #define MAX_PAYLOAD 256        /**< Максимальный допустимый размер данных в пакете (в байтах). */
 
@@ -37,6 +34,7 @@ typedef struct
  * @param s Указатель на кольцевой буфер \ref usbStream, с которым работает парсер.
  * */
 void parser_process(USBStream *s);
+void USB_stream_data();
 
 /**
  * @brief Функция записи данных в кольцевой буфер \ref usbStream.

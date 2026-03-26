@@ -22,7 +22,8 @@ typedef struct
 
 /** @brief Добавляет в кольцевой буфер полученный пакет данных */
 void pushPacket(StreamPacket_t *packet);
-
+StreamPacket_t *peekPacket(void);
+void consumePacket(void);
 // TODO add this to sending logic
 //  #include "usbd_cdc_if.h" // for CDC_Transmit_FS
 

@@ -1,4 +1,7 @@
 #include "usb_parser.h"
+#include "cmd_handler.h"
+#include "ring_buffer.h"
+#include "usbd_cdc_if.h"
 
 static inline uint16_t stream_available(USBStream *s)
 {
@@ -59,6 +62,43 @@ static uint8_t crc8_update(uint8_t crc, uint8_t data)
     return crc;
 }
 
+void USB_stream_data()
+{
+    StreamPacket_t *pkt = peekPacket();
+    __DMB();
+    if (pkt)
+    {
+        if (pkt->length > MAX_PACKET_SIZE)
+        {
+            consumePacket();
+            return;
+        }
+        static uint8_t buf[MAX_PACKET_SIZE + HEADER_SIZE + CRC_SIZE];
+        buf[0] = CMD_HEADER;
+        buf[1] = pkt->dataType;
+        buf[2] = (pkt->length) >> 8;
+        buf[3] = (pkt->length) & 0xFF;
+        for (size_t i = 0; i < pkt->length; i++)
+        {
+            buf[HEADER_SIZE + i] = pkt->data[i];
+        }
+        uint16_t total = HEADER_SIZE + pkt->length + CRC_SIZE - 1;
+        uint8_t crc = 0;
+
+        for (uint16_t i = 0; i < total; i++)
+        {
+            crc = crc8_update(crc, buf[i]); // TODO use hardware CRC calc
+        }
+
+        buf[HEADER_SIZE + pkt->length] = crc;
+
+        if (CDC_Transmit_FS(buf, pkt->length + HEADER_SIZE + CRC_SIZE) == USBD_OK)
+        {
+            consumePacket();
+        }
+    }
+}
+
 void parser_process(USBStream *s)
 {
     if (!s)
@@ -101,7 +141,7 @@ void parser_process(USBStream *s)
 
         for (uint16_t i = 0; i < packet_size - 1; i++)
         {
-            crc = crc8_update(crc, stream_peek(s, i));
+            crc = crc8_update(crc, stream_peek(s, i)); // TODO use hardware CRC calc
         }
 
         uint8_t received_crc = stream_peek(s, packet_size - 1);
@@ -113,7 +153,7 @@ void parser_process(USBStream *s)
             {
                 payload[i] = stream_peek(s, HEADER_SIZE + i);
             }
-
+            process_command(payload, len);
             // process_command(payload, len); TODO add func
 
             stream_consume(s, packet_size);
