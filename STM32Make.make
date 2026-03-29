@@ -75,15 +75,16 @@ endif
 ######################################
 # C sources
 C_SOURCES =  \
+Core/Src/Modules/adc_handler.c \
+Core/Src/Modules/cmd_handler.c \
+Core/Src/Modules/ring_buffer.c \
+Core/Src/Modules/usb_parser.c \
 Core/Src/adc.c \
-Core/Src/adc_handler.c \
-Core/Src/cmd_handler.c \
 Core/Src/crc.c \
 Core/Src/dac.c \
 Core/Src/dma.c \
 Core/Src/gpio.c \
 Core/Src/main.c \
-Core/Src/ring_buffer.c \
 Core/Src/spi.c \
 Core/Src/stm32g4xx_hal_msp.c \
 Core/Src/stm32g4xx_it.c \
@@ -91,7 +92,6 @@ Core/Src/syscalls.c \
 Core/Src/sysmem.c \
 Core/Src/system_stm32g4xx.c \
 Core/Src/tim.c \
-Core/Src/usb_parser.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc.c \
 Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_adc_ex.c \
@@ -220,6 +220,7 @@ AS_INCLUDES = \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
+-ICore/Inc/Modules \
 -IDrivers/CMSIS/Device/ST/STM32G4xx/Include \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32G4xx_HAL_Driver/Inc \

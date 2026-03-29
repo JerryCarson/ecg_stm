@@ -92,3 +92,5 @@ venv/
 !Makefile
 !*.ld
 !startup*.s
+
+docs/
