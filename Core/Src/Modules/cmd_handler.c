@@ -24,6 +24,16 @@ void reset_latches(Peripheral_latch_set *l)
     l->LO_DISRUPTED = 0;
 }
 
+void set_latches(Peripheral_latch_set *l)
+{
+    l->EXTERNAL_ADC_I_LOCK = 1;
+    l->EXTERNAL_ADC_II_LOCK = 1;
+    l->INTERNAL_ADC_LOCK = 1;
+    l->INTERNAL_DAC_LOCK = 1;
+    l->LO_SIGLNAL_USAGE_LOCK = 1;
+    l->LO_DISRUPTED = 1;
+}
+
 void EXT_ADC_RST_RECONFIG(Peripheral_latch_set *l) {}
 
 void stop_all(Peripheral_latch_set *l) //TODO дописать управление пинами START

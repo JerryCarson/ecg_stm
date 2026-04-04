@@ -29,6 +29,7 @@ typedef struct
 
 void stop_all(Peripheral_latch_set *l);
 void reset_latches(Peripheral_latch_set *l);
+void set_latches(Peripheral_latch_set *l);
 void EXT_ADC_RST_RECONFIG(Peripheral_latch_set *l);
 void enable_internal_DAC(Peripheral_latch_set *l);
 void enable_both_external_ADC(Peripheral_latch_set *l);

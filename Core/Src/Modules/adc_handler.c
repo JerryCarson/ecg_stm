@@ -95,9 +95,9 @@ void ADC_Handler_Init(void)
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
 
-uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] = {0x0000, 0x0000}; //TODO  заполнить регистры
+uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] = {0x0000, 0x0000}; // TODO  заполнить регистры
 
-void ADC_setup(adc_dma_context_t *ctx) //TODO выяснить какие пины надо поднять и опустить для зашивки
+void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пины надо поднять и опустить для зашивки
 {
     static uint8_t tx_buf[2];   // TX buffer for 1 register
     static uint8_t rx_dummy[2]; // dummy RX buffer
@@ -137,6 +137,7 @@ void ADC_setup(adc_dma_context_t *ctx) //TODO выяснить какие пин
         ctx->tx->CCR |= DMA_CCR_EN;
 
         // Wait until TX DMA finishes
+        uint8_t timeout = 10;
         while (!(ctx->dma->ISR & ctx->tcif_tx_ch))
             ;
 
