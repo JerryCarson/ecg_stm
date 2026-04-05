@@ -1,6 +1,7 @@
 #include "main.h"
 #include "adc_handler.h"
 #include <stdbool.h>
+// #include "stm32g4xx_dmamux.h"
 
 volatile bool adc1_batch_size_reached = false;
 volatile bool adc2_batch_size_reached = false;
@@ -87,6 +88,15 @@ void ADC_Handler_Init(void)
     SPI1->CR1 |= SPI_CR1_SPE;
     SPI2->CR1 |= SPI_CR1_SPE;
 
+    // Force G4 SPI FIFO thresholds to match 8-bit DMA transfers
+    // SPI1->CR2 |= SPI_CR2_FRXTH; // RX threshold = 1/4 full (8-bit)
+    // SPI1->CR2 &= ~(0x3U << 4);  // TX threshold = 1/4 full (8-bit)
+    // SPI1->CR2 |= SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN;
+
+    // SPI2->CR2 |= SPI_CR2_FRXTH;
+    // SPI2->CR2 &= ~(0x3U << 4);
+    // SPI2->CR2 |= SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN;
+
     SPI1->CR2 |= SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN;
     SPI2->CR2 |= SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN;
 
@@ -95,7 +105,7 @@ void ADC_Handler_Init(void)
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
 
-uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] = {0x0000, 0x0000}; // TODO  заполнить регистры
+uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] = {0xAABB, 0xCCDD}; // TODO  заполнить регистры
 
 void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пины надо поднять и опустить для зашивки
 {
@@ -109,15 +119,18 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         NVIC_DisableIRQ(EXTI15_10_IRQn);
 
     // Stop DMA channels if running
-    // ctx->rx->CCR &= ~DMA_CCR_EN;
-    // ctx->tx->CCR &= ~DMA_CCR_EN;
+    ctx->rx->CCR &= ~DMA_CCR_EN;
+    ctx->tx->CCR &= ~DMA_CCR_EN;
 
     for (uint16_t i = 0; i < ADC_SETUP_REGS_COUNT; i++)
     {
         // Disable DMA channels
         ctx->rx->CCR &= ~DMA_CCR_EN;
         ctx->tx->CCR &= ~DMA_CCR_EN;
-
+        __DSB();
+        ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+        ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
+        __DSB();
         // Split 16-bit register into MSB/LSB
         tx_buf[0] = (ADC_setup_regs[i] >> 8) & 0xFF;
         tx_buf[1] = ADC_setup_regs[i] & 0xFF;
@@ -125,29 +138,53 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         // Set DMA addresses and counts for this 2-byte transfer
         ctx->tx->CMAR = (uint32_t)tx_buf;
         ctx->tx->CNDTR = 2;
-
+        __DSB();
         ctx->rx->CMAR = (uint32_t)rx_dummy;
         ctx->rx->CNDTR = 2;
+        __DSB();
+        // 4️⃣ Clear pending DMA flags
+        ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
+                         ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
+
+        // Clear SPI flags properly (read, don't write)
+        (void)ctx->spi->SR;
+        (void)ctx->spi->DR; // Flush any stale data
 
         // Pull CS LOW for this register
         ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
-
+        __DSB();
         // Enable DMA channels
         ctx->rx->CCR |= DMA_CCR_EN;
         ctx->tx->CCR |= DMA_CCR_EN;
 
-        // Wait until TX DMA finishes
-        uint8_t timeout = 10;
-        while (!(ctx->dma->ISR & ctx->tcif_tx_ch))
+        // *(volatile uint8_t *)&ctx->spi->DR = 0x00;
+
+        while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
+            ;
+
+        // 2️⃣ Wait for SPI transmit buffer/FIFO to empty (TXE)
+        // timeout = 10000;
+        while (!(ctx->spi->SR & SPI_SR_TXE))
+            ;
+
+        while ((ctx->spi->SR & SPI_SR_BSY))
             ;
 
         // Pull CS HIGH
         ctx->cs_port->BSRR = ctx->cs_pin;
 
+        volatile uint16_t tx_left = ctx->tx->CNDTR;
+        volatile uint16_t rx_left = ctx->rx->CNDTR;
+        volatile uint32_t dma_isr = ctx->dma->ISR;
+        volatile uint32_t te_mask = (ctx == &adc1_ctx) ? (DMA_ISR_TEIF3 | DMA_ISR_TEIF1) : (DMA_ISR_TEIF2 | DMA_ISR_TEIF1);
+
         // Clear DMA flags
         ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
                          ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
     }
+
+    ctx->rx->CCR &= ~DMA_CCR_EN;
+    ctx->tx->CCR &= ~DMA_CCR_EN;
 
     // Re-enable EXTI interrupts
     if (ctx == &adc1_ctx)

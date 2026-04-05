@@ -139,10 +139,9 @@ int main(void)
   MX_DAC1_Init();
   MX_SPI1_Init();
   MX_TIM6_Init();
-  MX_TIM7_Init();
   MX_ADC1_Init();
-  // MX_USB_Device_Init();
-
+  MX_USB_Device_Init();
+  MX_TIM7_Init();
   MX_SPI2_Init();
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
@@ -153,8 +152,21 @@ int main(void)
 
   ADC_Handler_Init();
 
+  // uint8_t SPI_Request[3] = {0xAA, 0xBB, 0xCC}; // TODO заполнить запросами для настройки ADC
+
+  // HAL_GPIO_WritePin(CS_1_GPIO_Port, CS_1_Pin, GPIO_PIN_RESET);
+  // HAL_SPI_Transmit_DMA(&hspi1, SPI_Request, sizeof(SPI_Request));
+  // while (HAL_SPI_GetState(&hspi1) == HAL_SPI_STATE_BUSY_TX)
+  // {
+  //   __NOP();
+  // }
+  // HAL_GPIO_WritePin(CS_1_GPIO_Port, CS_1_Pin, GPIO_PIN_SET);
+
   ADC_setup(&adc1_ctx);
   ADC_setup(&adc2_ctx); // TODO дописать управление пинами START
+
+  ADC_setup(&adc1_ctx);
+  ADC_setup(&adc2_ctx);
 
   read_ecg_only(&Latches);
 
