@@ -107,9 +107,9 @@ Peripheral_latch_set Latches;
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
@@ -145,6 +145,7 @@ int main(void)
   MX_SPI2_Init();
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
+
   // reset_latches(&Latches);
 
   HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn); // SPI1 TX - not used
@@ -165,10 +166,10 @@ int main(void)
   ADC_setup(&adc1_ctx);
   ADC_setup(&adc2_ctx); // TODO дописать управление пинами START
 
-  ADC_setup(&adc1_ctx);
-  ADC_setup(&adc2_ctx);
+  // ADC_setup(&adc1_ctx);
+  // ADC_setup(&adc2_ctx);
 
-  read_ecg_only(&Latches);
+  // read_ecg_only(&Latches);
 
   usbStream.head = usbStream.tail = 0;
 
@@ -178,6 +179,7 @@ int main(void)
   /* Старт таймера TIM6 для DAC (генерация синуса) и TIM7 для ADC (чтение сигнала ЭКГ)  */
   HAL_TIM_Base_Start(&htim6);
   HAL_TIM_Base_Start(&htim7);
+  enable_external_ADC_I(&Latches);
 
   /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */ // TODO перепроверить таймеры
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
@@ -242,22 +244,22 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-   */
+  */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
@@ -274,8 +276,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -309,8 +312,16 @@ void GenerateSineWave(void)
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении первой половины буфера*/
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if ((hadc->Instance == ADC1) && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))
+  if ((hadc->Instance == ADC1)) /* && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK))) */
   {
+    if (Latches.LO_DISRUPTED)
+    {
+      if (!Latches.LO_SIGLNAL_USAGE_LOCK)
+      {
+        return;
+      }
+      
+    }
     // TODO Перепроверить, возможно схлопнуть в один колбэк
     StreamPacket_t packet;
     packet.dataType = DATA_ADC_ECG;
@@ -389,9 +400,9 @@ void processAdcBatches(void)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -404,12 +415,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

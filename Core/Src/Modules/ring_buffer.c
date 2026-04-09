@@ -1,6 +1,6 @@
 #include "ring_buffer.h"
 
-#define MAX_QUEUE 32
+#define MAX_QUEUE 128
 _Static_assert((MAX_QUEUE & (MAX_QUEUE - 1)) == 0,
                "MAX_QUEUE must be power of two");
 

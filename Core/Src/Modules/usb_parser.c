@@ -7,6 +7,7 @@ static inline uint16_t stream_available(USBStream *s)
 {
     uint16_t head = s->head;
     uint16_t tail = s->tail;
+    __DSB();
     if (head >= tail)
         return head - tail;
 
@@ -15,34 +16,48 @@ static inline uint16_t stream_available(USBStream *s)
 
 static inline uint8_t stream_peek(USBStream *s, uint16_t offset)
 {
+    __DMB();
     return s->buffer[(s->tail + offset) & (PARSER_BUFFER_SIZE - 1)];
 }
 
 static inline void stream_consume(USBStream *s, uint16_t count)
 {
+    __DSB();
     s->tail = (s->tail + count) & (PARSER_BUFFER_SIZE - 1);
 }
 
 inline uint16_t stream_write(USBStream *s, const uint8_t *data, uint16_t len)
 {
-    uint16_t free;
+    // ⚠️ Cache volatile reads ONCE at start
+    uint16_t head = s->head;
+    uint16_t tail = s->tail;
 
-    if (s->head >= s->tail)
-        free = PARSER_BUFFER_SIZE - (s->head - s->tail) - 1;
+    // Calculate free space using cached values only
+    uint16_t free;
+    if (head >= tail)
+        free = PARSER_BUFFER_SIZE - (head - tail) - 1;
     else
-        free = s->tail - s->head - 1;
+        free = tail - head - 1;
 
     if (len > free)
         len = free;
 
-    uint16_t first = PARSER_BUFFER_SIZE - s->head;
+    if (len == 0)
+        return 0; // Buffer full
+
+    // Write data to buffer (wrap-around safe)
+    uint16_t first = PARSER_BUFFER_SIZE - head;
     if (first > len)
         first = len;
 
-    memcpy(&s->buffer[s->head], data, first);
+    memcpy(&s->buffer[head], data, first);
     memcpy(&s->buffer[0], data + first, len - first);
 
-    s->head = (s->head + len) & (PARSER_BUFFER_SIZE - 1);
+    // ⚠️ Memory barrier: ensure buffer writes complete BEFORE head update becomes visible
+    __DMB();
+
+    // Update head (this is the ONLY writer of head)
+    s->head = (head + len) & (PARSER_BUFFER_SIZE - 1);
 
     return len;
 }
@@ -88,7 +103,7 @@ void USB_stream_data()
 
         for (uint16_t i = 0; i < total; i++)
         {
-            *(volatile uint8_t *)&CRC->DR = buf[i];
+            *(volatile uint8_t *)&CRC->DR = buf[i]; //TODO ИСПРАВИТЬ CRC!!!
         }
 
         uint8_t crc = (uint8_t)CRC->DR;
@@ -153,16 +168,34 @@ void parser_process(USBStream *s)
         //     crc = crc8_update(crc, stream_peek(s, i)); // TODO use hardware CRC calc
         // }
 
-        CRC->CR = CRC_CR_RESET;
+        /* 1. Set POLYSIZE to 8-bit
+   RM0440: 8-bit mode = 10b at bits 4:3
+   Your header: CRC_CR_POLYSIZE_1 = (0x2UL << 3) = 0x10 */
+        CRC->CR = (CRC->CR & ~CRC_CR_POLYSIZE_Msk) | CRC_CR_POLYSIZE_1;
+
+        /* 2. Configure CRC-8 parameters (adjust to your protocol spec) */
+        CRC->POL = 0x07;     // Polynomial
+        CRC->INIT = 0x00;    // Initial CRC value
+        // CRC->XOR = 0x00; // Final XOR (CMSIS names it XORDATA, not XOR)
+
+        CRC->CR |= CRC_CR_RESET;
+        __DSB();
+        __ISB();
+
+        // 2. Wait for hardware to clear the reset bit (safe practice)
+        while (CRC->CR & CRC_CR_RESET)
+            ;
 
         for (uint16_t i = 0; i < packet_size - 1; i++)
         {
-            *(volatile uint8_t *)&CRC->DR = stream_peek(s, i);
+            *(__IO uint8_t *)&CRC->DR = stream_peek(s, i);
         }
 
         uint8_t crc = (uint8_t)CRC->DR;
 
         uint8_t received_crc = stream_peek(s, packet_size - 1);
+
+        volatile uint16_t sa = stream_available(s);
 
         if (crc == received_crc)
         {
@@ -177,8 +210,9 @@ void parser_process(USBStream *s)
         }
         else
         {
-            // stream_consume(s, 1);
-            while (stream_available(s) > 0 && stream_peek(s, 0) != CMD_HEADER)
+            stream_consume(s, 1);
+
+            while ((stream_available(s) > 0) && (stream_peek(s, 0) != CMD_HEADER))
             {
                 stream_consume(s, 1);
             }

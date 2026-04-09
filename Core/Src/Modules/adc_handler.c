@@ -11,7 +11,7 @@ volatile bool adc2_batch_size_reached = false;
 //  and ignore last byte.
 volatile uint8_t g_spi1_buf[4] __attribute__((aligned(4)));
 volatile uint8_t g_spi2_buf[4] __attribute__((aligned(4)));
-const uint8_t SPI_DUMMY_TX[] = {0x00, 0x00, 0x00, 0x00};
+const uint8_t SPI_DUMMY_TX[] = {0xBB, 0x00, 0x00, 0xAA}; //TODO поменять на все нули
 volatile uint32_t g_adc1_error_count = 0;
 volatile uint32_t g_adc2_error_count = 0;
 
@@ -173,10 +173,10 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         // Pull CS HIGH
         ctx->cs_port->BSRR = ctx->cs_pin;
 
-        volatile uint16_t tx_left = ctx->tx->CNDTR;
-        volatile uint16_t rx_left = ctx->rx->CNDTR;
-        volatile uint32_t dma_isr = ctx->dma->ISR;
-        volatile uint32_t te_mask = (ctx == &adc1_ctx) ? (DMA_ISR_TEIF3 | DMA_ISR_TEIF1) : (DMA_ISR_TEIF2 | DMA_ISR_TEIF1);
+        // volatile uint16_t tx_left = ctx->tx->CNDTR;
+        // volatile uint16_t rx_left = ctx->rx->CNDTR;
+        // volatile uint32_t dma_isr = ctx->dma->ISR;
+        // volatile uint32_t te_mask = (ctx == &adc1_ctx) ? (DMA_ISR_TEIF3 | DMA_ISR_TEIF1) : (DMA_ISR_TEIF2 | DMA_ISR_TEIF1);
 
         // Clear DMA flags
         ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |

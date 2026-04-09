@@ -48,7 +48,7 @@
  * @def ADC_SETUP_REGS_COUNT
  * @brief Количество регистров настройки внешнего ADC
  */
-#define ADC_SETUP_REGS_COUNT 2 //TODO выставить 15
+#define ADC_SETUP_REGS_COUNT 2 // TODO выставить 15
 
 _Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1)) == 0,
                "ADC_BUFFER_ELEMENTS must be power of two");
@@ -234,21 +234,28 @@ static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
       return;
    }
 
+   ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+   ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
+   __DSB();
+
    /* Clear DMA flags */
    ctx->dma->IFCR =
        ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch |
        ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch;
 
    /* Optional: clear SPI state */
-   if (ctx->spi->SR & SPI_SR_OVR)
-   {
-      (void)ctx->spi->DR;
-      (void)ctx->spi->SR;
-      ctx->spi->CR1 &= ~SPI_CR1_SPE; // Disable SPI
-      ctx->spi->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
-      ctx->error_count++;
-   }
+   // if (ctx->spi->SR & SPI_SR_OVR) //TODO Проверить что из этого работает
+   // {
+   //    (void)ctx->spi->DR;
+   //    (void)ctx->spi->SR;
+   //    ctx->spi->CR1 &= ~SPI_CR1_SPE; // Disable SPI
+   //    ctx->spi->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
+   //    ctx->error_count++;
+   // }
 
+   // Clear SPI flags properly (read, don't write)
+   (void)ctx->spi->SR;
+   (void)ctx->spi->DR; // Flush any stale data
    __DMB();
    /* Configure DMA */
    ctx->rx->CMAR = (uint32_t)ctx->spi_buf;
@@ -261,7 +268,7 @@ static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
    __DMB();
    /* Enable RX first */
    ctx->rx->CCR |= DMA_CCR_EN;
-   __DMB();
+   // __DMB(); //TODO кажется это не нужно
    ctx->tx->CCR |= DMA_CCR_EN;
 }
 
