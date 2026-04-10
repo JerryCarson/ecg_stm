@@ -94,3 +94,5 @@ venv/
 !startup*.s
 
 docs/
+
+.stm32env

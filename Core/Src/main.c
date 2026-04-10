@@ -123,7 +123,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  GenerateSineWave();
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -152,6 +152,7 @@ int main(void)
   HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn); // SPI2 TX - not used
 
   ADC_Handler_Init();
+  Latches.INTERNAL_DAC_LOCK = 0;
 
   // uint8_t SPI_Request[3] = {0xAA, 0xBB, 0xCC}; // TODO заполнить запросами для настройки ADC
 
@@ -320,7 +321,6 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
       {
         return;
       }
-      
     }
     // TODO Перепроверить, возможно схлопнуть в один колбэк
     StreamPacket_t packet;
