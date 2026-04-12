@@ -2,7 +2,7 @@
 #define CMD_HANDLER_H
 
 #include "main.h"
-#define CMD_TABLE_SIZE 10
+#define CMD_TABLE_SIZE 11
 
 typedef enum
 {
@@ -15,7 +15,8 @@ typedef enum
     READ_ECG_ONLY,
     IGNORE_LO_DISRUPT,
     DISIGNORE_LO_DISRUPT,
-    RESET_LATCHES
+    RESET_LATCHES,
+    TEST_SEND_SPI_DATA
 } CommandID;
 
 /** @brief  Определение типа указателя на функцию, используется для создания таблицы команд.*/
@@ -38,6 +39,7 @@ void enable_external_ADC_II(Peripheral_latch_set *l);
 void read_ecg_only(Peripheral_latch_set *l);
 void ignore_LO_disrupt(Peripheral_latch_set *l);
 void disignore_LO_disrupt(Peripheral_latch_set *l);
+void test_send_spi_data(Peripheral_latch_set *l);
 
 void process_command(uint8_t *payload, uint16_t len);
 

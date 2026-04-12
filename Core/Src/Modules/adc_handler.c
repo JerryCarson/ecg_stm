@@ -11,7 +11,7 @@ volatile bool adc2_batch_size_reached = false;
 //  and ignore last byte.
 volatile uint8_t g_spi1_buf[4] __attribute__((aligned(4)));
 volatile uint8_t g_spi2_buf[4] __attribute__((aligned(4)));
-const uint8_t SPI_DUMMY_TX[] = {0xBB, 0x00, 0x00, 0xAA}; //TODO поменять на все нули
+const uint8_t SPI_DUMMY_TX[] = {0xBB, 0x00, 0x00, 0xAA}; // TODO поменять на все нули
 volatile uint32_t g_adc1_error_count = 0;
 volatile uint32_t g_adc2_error_count = 0;
 
@@ -103,6 +103,67 @@ void ADC_Handler_Init(void)
     /* Set CS Pins High (Inactive) */
     CS_1_GPIO_Port->BSRR = (uint32_t)CS_1_Pin;
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
+}
+
+void SPI_DMA_TX_RX_3_bytes(adc_dma_context_t *ctx, uint8_t *tx_buf, uint8_t *rx_buf, bool uses_rx_cplt_interrupt)
+{
+    // This function is not used in the current code, but can be called to perform a single 3-byte SPI transfer using DMA.
+    // It configures the DMA channels for a 3-byte transfer, starts the transfer, and waits for completion.
+
+    /* Check if DMA still active */
+    if ((ctx->rx->CCR & DMA_CCR_EN) & (ctx->tx->CCR & DMA_CCR_EN))
+    {
+        ctx->error_count++;
+        return;
+    }
+
+    // Disable DMA channels
+    ctx->rx->CCR &= ~DMA_CCR_EN;
+    ctx->tx->CCR &= ~DMA_CCR_EN;
+    __DSB();
+    ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+    ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
+    __DSB();
+    ctx->tx->CMAR = (uint32_t)tx_buf; // Memory address of TX buffer
+    ctx->tx->CNDTR = 3;               // Number of bytes to transfer
+    __DSB();
+    ctx->rx->CMAR = (uint32_t)rx_buf; // Memory address of RX buffer
+    ctx->rx->CNDTR = 3;               // Number of bytes to transfer
+    __DSB();
+
+    // Clear pending DMA flags
+    ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
+                     ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
+
+    // Pull CS LOW
+    ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
+    __DSB();
+
+    // Enable DMA channels
+    ctx->rx->CCR |= DMA_CCR_EN;
+    ctx->tx->CCR |= DMA_CCR_EN;
+
+    if (uses_rx_cplt_interrupt)
+    {
+        // If using RX complete interrupt, just return and let the ISR handle the rest
+        return;
+    }
+
+    while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
+        ;
+
+    while ((ctx->spi->SR & SPI_SR_BSY))
+        ;
+
+    // Pull CS HIGH
+    ctx->cs_port->BSRR = ctx->cs_pin;
+
+    ctx->rx->CCR &= ~DMA_CCR_EN;
+    ctx->tx->CCR &= ~DMA_CCR_EN;
+
+    // Clear DMA flags
+    ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
+                     ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 }
 
 uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] = {0xAABB, 0xCCDD}; // TODO  заполнить регистры

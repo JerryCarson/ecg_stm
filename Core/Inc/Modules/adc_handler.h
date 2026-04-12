@@ -186,6 +186,8 @@ void ADC_Handler_Init(void);
  */
 void ADC_setup(adc_dma_context_t *ctx);
 
+void SPI_DMA_TX_RX_3_bytes(adc_dma_context_t *ctx, uint8_t *tx_buf, uint8_t *rx_buf, bool uses_rx_cplt_interrupt);
+
 /**
  * @brief Добавляет новый сэмпл в кольцевой буфер.
  * Функция безопасно обновляет индекс головы буфера. В случае заполнения буфера
@@ -230,7 +232,7 @@ static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
    /* Check if DMA still active */
    if (ctx->rx->CCR & DMA_CCR_EN)
    {
-      g_adc1_error_count++;
+      ctx->error_count++;
       return;
    }
 

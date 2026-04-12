@@ -1,4 +1,5 @@
 #include "cmd_handler.h"
+#include "adc_handler.h"
 
 const CommandEntry cmd_table[CMD_TABLE_SIZE] = { //TODO дописать комадну для переконфигурирования ADC
     {RESET_LATCHES, reset_latches},
@@ -10,8 +11,8 @@ const CommandEntry cmd_table[CMD_TABLE_SIZE] = { //TODO дописать ком�
     {READ_II_CH_ONLY, enable_external_ADC_II},
     {READ_ECG_ONLY, read_ecg_only},
     {IGNORE_LO_DISRUPT, ignore_LO_disrupt},
-    {DISIGNORE_LO_DISRUPT, disignore_LO_disrupt}
-
+    {DISIGNORE_LO_DISRUPT, disignore_LO_disrupt},
+    {TEST_SEND_SPI_DATA, test_send_spi_data}
 };
 
 void reset_latches(Peripheral_latch_set *l)
@@ -83,6 +84,16 @@ void disignore_LO_disrupt(Peripheral_latch_set *l)
 {
     l->LO_SIGLNAL_USAGE_LOCK = 0;
 }
+
+void test_send_spi_data(Peripheral_latch_set *l)
+{
+    uint8_t SPI_Request[3] = {0xAA, 0xBB, 0xCC};
+    uint8_t SPI_Answer[3] = {0};
+
+    adc_dma_context_t *ctx = &adc1_ctx; // Example: using ADC1 context for this test
+    SPI_DMA_TX_RX_3_bytes(ctx, SPI_Request, SPI_Answer, false);
+}
+
 
 void process_command(uint8_t *payload, uint16_t len)
 {

@@ -3,7 +3,7 @@
 #include "ring_buffer.h"
 #include "usbd_cdc_if.h"
 
-static inline uint16_t stream_available(USBStream *s)
+static /*inline*/ uint16_t stream_available(USBStream *s) // TODO раскомментировать inline после отладки
 {
     uint16_t head = s->head;
     uint16_t tail = s->tail;
@@ -103,7 +103,7 @@ void USB_stream_data()
 
         for (uint16_t i = 0; i < total; i++)
         {
-            *(volatile uint8_t *)&CRC->DR = buf[i]; //TODO ИСПРАВИТЬ CRC!!!
+            *(volatile uint8_t *)&CRC->DR = buf[i]; // TODO ИСПРАВИТЬ CRC!!!
         }
 
         uint8_t crc = (uint8_t)CRC->DR;
@@ -174,8 +174,8 @@ void parser_process(USBStream *s)
         CRC->CR = (CRC->CR & ~CRC_CR_POLYSIZE_Msk) | CRC_CR_POLYSIZE_1;
 
         /* 2. Configure CRC-8 parameters (adjust to your protocol spec) */
-        CRC->POL = 0x07;     // Polynomial
-        CRC->INIT = 0x00;    // Initial CRC value
+        CRC->POL = 0x07;  // Polynomial
+        CRC->INIT = 0x00; // Initial CRC value
         // CRC->XOR = 0x00; // Final XOR (CMSIS names it XORDATA, not XOR)
 
         CRC->CR |= CRC_CR_RESET;

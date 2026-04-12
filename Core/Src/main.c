@@ -80,7 +80,7 @@ uint16_t adc_buffer[ADC_BUF_SIZE];
 /** @brief Кольцевой буфер для потока данных с ПК */
 USBStream usbStream;
 
-uint8_t SPI_Request[] = {0x00, 0x00, 0x00};
+uint8_t SPI_Request[] = {0xAA, 0xBB, 0xCC};
 uint8_t SPI_Answer[3];
 StreamDataType source = DATA_NULL;
 volatile uint16_t active_cs_pin;
@@ -164,9 +164,13 @@ int main(void)
   // }
   // HAL_GPIO_WritePin(CS_1_GPIO_Port, CS_1_Pin, GPIO_PIN_SET);
 
-  ADC_setup(&adc1_ctx);
-  ADC_setup(&adc2_ctx); // TODO дописать управление пинами START
-
+  // ADC_setup(&adc1_ctx);
+  // ADC_setup(&adc2_ctx); // TODO дописать управление пинами START
+  
+  
+  SPI_DMA_TX_RX_3_bytes(&adc1_ctx, SPI_Request, SPI_Answer, false);
+  SPI_DMA_TX_RX_3_bytes(&adc1_ctx, SPI_Request, SPI_Answer, false);
+  SPI_DMA_TX_RX_3_bytes(&adc1_ctx, SPI_Request, SPI_Answer, false);
   // ADC_setup(&adc1_ctx);
   // ADC_setup(&adc2_ctx);
 
@@ -180,7 +184,7 @@ int main(void)
   /* Старт таймера TIM6 для DAC (генерация синуса) и TIM7 для ADC (чтение сигнала ЭКГ)  */
   HAL_TIM_Base_Start(&htim6);
   HAL_TIM_Base_Start(&htim7);
-  enable_external_ADC_I(&Latches);
+  // enable_external_ADC_I(&Latches);
 
   /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */ // TODO перепроверить таймеры
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
