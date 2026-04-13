@@ -171,6 +171,7 @@ int main(void)
   uint8_t dummytx[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
   uint8_t dummyrx[5];
   SPI_DMA_TX_RX_byte_array(&adc1_ctx, dummytx, dummyrx, 5, false);
+  
   // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
   // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
   // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
