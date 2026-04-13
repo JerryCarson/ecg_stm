@@ -107,9 +107,9 @@ Peripheral_latch_set Latches;
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+   * @brief  The application entry point.
+   * @retval int
+   */
 int main(void)
 {
 
@@ -146,6 +146,7 @@ int main(void)
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 
+
   // reset_latches(&Latches);
 
   HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn); // SPI1 TX - not used
@@ -167,10 +168,12 @@ int main(void)
   // ADC_setup(&adc1_ctx);
   // ADC_setup(&adc2_ctx); // TODO дописать управление пинами START
   
-  
-  SPI_DMA_TX_RX_3_bytes(&adc1_ctx, SPI_Request, SPI_Answer, false);
-  SPI_DMA_TX_RX_3_bytes(&adc1_ctx, SPI_Request, SPI_Answer, false);
-  SPI_DMA_TX_RX_3_bytes(&adc1_ctx, SPI_Request, SPI_Answer, false);
+  uint8_t dummytx[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+  uint8_t dummyrx[5];
+  SPI_DMA_TX_RX_byte_array(&adc1_ctx, dummytx, dummyrx, 5, false);
+  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
+  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
+  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
   // ADC_setup(&adc1_ctx);
   // ADC_setup(&adc2_ctx);
 

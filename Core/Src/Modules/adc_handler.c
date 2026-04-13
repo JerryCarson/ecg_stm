@@ -105,7 +105,7 @@ void ADC_Handler_Init(void)
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
 
-void SPI_DMA_TX_RX_3_bytes(adc_dma_context_t *ctx, uint8_t *tx_buf, uint8_t *rx_buf, bool uses_rx_cplt_interrupt)
+void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, uint8_t *tx_buf, uint8_t *rx_buf, uint8_t len, bool uses_rx_cplt_interrupt)
 {
     // This function is not used in the current code, but can be called to perform a single 3-byte SPI transfer using DMA.
     // It configures the DMA channels for a 3-byte transfer, starts the transfer, and waits for completion.
@@ -125,10 +125,10 @@ void SPI_DMA_TX_RX_3_bytes(adc_dma_context_t *ctx, uint8_t *tx_buf, uint8_t *rx_
     ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
     __DSB();
     ctx->tx->CMAR = (uint32_t)tx_buf; // Memory address of TX buffer
-    ctx->tx->CNDTR = 3;               // Number of bytes to transfer
+    ctx->tx->CNDTR = len;             // Number of bytes to transfer
     __DSB();
     ctx->rx->CMAR = (uint32_t)rx_buf; // Memory address of RX buffer
-    ctx->rx->CNDTR = 3;               // Number of bytes to transfer
+    ctx->rx->CNDTR = len;             // Number of bytes to transfer
     __DSB();
 
     // Clear pending DMA flags

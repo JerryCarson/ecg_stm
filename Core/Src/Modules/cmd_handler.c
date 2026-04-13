@@ -91,7 +91,7 @@ void test_send_spi_data(Peripheral_latch_set *l)
     uint8_t SPI_Answer[3] = {0};
 
     adc_dma_context_t *ctx = &adc1_ctx; // Example: using ADC1 context for this test
-    SPI_DMA_TX_RX_3_bytes(ctx, SPI_Request, SPI_Answer, false);
+    SPI_DMA_TX_RX_byte_array(ctx, SPI_Request, SPI_Answer, 3, false);
 }
 
 
