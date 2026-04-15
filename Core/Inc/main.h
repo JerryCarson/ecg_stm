@@ -158,6 +158,8 @@ extern "C"
     extern GPIO_TypeDef *active_cs_port;
     extern volatile uint8_t spi_busy;
 
+    extern volatile bool DRDY_1_detected;
+
     /* USER CODE END Private defines */
 
 #ifdef __cplusplus

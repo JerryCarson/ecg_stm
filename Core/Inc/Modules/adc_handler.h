@@ -36,7 +36,7 @@
  * @brief Порог количества сэмплов внешнего ADC в кольцевом буфере @ref AdcRingBuffer_t,
  * после которого значения из него отправляются в буфер @ref StreamPacket_t для дальнейшей отправки на ПК.
  */
-#define ADC_BATCH_SIZE 50 // Send 50 pairs per USB packet
+#define ADC_BATCH_SIZE 42 // Send 42 pairs per USB packet
 
 /**
  * @def ADC_BUFFER_ELEMENTS
@@ -108,7 +108,7 @@ typedef struct adc_dma_context_t
    volatile uint32_t batch_count;   /**< Счетчик количества сэмплов в буфере @ref AdcRingBuffer_t */
    volatile bool *batch_ready_flag; /**< Флаг достижения в буфере количества сэмплов, равного @ref ADC_BATCH_SIZE*/
    volatile uint8_t *spi_buf;       /**< Указатель на массив, в который поступают данные от DMA RX канала */
-
+   volatile bool DRDY_low;
 } adc_dma_context_t;
 
 extern adc_dma_context_t adc1_ctx;
@@ -224,10 +224,12 @@ static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
  * - Активирует SPI и пин CS для выбранного ADC.
  *
  * При обнаружении ошибки увеличивает счётчик ошибок в @ref adc_dma_context_t.
+ * 
+ * @note Прототип. Не используется. Прерывание вызывает функцию @ref ADC_DRDY_ISR.
  *
  * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
  */
-static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
+static inline void ADC_DRDY_ISR_proto(adc_dma_context_t *ctx)
 {
    /* Check if DMA still active */
    if (ctx->rx->CCR & DMA_CCR_EN)
@@ -274,6 +276,12 @@ static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
    ctx->tx->CCR |= DMA_CCR_EN;
 }
 
+static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
+{
+   ctx->DRDY_low = true;
+   SPI_DMA_TX_RX_byte_array(ctx, SPI_DUMMY_TX, ctx->spi_buf, 3, true);
+}
+
 /**
  * @brief Обработчик прерывания DMA внешнего ADC.
  * Функция вызывается при прерывании DMA RX/TX каналов.
@@ -291,6 +299,7 @@ static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
  */
 static inline void adc_dma_isr(adc_dma_context_t *ctx) // TODO clear TX channels flags, Fix CS/DMA ordering
 {
+   ctx->DRDY_low = false;
    uint32_t isr = ctx->dma->ISR;
 
    /* --- Transfer Error --- */

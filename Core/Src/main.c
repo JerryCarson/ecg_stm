@@ -34,6 +34,7 @@
 #include "usb_parser.h"
 #include "adc_handler.h"
 #include "cmd_handler.h"
+#include "utility_functions.h"
 // #include <stdint.h>
 /* USER CODE END Includes */
 
@@ -92,6 +93,8 @@ bool adc_running;
 
 Peripheral_latch_set Latches;
 
+volatile bool DRDY_1_detected = false;
+
 // /** @brief Буфер для ЭКГ-сигнала с ADC1 */
 // RingBuffer_16 ADC_ECG_BUF;
 
@@ -107,9 +110,9 @@ Peripheral_latch_set Latches;
 /* USER CODE END 0 */
 
 /**
-   * @brief  The application entry point.
-   * @retval int
-   */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -146,14 +149,15 @@ int main(void)
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 
-
   // reset_latches(&Latches);
 
   HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn); // SPI1 TX - not used
   HAL_NVIC_DisableIRQ(DMA2_Channel2_IRQn); // SPI2 TX - not used
 
   ADC_Handler_Init();
-  Latches.INTERNAL_DAC_LOCK = 0;
+  stop_all(&Latches);
+  Latches.EXTERNAL_ADC_II_LOCK = 0;
+  // Latches.INTERNAL_DAC_LOCK = 1;
 
   // uint8_t SPI_Request[3] = {0xAA, 0xBB, 0xCC}; // TODO заполнить запросами для настройки ADC
 
@@ -167,11 +171,11 @@ int main(void)
 
   // ADC_setup(&adc1_ctx);
   // ADC_setup(&adc2_ctx); // TODO дописать управление пинами START
-  
-  uint8_t dummytx[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
-  uint8_t dummyrx[5];
-  SPI_DMA_TX_RX_byte_array(&adc1_ctx, dummytx, dummyrx, 5, false);
-  
+
+  // uint8_t dummytx[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+  // uint8_t dummyrx[5];
+  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, dummytx, dummyrx, 5, false);
+
   // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
   // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
   // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
@@ -209,6 +213,27 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    DRDY_no_responce_timeout_handle(&adc1_ctx);
+    DRDY_no_responce_timeout_handle(&adc2_ctx);
+    // if (DRDY_1_detected)
+    // {
+    //   uint16_t timeout = 1000;
+    //   while ((DRDY_1_detected) && (--timeout))
+    //     ;
+    //   if (!timeout)
+    //   {
+    //     adc1_ctx.cs_port->BSRR = adc1_ctx.cs_pin;
+
+    //     adc1_ctx.rx->CCR &= ~DMA_CCR_EN;
+    //     adc1_ctx.tx->CCR &= ~DMA_CCR_EN;
+
+    //     // Clear DMA flags
+    //     adc1_ctx.dma->IFCR = adc1_ctx.tcif_tx_ch | adc1_ctx.teif_tx_ch | adc1_ctx.htif_tx_ch |
+    //                          adc1_ctx.tcif_rx_ch | adc1_ctx.teif_rx_ch | adc1_ctx.htif_rx_ch;
+    //     DRDY_1_detected = 0;
+    //   }
+    // }
+
     parser_process(&usbStream);
     processAdcBatches();
     USB_stream_data();
@@ -253,22 +278,22 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48;
+   * in the RCC_OscInitTypeDef structure.
+   */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
@@ -285,9 +310,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -408,9 +432,9 @@ void processAdcBatches(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -423,12 +447,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

@@ -43,7 +43,8 @@ adc_dma_context_t adc1_ctx =
 
         .batch_count = 0,
         .batch_ready_flag = &adc1_batch_size_reached,
-        .spi_buf = g_spi1_buf};
+        .spi_buf = g_spi1_buf,
+        .DRDY_low = 0};
 
 adc_dma_context_t adc2_ctx =
     {
@@ -70,7 +71,8 @@ adc_dma_context_t adc2_ctx =
 
         .batch_count = 0,
         .batch_ready_flag = &adc2_batch_size_reached,
-        .spi_buf = g_spi2_buf};
+        .spi_buf = g_spi2_buf,
+        .DRDY_low = 0};
 
 void ADC_Handler_Init(void)
 {
@@ -84,6 +86,8 @@ void ADC_Handler_Init(void)
     DMA1_Channel3->CCR &= ~DMA_CCR_EN; // SPI1 TX
     DMA2_Channel1->CCR &= ~DMA_CCR_EN; // SPI2 RX
     DMA2_Channel2->CCR &= ~DMA_CCR_EN; // SPI2 TX
+
+    DMA2_Channel1->CCR |= DMA_CCR_TCIE;
 
     SPI1->CR1 |= SPI_CR1_SPE;
     SPI2->CR1 |= SPI_CR1_SPE;
