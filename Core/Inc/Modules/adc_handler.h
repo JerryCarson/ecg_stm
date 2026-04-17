@@ -101,6 +101,9 @@ typedef struct adc_dma_context_t
    GPIO_TypeDef *cs_port; /**< Адрес порта, на котором находится пин CS */
    uint16_t cs_pin;       /**< Адрес пина CS */
 
+   GPIO_TypeDef *start_port;
+   uint16_t start_pin;
+
    volatile uint32_t *error_count; /**< Счетчик ошибок */
 
    AdcRingBuffer_t *ring; /**< Указатель на кольцевой буфер */

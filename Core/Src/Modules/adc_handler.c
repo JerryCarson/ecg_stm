@@ -37,6 +37,9 @@ adc_dma_context_t adc1_ctx =
         .cs_port = CS_1_GPIO_Port,
         .cs_pin = CS_1_Pin,
 
+        .start_port = START_1_GPIO_Port,
+        .start_pin = START_1_Pin,
+
         .error_count = &g_adc1_error_count,
 
         .ring = &adc1_buf,
@@ -64,6 +67,9 @@ adc_dma_context_t adc2_ctx =
 
         .cs_port = CS_2_GPIO_Port,
         .cs_pin = CS_2_Pin,
+
+        .start_port = START_2_GPIO_Port,
+        .start_pin = START_2_Pin,
 
         .error_count = &g_adc2_error_count,
 
@@ -177,6 +183,8 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
     static uint8_t tx_buf[2];   // TX buffer for 1 register
     static uint8_t rx_dummy[2]; // dummy RX buffer
 
+    ctx->start_port->BSRR = (uint32_t)ctx->start_pin << 16U; // Pull START LOW
+
     // Disable EXTI interrupts to prevent DRDY ISR firing
     if (ctx == &adc1_ctx)
         NVIC_DisableIRQ(EXTI4_IRQn);
@@ -197,7 +205,7 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
         __DSB();
         // Split 16-bit register into MSB/LSB
-        tx_buf[0] = (ADC_setup_regs[i] >> 8) & 0xFF;
+        tx_buf[0] = ((ADC_setup_regs[i] >> 8) & 0xFF) | 0x80; // 0x80 sets WRITE operation 
         tx_buf[1] = ADC_setup_regs[i] & 0xFF;
 
         // Set DMA addresses and counts for this 2-byte transfer
@@ -238,11 +246,6 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         // Pull CS HIGH
         ctx->cs_port->BSRR = ctx->cs_pin;
 
-        // volatile uint16_t tx_left = ctx->tx->CNDTR;
-        // volatile uint16_t rx_left = ctx->rx->CNDTR;
-        // volatile uint32_t dma_isr = ctx->dma->ISR;
-        // volatile uint32_t te_mask = (ctx == &adc1_ctx) ? (DMA_ISR_TEIF3 | DMA_ISR_TEIF1) : (DMA_ISR_TEIF2 | DMA_ISR_TEIF1);
-
         // Clear DMA flags
         ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
                          ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
@@ -256,4 +259,6 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         NVIC_EnableIRQ(EXTI4_IRQn);
     else if (ctx == &adc2_ctx)
         NVIC_EnableIRQ(EXTI15_10_IRQn);
+        
+    ctx->start_port->BSRR = ctx->start_pin;
 }
