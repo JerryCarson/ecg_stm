@@ -92,3 +92,7 @@ venv/
 !Makefile
 !*.ld
 !startup*.s
+
+docs/
+
+.stm32env

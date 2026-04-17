@@ -1,6 +1,6 @@
 #include "ring_buffer.h"
 
-#define MAX_QUEUE 16
+#define MAX_QUEUE 128
 _Static_assert((MAX_QUEUE & (MAX_QUEUE - 1)) == 0,
                "MAX_QUEUE must be power of two");
 
@@ -16,6 +16,22 @@ static inline int queueFull()
 static inline int queueEmpty()
 {
     return queueHead == queueTail;
+}
+
+StreamPacket_t *peekPacket(void)
+{
+    if (queueEmpty())
+        return NULL;
+
+    return &packetQueue[queueTail];
+}
+
+void consumePacket(void)
+{
+    __disable_irq();
+    if (!queueEmpty())
+        queueTail = (queueTail + 1) & (MAX_QUEUE - 1);
+    __enable_irq();
 }
 
 void pushPacket(StreamPacket_t *packet)

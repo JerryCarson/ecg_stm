@@ -32,6 +32,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "string.h"
+#include <stdbool.h>
     // #include "ring_buffer.h"
 
 /* USER CODE END Includes */
@@ -55,7 +56,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
+    void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
 // void start_dev1();
 // void start_dev2();
 /* USER CODE END EFP */
@@ -88,6 +89,19 @@ void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
 
 /* USER CODE BEGIN Private defines */
 
+    typedef struct Peripheral_latch_set
+    {
+        volatile bool INTERNAL_DAC_LOCK;
+        volatile bool INTERNAL_ADC_LOCK;
+        volatile bool EXTERNAL_ADC_I_LOCK;
+        volatile bool EXTERNAL_ADC_II_LOCK;
+        volatile bool LO_DISRUPTED;
+        volatile bool LO_SIGLNAL_USAGE_LOCK;
+
+    } Peripheral_latch_set;
+
+    extern Peripheral_latch_set Latches;
+
     /**
      * @brief Типы данных, отправляемых на ПК.
      * Тип данных записывается во второй байт пакета,
@@ -97,12 +111,12 @@ void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
      * */
     typedef enum
     {
-        DATA_SPI_1,        /**< Данные от первого внешнего ADC */
-        DATA_SPI_2,        /**< Данные от второго внешнего ADC */
-        DATA_ADC_ECG,      /**< Отсчеты сигнала ЭКГ с внутркеннего ADC */
-        DATA_PC_CMD,       /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
-        DATA_PACKET_ERROR, /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
-        DATA_NULL
+        DATA_NULL,
+        DATA_SPI_1,       /**< Данные от первого внешнего ADC */
+        DATA_SPI_2,       /**< Данные от второго внешнего ADC */
+        DATA_ADC_ECG,     /**< Отсчеты сигнала ЭКГ с внутркеннего ADC */
+        DATA_PC_CMD,      /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
+        DATA_PACKET_ERROR /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
     } StreamDataType;
 
     typedef enum
@@ -122,10 +136,10 @@ void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
 
 #define USB_BUF_SIZE 1024
 
-#define SINE_WAVE_SAMPLES 100
+#define SINE_WAVE_SAMPLES 50
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
-#define MAX_PACKET_SIZE 256 /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
+#define MAX_PACKET_SIZE 128 /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
 
 #define ADC_BUF_SIZE 32 /** Задает размер DMA буфера для внутреннего АЦП */
 
@@ -142,8 +156,8 @@ void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
     extern volatile uint16_t active_cs_pin;
     extern GPIO_TypeDef *active_cs_port;
     extern volatile uint8_t spi_busy;
-    extern volatile uint8_t pending1;
-    extern volatile uint8_t pending2;
+
+    extern volatile bool DRDY_1_detected;
 
 /* USER CODE END Private defines */
 
