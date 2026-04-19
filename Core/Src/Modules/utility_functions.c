@@ -21,3 +21,43 @@ void DRDY_no_responce_timeout_handle(adc_dma_context_t *ctx)
         }
     }
 }
+
+void internal_DAC_EN_DIS_mgr()
+{
+    if (Latches.INTERNAL_DAC_LOCK)
+    {
+        if (dac_running)
+        {
+            HAL_TIM_Base_Stop(&htim6);
+            dac_running = false;
+        }
+    }
+    else
+    {
+        if (!dac_running)
+        {
+            HAL_TIM_Base_Start(&htim6);
+            dac_running = true;
+        }
+    }
+}
+
+void internal_ADC_EN_DIS_mgr()
+{
+    if (Latches.INTERNAL_ADC_LOCK)
+    {
+        if (adc_running)
+        {
+            HAL_TIM_Base_Stop(&htim7);
+            adc_running = false;
+        }
+    }
+    else
+    {
+        if (!adc_running)
+        {
+            HAL_TIM_Base_Start(&htim7);
+            adc_running = true;
+        }
+    }
+}
