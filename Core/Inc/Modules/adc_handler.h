@@ -1,6 +1,6 @@
 /**
  * @file adc_handler.h
- * @brief Обработчик работы с внешними 24-битными АЦП ADS127L21 через SPI с использованием DMA.
+ * @brief Обработчик взаимодействия с внешними 24-битными АЦП ADS127L21 через SPI с использованием DMA.
  *
  * Данный модуль реализует:
  * - Обработку прерываний DRDY от АЦП;
@@ -9,9 +9,6 @@
  * - Логику формирования батчей данных для передачи по USB.
  *
  * Рассчитан на высокую скорость и низкую задержку.
- *
- * @note Для корректной работы предполагается, что все периферийные модули
- * и прерывания настроены через STM32CubeMX.
  */
 
 #ifndef ADC_HANDLER_H
@@ -34,7 +31,7 @@
 /**
  * @def ADC_BATCH_SIZE
  * @brief Порог количества сэмплов внешнего ADC в кольцевом буфере @ref AdcRingBuffer_t,
- * после которого значения из него отправляются в буфер @ref StreamPacket_t для дальнейшей отправки на ПК.
+ * после которого значения из него отправляются в буфер @ref Uplink_USB_Stream для дальнейшей отправки на ПК.
  */
 #define ADC_BATCH_SIZE 42 // Send 42 pairs per USB packet
 
@@ -189,6 +186,19 @@ void ADC_Handler_Init(void);
  */
 void ADC_setup(adc_dma_context_t *ctx);
 
+/**
+ * @brief Отправляет массив данных по SPI интерфейсу, используется для взаимодействия
+ * с внешними ADC
+ * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param tx_buf Указатель на массив отправляемых данных.
+ * @param rx_buf Указатель на массив принимаемых данных.
+ * @param len Длина обоих массивов.
+ * @param uses_rx_cplt_interrupt выставляется true если функция вызвана из
+ * DRDY-прерывания, в таком случае функция становится не блокирующей и обработка
+ * полученных пакетов происходит в SPI DMA RX прерывании. 
+ * Требуется для корректной обработки данных от внешнего ADC. Если требуется
+ * просто отправить данные - устанавливается в false.
+ */
 void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                               const uint8_t *tx_buf,
                               volatile uint8_t *rx_buf,
@@ -222,6 +232,54 @@ static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
    return true;
 }
 
+
+// static inline void ADC_DRDY_ISR_proto(adc_dma_context_t *ctx)
+// {
+//    /* Check if DMA still active */
+//    if (ctx->rx->CCR & DMA_CCR_EN)
+//    {
+//       ctx->error_count++;
+//       return;
+//    }
+
+//    ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+//    ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
+//    __DSB();
+
+//    /* Clear DMA flags */
+//    ctx->dma->IFCR =
+//        ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch |
+//        ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch;
+
+//    /* Optional: clear SPI state */
+//    // if (ctx->spi->SR & SPI_SR_OVR) //TODO Проверить что из этого работает
+//    // {
+//    //    (void)ctx->spi->DR;
+//    //    (void)ctx->spi->SR;
+//    //    ctx->spi->CR1 &= ~SPI_CR1_SPE; // Disable SPI
+//    //    ctx->spi->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
+//    //    ctx->error_count++;
+//    // }
+
+//    // Clear SPI flags properly (read, don't write)
+//    (void)ctx->spi->SR;
+//    (void)ctx->spi->DR; // Flush any stale data
+//    __DMB();
+//    /* Configure DMA */
+//    ctx->rx->CMAR = (uint32_t)ctx->spi_buf;
+//    ctx->rx->CNDTR = 3;
+//    __DMB();
+//    ctx->tx->CMAR = (uint32_t)SPI_DUMMY_TX;
+//    ctx->tx->CNDTR = 3;
+//    __DMB();
+//    ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
+//    __DMB();
+//    /* Enable RX first */
+//    ctx->rx->CCR |= DMA_CCR_EN;
+//    // __DMB(); //TODO кажется это не нужно
+//    ctx->tx->CCR |= DMA_CCR_EN;
+// }
+
 /**
  * @brief Обработчик прерывания DRDY внешнего ADC.
  * Функция вызывается из ISR при срабатывании линии DRDY.
@@ -232,57 +290,8 @@ static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
  *
  * При обнаружении ошибки увеличивает счётчик ошибок в @ref adc_dma_context_t.
  *
- * @note Прототип. Не используется. Прерывание вызывает функцию @ref ADC_DRDY_ISR.
- *
  * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
  */
-static inline void ADC_DRDY_ISR_proto(adc_dma_context_t *ctx)
-{
-   /* Check if DMA still active */
-   if (ctx->rx->CCR & DMA_CCR_EN)
-   {
-      ctx->error_count++;
-      return;
-   }
-
-   ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
-   ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
-   __DSB();
-
-   /* Clear DMA flags */
-   ctx->dma->IFCR =
-       ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch |
-       ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch;
-
-   /* Optional: clear SPI state */
-   // if (ctx->spi->SR & SPI_SR_OVR) //TODO Проверить что из этого работает
-   // {
-   //    (void)ctx->spi->DR;
-   //    (void)ctx->spi->SR;
-   //    ctx->spi->CR1 &= ~SPI_CR1_SPE; // Disable SPI
-   //    ctx->spi->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
-   //    ctx->error_count++;
-   // }
-
-   // Clear SPI flags properly (read, don't write)
-   (void)ctx->spi->SR;
-   (void)ctx->spi->DR; // Flush any stale data
-   __DMB();
-   /* Configure DMA */
-   ctx->rx->CMAR = (uint32_t)ctx->spi_buf;
-   ctx->rx->CNDTR = 3;
-   __DMB();
-   ctx->tx->CMAR = (uint32_t)SPI_DUMMY_TX;
-   ctx->tx->CNDTR = 3;
-   __DMB();
-   ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
-   __DMB();
-   /* Enable RX first */
-   ctx->rx->CCR |= DMA_CCR_EN;
-   // __DMB(); //TODO кажется это не нужно
-   ctx->tx->CCR |= DMA_CCR_EN;
-}
-
 static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
 {
    ctx->DRDY_low = true;
