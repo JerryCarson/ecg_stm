@@ -115,7 +115,11 @@ void ADC_Handler_Init(void)
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
 
-void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, uint8_t *tx_buf, uint8_t *rx_buf, uint8_t len, bool uses_rx_cplt_interrupt)
+void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
+                              const uint8_t *tx_buf,
+                              volatile uint8_t *rx_buf,
+                              uint8_t len,
+                              bool uses_rx_cplt_interrupt)
 {
     // This function is not used in the current code, but can be called to perform a single 3-byte SPI transfer using DMA.
     // It configures the DMA channels for a 3-byte transfer, starts the transfer, and waits for completion.
@@ -205,7 +209,7 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
         __DSB();
         // Split 16-bit register into MSB/LSB
-        tx_buf[0] = ((ADC_setup_regs[i] >> 8) & 0xFF) | 0x80; // 0x80 sets WRITE operation 
+        tx_buf[0] = ((ADC_setup_regs[i] >> 8) & 0xFF) | 0x80; // 0x80 sets WRITE operation
         tx_buf[1] = ADC_setup_regs[i] & 0xFF;
 
         // Set DMA addresses and counts for this 2-byte transfer
@@ -259,6 +263,6 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         NVIC_EnableIRQ(EXTI4_IRQn);
     else if (ctx == &adc2_ctx)
         NVIC_EnableIRQ(EXTI15_10_IRQn);
-        
+
     ctx->start_port->BSRR = ctx->start_pin;
 }

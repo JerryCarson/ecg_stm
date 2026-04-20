@@ -61,3 +61,10 @@ void internal_ADC_EN_DIS_mgr()
         }
     }
 }
+
+StreamPacket_t create_packet(StreamDataType t, uint16_t len)
+{
+    StreamPacket_t s = {.dataType = t,
+                        .length = len};
+    return s;
+}

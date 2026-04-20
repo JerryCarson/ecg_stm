@@ -189,7 +189,11 @@ void ADC_Handler_Init(void);
  */
 void ADC_setup(adc_dma_context_t *ctx);
 
-void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, uint8_t *tx_buf, uint8_t *rx_buf, uint8_t len, bool uses_rx_cplt_interrupt);
+void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
+                              const uint8_t *tx_buf,
+                              volatile uint8_t *rx_buf,
+                              uint8_t len,
+                              bool uses_rx_cplt_interrupt);
 
 /**
  * @brief Добавляет новый сэмпл в кольцевой буфер.
@@ -227,7 +231,7 @@ static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
  * - Активирует SPI и пин CS для выбранного ADC.
  *
  * При обнаружении ошибки увеличивает счётчик ошибок в @ref adc_dma_context_t.
- * 
+ *
  * @note Прототип. Не используется. Прерывание вызывает функцию @ref ADC_DRDY_ISR.
  *
  * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.

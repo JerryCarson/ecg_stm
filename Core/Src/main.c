@@ -79,7 +79,7 @@ uint16_t sine_wave[SINE_WAVE_SAMPLES];
 uint16_t adc_buffer[ADC_BUF_SIZE];
 
 /** @brief Кольцевой буфер для потока данных с ПК */
-USBStream usbStream;
+Downlink_USB_Stream usbStream;
 
 uint8_t SPI_Request[] = {0xAA, 0xBB, 0xCC};
 uint8_t SPI_Answer[3];
@@ -217,28 +217,11 @@ int main(void)
   {
     DRDY_no_responce_timeout_handle(&adc1_ctx);
     DRDY_no_responce_timeout_handle(&adc2_ctx);
-    // if (DRDY_1_detected)
-    // {
-    //   uint16_t timeout = 1000;
-    //   while ((DRDY_1_detected) && (--timeout))
-    //     ;
-    //   if (!timeout)
-    //   {
-    //     adc1_ctx.cs_port->BSRR = adc1_ctx.cs_pin;
-
-    //     adc1_ctx.rx->CCR &= ~DMA_CCR_EN;
-    //     adc1_ctx.tx->CCR &= ~DMA_CCR_EN;
-
-    //     // Clear DMA flags
-    //     adc1_ctx.dma->IFCR = adc1_ctx.tcif_tx_ch | adc1_ctx.teif_tx_ch | adc1_ctx.htif_tx_ch |
-    //                          adc1_ctx.tcif_rx_ch | adc1_ctx.teif_rx_ch | adc1_ctx.htif_rx_ch;
-    //     DRDY_1_detected = 0;
-    //   }
-    // }
-
-    parser_process(&usbStream);
+    parse_data_downlink(&usbStream);
     processAdcBatches();
-    USB_stream_data();
+    stream_data_uplink(&EXT_ADC1_Stream);
+    stream_data_uplink(&EXT_ADC2_Stream);
+    stream_data_uplink(&INT_ADC_Stream);
     internal_DAC_EN_DIS_mgr();
     internal_ADC_EN_DIS_mgr();
     // if (Latches.INTERNAL_DAC_LOCK)
@@ -359,9 +342,11 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
       }
     }
     // TODO Перепроверить, возможно схлопнуть в один колбэк
-    StreamPacket_t packet;
-    packet.dataType = DATA_ADC_ECG;
-    packet.length = ADC_BUF_SIZE;
+    // StreamPacket_t packet;
+    // packet.dataType = DATA_ADC_ECG;
+    // packet.length = ADC_BUF_SIZE;
+
+    StreamPacket_t packet = create_packet(DATA_ADC_ECG, ADC_BUF_SIZE);
 
     for (int i = 0; i < ADC_BUF_SIZE / 2; i++)
     {
@@ -369,19 +354,27 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
       packet.data[i * 2 + 1] = (adc_buffer[i] >> 8) & 0xFF;
     }
 
-    pushPacket(&packet);
+    pushPacket(&INT_ADC_Stream, &packet);
   }
 }
 
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении второй половины буфера*/
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if ((hadc->Instance == ADC1) && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))
+  if ((hadc->Instance == ADC1)) /*&& (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))*/
   {
+    if (Latches.LO_DISRUPTED)
+    {
+      if (!Latches.LO_SIGLNAL_USAGE_LOCK)
+      {
+        return;
+      }
+    }
     // TODO Перепроверить
-    StreamPacket_t packet;
-    packet.dataType = DATA_ADC_ECG;
-    packet.length = ADC_BUF_SIZE;
+    // StreamPacket_t packet;
+    // packet.dataType = DATA_ADC_ECG;
+    // packet.length = ADC_BUF_SIZE;
+    StreamPacket_t packet = create_packet(DATA_ADC_ECG, ADC_BUF_SIZE);
 
     for (int i = 0; i < ADC_BUF_SIZE / 2; i++)
     {
@@ -389,21 +382,23 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
       packet.data[i * 2 + 1] = (adc_buffer[i + ADC_BUF_SIZE / 2] >> 8) & 0xFF;
     }
 
-    pushPacket(&packet);
+    pushPacket(&INT_ADC_Stream, &packet);
   }
 }
 
 void processAdcBatches(void)
 {
-  StreamPacket_t packet;
+  // StreamPacket_t packet;
 
   if (adc1_batch_size_reached)
   {
     adc1_batch_size_reached = false;
     __DMB();
 
-    packet.dataType = DATA_SPI_1;
-    packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    // packet.dataType = DATA_SPI_1;
+    // packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    StreamPacket_t packet = create_packet(DATA_SPI_1, ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE);
+
     for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
     {
       uint32_t idx = (adc1_buf.tail + i) & (ADC_BUFFER_ELEMENTS - 1);
@@ -412,7 +407,7 @@ void processAdcBatches(void)
     // advance tail
     adc1_buf.tail = (adc1_buf.tail + ADC_BATCH_SIZE) & (ADC_BUFFER_ELEMENTS - 1);
 
-    pushPacket(&packet);
+    pushPacket(&EXT_ADC1_Stream, &packet);
   }
 
   if (adc2_batch_size_reached)
@@ -420,8 +415,10 @@ void processAdcBatches(void)
     adc2_batch_size_reached = false;
     __DMB();
 
-    packet.dataType = DATA_SPI_2;
-    packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    // packet.dataType = DATA_SPI_2;
+    // packet.length = ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE;
+    StreamPacket_t packet = create_packet(DATA_SPI_2, ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE);
+
     for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
     {
       uint32_t idx = (adc2_buf.tail + i) & (ADC_BUFFER_ELEMENTS - 1);
@@ -429,7 +426,7 @@ void processAdcBatches(void)
     }
     adc2_buf.tail = (adc2_buf.tail + ADC_BATCH_SIZE) & (ADC_BUFFER_ELEMENTS - 1);
 
-    pushPacket(&packet);
+    pushPacket(&EXT_ADC2_Stream, &packet);
   }
 }
 

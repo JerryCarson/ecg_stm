@@ -110,17 +110,17 @@ extern "C"
      * пользовательское значение.
      * Список можно редактировать.
      * */
-    typedef enum
+    typedef enum StreamDataType
     {
         DATA_NULL,
         DATA_SPI_1,       /**< Данные от первого внешнего ADC */
         DATA_SPI_2,       /**< Данные от второго внешнего ADC */
-        DATA_ADC_ECG,     /**< Отсчеты сигнала ЭКГ с внутркеннего ADC */
+        DATA_ADC_ECG,     /**< Отсчеты сигнала ЭКГ с внутреннего ADC */
         DATA_PC_CMD,      /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
         DATA_PACKET_ERROR /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
     } StreamDataType;
 
-    typedef enum
+    typedef enum SPI_Source
     {
         SPI_SOURCE_ADC0,
         SPI_SOURCE_ADC1,
