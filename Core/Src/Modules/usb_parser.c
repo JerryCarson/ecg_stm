@@ -83,11 +83,18 @@ void stream_data_uplink(Uplink_USB_Stream *stream)
         }
         uint16_t total = HEADER_SIZE + pkt->length + CRC_SIZE - 1;
 
-        CRC->CR = CRC_CR_RESET;
+        CRC->CR = (CRC->CR & ~CRC_CR_POLYSIZE_Msk) | CRC_CR_POLYSIZE_1;
+        CRC->POL = 0x07;  // Polynomial
+        CRC->INIT = 0x00; // Initial CRC value
+        CRC->CR |= CRC_CR_RESET;
+        __DSB();
+        __ISB();
+        while (CRC->CR & CRC_CR_RESET)
+            ;
 
         for (uint16_t i = 0; i < total; i++)
         {
-            *(volatile uint8_t *)&CRC->DR = buf[i]; // TODO ИСПРАВИТЬ CRC!!!
+            *(__IO uint8_t *)&CRC->DR = buf[i]; 
         }
 
         uint8_t crc = (uint8_t)CRC->DR;
@@ -98,6 +105,9 @@ void stream_data_uplink(Uplink_USB_Stream *stream)
         {
             consumePacket(stream);
         }
+        // uint8_t nl[] = {0x0D};
+        // CDC_Transmit_FS(nl, 1);
+        // CDC_Transmit_FS(nl, 1);
     }
 }
 

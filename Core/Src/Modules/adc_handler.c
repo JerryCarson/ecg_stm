@@ -94,6 +94,7 @@ void ADC_Handler_Init(void)
     DMA2_Channel2->CCR &= ~DMA_CCR_EN; // SPI2 TX
 
     DMA2_Channel1->CCR |= DMA_CCR_TCIE;
+    DMA1_Channel2->CCR |= DMA_CCR_TCIE;
 
     SPI1->CR1 |= SPI_CR1_SPE;
     SPI2->CR1 |= SPI_CR1_SPE;
