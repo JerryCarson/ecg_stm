@@ -10,7 +10,7 @@ target: ecg_stm_proj
 # Can be C or C++
 language: C
 
-optimization: Og
+optimization: -O2 # -O2 для релиза
 
 # MCU settings
 targetMCU: stm32g4x
@@ -35,12 +35,16 @@ asDefinitionsFile:
 # Compiler flags
 cFlags: 
   - -Wall
+  - -Wextra
   - -fdata-sections
   - -ffunction-sections
+  - -fno-strict-aliasing
 
 cxxFlags: 
   - -fno-rtti
   - -fno-exceptions
+  - -Wextra
+  - -fno-strict-aliasing
 
 assemblyFlags: 
   - -Wall
@@ -49,6 +53,8 @@ assemblyFlags:
 
 linkerFlags: 
   - -Wl,--print-memory-usage
+  - -Wl,--gc-sections               # ✅ Выкидывает неиспользуемый код
+  - -Wl,-Map=build/ecg_stm_proj.map # ✅ Карта памяти для анализа размера
 
 
 # libraries to be included. The -l prefix to the library will be automatically added.
@@ -107,6 +113,7 @@ customMakefileRules:
 
 # Additional flags which will be used when invoking the make command
 makeFlags:
+  - --silent  # опционально: убирает шум в выводе make
 # - -O  # use this option when the output of make is mixed up only works for make version 4.0 and upwards
 # - --silent # use this option to silence the output of the build
     

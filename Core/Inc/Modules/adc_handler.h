@@ -9,6 +9,9 @@
  * - Логику формирования батчей данных для передачи по USB.
  *
  * Рассчитан на высокую скорость и низкую задержку.
+ *
+ * @addtogroup EXTERNAL_ADC_HANDLING Обработчик данных от внешнего ADC
+ * @{
  */
 
 #ifndef ADC_HANDLER_H
@@ -16,11 +19,6 @@
 
 #include <stdbool.h>
 #include "main.h"
-
-/**
- * @defgroup EXTERNAL_ADC_HANDLING Обработчик данных от внешнего ADC
- * @{
- */
 
 /**
  * @def ADC_BYTES_PER_SAMPLE
@@ -45,7 +43,7 @@
  * @def ADC_SETUP_REGS_COUNT
  * @brief Количество регистров настройки внешнего ADC
  */
-#define ADC_SETUP_REGS_COUNT 2 // TODO выставить 15
+#define ADC_SETUP_REGS_COUNT 6
 
 _Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1)) == 0,
                "ADC_BUFFER_ELEMENTS must be power of two");
@@ -57,7 +55,7 @@ _Static_assert(ADC_BATCH_SIZE < MAX_PACKET_SIZE,
  * @brief Структура сэмпла внешнего ADC.
  * В составе кольцевого буфера @ref AdcRingBuffer_t хранит получаемые от внешних ADC сэмплов.
  */
-typedef struct
+typedef struct AdcSample_t
 {
    uint8_t data[ADC_BYTES_PER_SAMPLE]; /**< Массив для хранения сэмпла */
 } AdcSample_t;
@@ -67,7 +65,7 @@ typedef struct
  * Буферы @ref adc1_buf и @ref adc2_buf используются для хранения сэмплов от первого
  * и второго внешнего ADC соответственно.
  */
-typedef struct
+typedef struct AdcRingBuffer_t
 {
    AdcSample_t buffer[ADC_BUFFER_ELEMENTS]; /**< Массив кольцевого буфера */
    volatile uint32_t head;                  /**< Указывает индекс головы буфера */
@@ -81,37 +79,32 @@ typedef struct
  */
 typedef struct adc_dma_context_t
 {
-   DMA_TypeDef *dma;    /**< Адрес периферии DMA */
-   uint32_t teif_rx_ch; /**< Флаг Transfer Error для канала RX*/
-   uint32_t tcif_rx_ch; /**< Флаг Transfer Complete для канала RX*/
-   uint32_t htif_rx_ch; /**< Флаг Half Transfer Complete для канала RX*/
-
-   uint32_t teif_tx_ch; /**< Флаг Transfer Error для канала TX*/
-   uint32_t tcif_tx_ch; /**< Флаг Transfer Complete для канала TX*/
-   uint32_t htif_tx_ch; /**< Флаг Half Transfer Complete для канала TX*/
-
-   DMA_Channel_TypeDef *rx; /**< Адрес RX DMA-канала */
-   DMA_Channel_TypeDef *tx; /**< Адрес TX DMA-канала */
-
-   SPI_TypeDef *spi; /**< Адрес периферии SPI */
-
-   GPIO_TypeDef *cs_port; /**< Адрес порта, на котором находится пин CS */
-   uint16_t cs_pin;       /**< Адрес пина CS */
-
-   GPIO_TypeDef *start_port;
-   uint16_t start_pin;
-
-   volatile uint32_t *error_count; /**< Счетчик ошибок */
-
-   AdcRingBuffer_t *ring; /**< Указатель на кольцевой буфер */
-
+   DMA_TypeDef *dma;                /**< Адрес периферии DMA */
+   uint32_t teif_rx_ch;             /**< Флаг Transfer Error для канала RX*/
+   uint32_t tcif_rx_ch;             /**< Флаг Transfer Complete для канала RX*/
+   uint32_t htif_rx_ch;             /**< Флаг Half Transfer Complete для канала RX*/
+   uint32_t teif_tx_ch;             /**< Флаг Transfer Error для канала TX*/
+   uint32_t tcif_tx_ch;             /**< Флаг Transfer Complete для канала TX*/
+   uint32_t htif_tx_ch;             /**< Флаг Half Transfer Complete для канала TX*/
+   DMA_Channel_TypeDef *rx;         /**< Адрес RX DMA-канала */
+   DMA_Channel_TypeDef *tx;         /**< Адрес TX DMA-канала */
+   SPI_TypeDef *spi;                /**< Адрес периферии SPI */
+   GPIO_TypeDef *cs_port;           /**< Адрес порта, на котором находится пин CS */
+   uint16_t cs_pin;                 /**< Адрес пина CS */
+   GPIO_TypeDef *start_port;        /**< Адрес порта, на котором находится пин START */
+   uint16_t start_pin;              /**< Адрес пина START */
+   volatile uint32_t *error_count;  /**< Счетчик ошибок */
+   AdcRingBuffer_t *ring;           /**< Указатель на кольцевой буфер */
    volatile uint32_t batch_count;   /**< Счетчик количества сэмплов в буфере @ref AdcRingBuffer_t */
    volatile bool *batch_ready_flag; /**< Флаг достижения в буфере количества сэмплов, равного @ref ADC_BATCH_SIZE*/
    volatile uint8_t *spi_buf;       /**< Указатель на массив, в который поступают данные от DMA RX канала */
-   volatile bool DRDY_low;
+   volatile bool DRDY_low;          /**< Флаг срабатывания DRDY */
 } adc_dma_context_t;
 
+/** @brief Контекст для обработки прерываний от I ADC */
 extern adc_dma_context_t adc1_ctx;
+
+/** @brief Контекст для обработки прерываний от II ADC */
 extern adc_dma_context_t adc2_ctx;
 
 /**
@@ -187,33 +180,19 @@ void ADC_Handler_Init(void);
 void ADC_setup(adc_dma_context_t *ctx);
 
 /**
- * @brief Отправляет массив данных по SPI интерфейсу, используется для взаимодействия
- * с внешними ADC
- * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
- * @param tx_buf Указатель на массив отправляемых данных.
- * @param rx_buf Указатель на массив принимаемых данных.
- * @param len Длина обоих массивов.
- * @param uses_rx_cplt_interrupt выставляется true если функция вызвана из
- * DRDY-прерывания, в таком случае функция становится не блокирующей и обработка
- * полученных пакетов происходит в SPI DMA RX прерывании. 
- * Требуется для корректной обработки данных от внешнего ADC. Если требуется
- * просто отправить данные - устанавливается в false.
- */
-void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
-                              const uint8_t *tx_buf,
-                              volatile uint8_t *rx_buf,
-                              uint8_t len,
-                              bool uses_rx_cplt_interrupt);
-
-/**
  * @brief Добавляет новый сэмпл в кольцевой буфер.
- * Функция безопасно обновляет индекс головы буфера. В случае заполнения буфера
- * новый сэмпл не добавляется, предотвращая перезапись старых данных.
- * @param rb Указатель на кольцевой буфер @ref AdcRingBuffer_t.
- * @param data Указатель на массив данных сэмпла, размер @ref ADC_BYTES_PER_SAMPLE.
- * @return true, если сэмпл успешно добавлен; false, если буфер полный.
+ *
+ * Функция безопасно обновляет индекс головы буфера. При заполнении буфера
+ * новый сэмпл не добавляется, предотвращая перезапись непрочитанных данных.
+ *
+ * @param[in]  rb   Указатель на структуру кольцевого буфера.
+ * @param[in]  data Указатель на массив данных сэмпла размером @ref ADC_BYTES_PER_SAMPLE байт.
+ * @retval true     Сэмпл успешно записан в буфер.
+ * @retval false    Буфер заполнен, запись отменена.
+ *
+ * @note Вызывается из контекста ISR/DMA @ref adc_dma_isr. Не содержит блокирующих операций и аллокаций памяти.
  */
-static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
+FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
 {
    uint32_t head = rb->head;
    uint32_t next = (head + 1) & (ADC_BUFFER_ELEMENTS - 1);
@@ -232,53 +211,72 @@ static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
    return true;
 }
 
+/**
+ * @brief Отправляет массив данных по SPI интерфейсу, используется для взаимодействия
+ * с внешними ADC.
+ * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param tx_buf Указатель на массив отправляемых данных.
+ * @param rx_buf Указатель на массив принимаемых данных.
+ * @param len Длина обоих массивов.
+ * @param uses_rx_cplt_interrupt Выставляется true если функция вызвана из
+ * DRDY-прерывания, в таком случае функция становится не блокирующей и обработка
+ * полученных пакетов происходит в SPI DMA RX прерывании.
+ * Требуется для корректной обработки данных от внешнего ADC. Если требуется
+ * просто отправить данные - устанавливается в false.
+ */
+void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
+                              const uint8_t *tx_buf,
+                              volatile uint8_t *rx_buf,
+                              uint8_t len,
+                              bool uses_rx_cplt_interrupt);
 
-// static inline void ADC_DRDY_ISR_proto(adc_dma_context_t *ctx)
-// {
-//    /* Check if DMA still active */
-//    if (ctx->rx->CCR & DMA_CCR_EN)
-//    {
-//       ctx->error_count++;
-//       return;
-//    }
+/**
+ * @brief Оптимизированный вариант функции для отправки данных по SPI.
+ * * Уменьшено количество аргументов во избежание траты тактов на запись части аргументов в стек
+ * * Добавлен спецификатор inline во избежание траты тактов на вызов функции
+ * 
+ * Используется для работы в обработчике прерывания.
+ * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param tx_buf Указатель на массив отправляемых данных.
+ * @param rx_buf Указатель на массив принимаемых данных.
+ */
+FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_dma_context_t *ctx, //TODO На всякий случай перепроверить на реентрантность
+                                               const uint8_t *tx_buf,
+                                               volatile uint8_t *rx_buf)
+{
+   /* Check if DMA still active */
+   if ((ctx->rx->CCR & DMA_CCR_EN) || (ctx->tx->CCR & DMA_CCR_EN)) // TODO возможно нужно && вместо ||
+   {
+      ctx->error_count++;
+      return;
+   }
 
-//    ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
-//    ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
-//    __DSB();
+   // Disable DMA channels
+   ctx->rx->CCR &= ~DMA_CCR_EN;
+   ctx->tx->CCR &= ~DMA_CCR_EN;
+   __DSB();
+   ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+   ctx->rx->CPAR = (uint32_t)&ctx->spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
+   // __DSB();
+   ctx->tx->CMAR = (uint32_t)tx_buf; // Memory address of TX buffer
+   ctx->tx->CNDTR = 3;               // Number of bytes to transfer
+   // __DSB();
+   ctx->rx->CMAR = (uint32_t)rx_buf; // Memory address of RX buffer
+   ctx->rx->CNDTR = 3;               // Number of bytes to transfer
+   // __DSB();
 
-//    /* Clear DMA flags */
-//    ctx->dma->IFCR =
-//        ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch |
-//        ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch;
+   // Clear pending DMA flags
+   ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
+                    ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 
-//    /* Optional: clear SPI state */
-//    // if (ctx->spi->SR & SPI_SR_OVR) //TODO Проверить что из этого работает
-//    // {
-//    //    (void)ctx->spi->DR;
-//    //    (void)ctx->spi->SR;
-//    //    ctx->spi->CR1 &= ~SPI_CR1_SPE; // Disable SPI
-//    //    ctx->spi->CR1 |= SPI_CR1_SPE;  // Re-enable SPI
-//    //    ctx->error_count++;
-//    // }
+   // Pull CS LOW
+   ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
+   __DSB();
 
-//    // Clear SPI flags properly (read, don't write)
-//    (void)ctx->spi->SR;
-//    (void)ctx->spi->DR; // Flush any stale data
-//    __DMB();
-//    /* Configure DMA */
-//    ctx->rx->CMAR = (uint32_t)ctx->spi_buf;
-//    ctx->rx->CNDTR = 3;
-//    __DMB();
-//    ctx->tx->CMAR = (uint32_t)SPI_DUMMY_TX;
-//    ctx->tx->CNDTR = 3;
-//    __DMB();
-//    ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
-//    __DMB();
-//    /* Enable RX first */
-//    ctx->rx->CCR |= DMA_CCR_EN;
-//    // __DMB(); //TODO кажется это не нужно
-//    ctx->tx->CCR |= DMA_CCR_EN;
-// }
+   // Enable DMA channels
+   ctx->rx->CCR |= DMA_CCR_EN;
+   ctx->tx->CCR |= DMA_CCR_EN;
+}
 
 /**
  * @brief Обработчик прерывания DRDY внешнего ADC.
@@ -292,10 +290,10 @@ static inline bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
  *
  * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
  */
-static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
+FORCE_INLINE void ADC_DRDY_ISR(adc_dma_context_t *ctx)
 {
    ctx->DRDY_low = true;
-   SPI_DMA_TX_RX_byte_array(ctx, SPI_DUMMY_TX, ctx->spi_buf, 3, true);
+   SPI_DMA_TX_RX_byte_array_isr(ctx, SPI_DUMMY_TX, ctx->spi_buf);
 }
 
 /**
@@ -313,7 +311,7 @@ static inline void ADC_DRDY_ISR(adc_dma_context_t *ctx)
  *
  * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
  */
-static inline void adc_dma_isr(adc_dma_context_t *ctx) // TODO clear TX channels flags, Fix CS/DMA ordering
+FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx) //TODO Перепроверить на реентрантность
 {
    ctx->DRDY_low = false;
    uint32_t isr = ctx->dma->ISR;

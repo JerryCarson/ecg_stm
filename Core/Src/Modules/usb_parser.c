@@ -3,7 +3,7 @@
 #include "ring_buffer.h"
 #include "usbd_cdc_if.h"
 
-static /*inline*/ uint16_t stream_available(Downlink_USB_Stream *s) // TODO раскомментировать inline после отладки
+static inline uint16_t stream_available(Downlink_USB_Stream *s)
 {
     uint16_t head = s->head;
     uint16_t tail = s->tail;
@@ -61,7 +61,7 @@ inline uint16_t stream_write(Downlink_USB_Stream *s, const uint8_t *data, uint16
     return len;
 }
 
-void stream_data_uplink(Uplink_USB_Stream *stream)
+void stream_data_uplink(Uplink_USB_Stream *stream) //TODO Возможно стоит перенести в ring_buffer 
 {
     StreamPacket_t *pkt = peekPacket(stream);
     __DMB();

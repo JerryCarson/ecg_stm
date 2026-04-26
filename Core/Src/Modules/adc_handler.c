@@ -11,7 +11,7 @@ volatile bool adc2_batch_size_reached = false;
 //  and ignore last byte.
 volatile uint8_t g_spi1_buf[4] __attribute__((aligned(4)));
 volatile uint8_t g_spi2_buf[4] __attribute__((aligned(4)));
-const uint8_t SPI_DUMMY_TX[] = {0xBB, 0x00, 0x00, 0xAA}; // TODO поменять на все нули
+const uint8_t SPI_DUMMY_TX[] = {0x00, 0x00, 0x00, 0x00};
 volatile uint32_t g_adc1_error_count = 0;
 volatile uint32_t g_adc2_error_count = 0;
 
@@ -122,9 +122,6 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                               uint8_t len,
                               bool uses_rx_cplt_interrupt)
 {
-    // This function is not used in the current code, but can be called to perform a single 3-byte SPI transfer using DMA.
-    // It configures the DMA channels for a 3-byte transfer, starts the transfer, and waits for completion.
-
     /* Check if DMA still active */
     if ((ctx->rx->CCR & DMA_CCR_EN) & (ctx->tx->CCR & DMA_CCR_EN))
     {
@@ -181,13 +178,21 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                      ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 }
 
-uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] = {0xAABB, 0xCCDD}; // TODO  заполнить регистры
+uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] =
+    {
+        0x0358,
+        0x0400,
+        0x0540,
+        0x0604,
+        0x07E5,
+        0x0800};
 
-void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пины надо поднять и опустить для зашивки
+void ADC_setup(adc_dma_context_t *ctx)
 {
     static uint8_t tx_buf[2];   // TX buffer for 1 register
     static uint8_t rx_dummy[2]; // dummy RX buffer
 
+    // ctx->start_port->BSRR = ctx->start_pin;
     ctx->start_port->BSRR = (uint32_t)ctx->start_pin << 16U; // Pull START LOW
 
     // Disable EXTI interrupts to prevent DRDY ISR firing
@@ -210,7 +215,7 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
         ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
         __DSB();
         // Split 16-bit register into MSB/LSB
-        tx_buf[0] = ((ADC_setup_regs[i] >> 8) & 0xFF) | 0x80; // 0x80 sets WRITE operation
+        tx_buf[0] = ((ADC_setup_regs[i] >> 8) & 0xFF) + 0x80; // 0x80 sets WRITE operation
         tx_buf[1] = ADC_setup_regs[i] & 0xFF;
 
         // Set DMA addresses and counts for this 2-byte transfer
@@ -230,6 +235,7 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
 
         // Pull CS LOW for this register
         ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
+        // HAL_Delay(1);
         __DSB();
         // Enable DMA channels
         ctx->rx->CCR |= DMA_CCR_EN;
@@ -249,6 +255,8 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
             ;
 
         // Pull CS HIGH
+        // HAL_Delay(10);
+        // __NOP();
         ctx->cs_port->BSRR = ctx->cs_pin;
 
         // Clear DMA flags
@@ -265,5 +273,7 @@ void ADC_setup(adc_dma_context_t *ctx) // TODO выяснить какие пи�
     else if (ctx == &adc2_ctx)
         NVIC_EnableIRQ(EXTI15_10_IRQn);
 
+    // ctx->start_port->BSRR = (uint32_t)ctx->start_pin << 16U; // Pull START LOW
+    // HAL_Delay(100);
     ctx->start_port->BSRR = ctx->start_pin;
 }

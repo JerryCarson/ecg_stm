@@ -158,11 +158,13 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -Wextra \
+          -fdata-sections -ffunction-sections \
+          -fno-strict-aliasing
 
 ifeq ($(DEBUG), 1)
 # CFLAGS += -g -gdwarf-2
-CFLAGS += -g3 -gdwarf-4 -fno-omit-frame-pointer -fno-inline-functions-called-once
+CFLAGS += -g2 -gdwarf-4
 endif
 
 

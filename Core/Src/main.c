@@ -70,6 +70,8 @@ void processAdcBatches(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+ADC_Telemetry adc_telemetry = {0};
+
 uint8_t usb_rx_buf[USB_BUF_SIZE];
 
 /** @brief Массив данных для генерации синуса (DAC1) */
@@ -95,24 +97,12 @@ Peripheral_latch_set Latches;
 
 volatile bool DRDY_1_detected = false;
 
-// /** @brief Буфер для ЭКГ-сигнала с ADC1 */
-// RingBuffer_16 ADC_ECG_BUF;
-
-// /** @brief Буфер для приема команд с ПК */
-// RingBuffer_8 PC_RX_BUF;
-
-// /** @brief Буфер для приема команд с ПК */
-// RingBuffer_8 PC_TX_BUF;
-
-// /** @brief Буфер для записи сэмплов с внешних ADC */
-// RingBuffer_32 SAMPLES_BUF;
-
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -133,7 +123,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  set_latches(&Latches);
+  set_latches();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -156,62 +146,31 @@ int main(void)
   // NVIC_DisableIRQ(DMA2_Channel2_IRQn);
 
   ADC_Handler_Init();
-  stop_all(&Latches);
+  stop_all();
   // ADC_setup(&adc1_ctx);
+  HAL_Delay(100);
   // ADC_setup(&adc2_ctx);
   Latches.EXTERNAL_ADC_I_LOCK = 0;
-  Latches.EXTERNAL_ADC_II_LOCK = 0;
-  Latches.INTERNAL_ADC_LOCK = 0;
+  // Latches.EXTERNAL_ADC_II_LOCK = 0;
+  // Latches.INTERNAL_ADC_LOCK = 0;
   // Latches.INTERNAL_DAC_LOCK = 1;
 
-  // uint8_t SPI_Request[3] = {0xAA, 0xBB, 0xCC}; // TODO заполнить запросами для настройки ADC
-
-  // HAL_GPIO_WritePin(CS_1_GPIO_Port, CS_1_Pin, GPIO_PIN_RESET);
-  // HAL_SPI_Transmit_DMA(&hspi1, SPI_Request, sizeof(SPI_Request));
-  // while (HAL_SPI_GetState(&hspi1) == HAL_SPI_STATE_BUSY_TX)
-  // {
-  //   __NOP();
-  // }
-  // HAL_GPIO_WritePin(CS_1_GPIO_Port, CS_1_Pin, GPIO_PIN_SET);
-
-  // ADC_setup(&adc1_ctx);
-  // ADC_setup(&adc2_ctx); // TODO дописать управление пинами START
-
-  // uint8_t dummytx[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
-  // uint8_t dummyrx[5];
-  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, dummytx, dummyrx, 5, false);
-
-  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
-  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
-  // SPI_DMA_TX_RX_byte_array(&adc1_ctx, SPI_Request, SPI_Answer, false);
   // ADC_setup(&adc1_ctx);
   // ADC_setup(&adc2_ctx);
 
-  // read_ecg_only(&Latches);
-
   usbStream.head = usbStream.tail = 0;
-
-  // /* Инициализация буферов: установка head и tail в 0 */
-  // init_buffers();
 
   /* Старт таймера TIM6 для DAC (генерация синуса) и TIM7 для ADC (чтение сигнала ЭКГ)  */
   HAL_TIM_Base_Start(&htim6);
   HAL_TIM_Base_Start(&htim7);
-  // enable_external_ADC_I(&Latches);
 
-  /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */ // TODO перепроверить таймеры
+  /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
 
   /* Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
   HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
   dac_running = true;
   adc_running = true;
-
-  // volatile uint8_t debug_gate = 1; // Change to 0 in VSCode Watch window to run
-  // while (debug_gate)
-  // {
-  //   __NOP();
-  // }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -227,39 +186,6 @@ int main(void)
     stream_data_uplink(&INT_ADC_Stream);
     internal_DAC_EN_DIS_mgr();
     internal_ADC_EN_DIS_mgr();
-    // if (Latches.INTERNAL_DAC_LOCK)
-    // {
-    //   if (dac_running)
-    //   {
-    //     HAL_TIM_Base_Stop(&htim6);
-    //     dac_running = false;
-    //   }
-    // }
-    // else
-    // {
-    //   if (!dac_running)
-    //   {
-    //     HAL_TIM_Base_Start(&htim6);
-    //     dac_running = true;
-    //   }
-    // }
-
-    // if (Latches.INTERNAL_ADC_LOCK)
-    // {
-    //   if (adc_running)
-    //   {
-    //     HAL_TIM_Base_Stop(&htim7);
-    //     adc_running = false;
-    //   }
-    // }
-    // else
-    // {
-    //   if (!adc_running)
-    //   {
-    //     HAL_TIM_Base_Start(&htim7);
-    //     adc_running = true;
-    //   }
-    // }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -268,22 +194,22 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48;
+   * in the RCC_OscInitTypeDef structure.
+   */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
@@ -300,9 +226,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -346,9 +271,6 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
       }
     }
     // TODO Перепроверить, возможно схлопнуть в один колбэк
-    // StreamPacket_t packet;
-    // packet.dataType = DATA_ADC_ECG;
-    // packet.length = ADC_BUF_SIZE;
 
     StreamPacket_t packet = create_packet(DATA_ADC_ECG, ADC_BUF_SIZE);
 
@@ -390,7 +312,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
   }
 }
 
-void processAdcBatches(void)
+void processAdcBatches(void) //TODO перетащить в utility_functions
 {
   // StreamPacket_t packet;
 
@@ -437,9 +359,9 @@ void processAdcBatches(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -452,12 +374,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

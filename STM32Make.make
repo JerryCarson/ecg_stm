@@ -56,7 +56,7 @@ BUILD_DIRECTORY ?= build
 DEBUG ?= 1
 
 # debug flags when debug is defined
-OPTIMIZATION ?= -Og
+OPTIMIZATION ?= -O2
 
 RELEASE_DIRECTORY = $(BUILD_DIRECTORY)/debug
 ifeq ($(DEBUG),1)
@@ -241,9 +241,9 @@ CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPTIMIZATION_FLAGS)
 CXXFLAGS = $(MCU) $(CXX_DEFS) $(C_INCLUDES) $(OPTIMIZATION_FLAGS)
 
 # Add additional flags
-CFLAGS += -Wall -fdata-sections -ffunction-sections 
+CFLAGS += -Wall -Wextra -fdata-sections -ffunction-sections -fno-strict-aliasing 
 ASFLAGS += -Wall -fdata-sections -ffunction-sections 
-CXXFLAGS += -fno-exceptions -fno-rtti 
+CXXFLAGS += -Wextra -fno-exceptions -fno-rtti -fno-strict-aliasing 
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
@@ -267,7 +267,7 @@ LIBDIR = \
 
 
 # Additional LD Flags from config file
-ADDITIONALLDFLAGS = -Wl,--print-memory-usage -specs=nano.specs 
+ADDITIONALLDFLAGS = -Wl,--gc-sections -Wl,--print-memory-usage -Wl,-Map=build/ecg_stm_proj.map -specs=nano.specs 
 
 LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIRECTORY)/$(TARGET).map,--cref -Wl,--gc-sections
 

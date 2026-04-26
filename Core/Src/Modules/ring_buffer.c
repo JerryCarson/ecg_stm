@@ -33,28 +33,6 @@ void consumePacket(Uplink_USB_Stream *stream)
     __enable_irq();
 }
 
-// void pushPacket(StreamPacket_t *packet)
-// {
-//     int full;
-//     uint8_t idx;
-//     __disable_irq();
-//     full = queueFull();
-//     if (!full)
-//     {
-//         idx = queueHead;
-//         queueHead = (queueHead + 1) & (MAX_QUEUE - 1);
-//     }
-//     __enable_irq();
-
-//     if (!full)
-//     {
-//         StreamPacket_t *qPacket = &packetQueue[idx];
-//         qPacket->dataType = packet->dataType;
-//         qPacket->length = packet->length > MAX_PACKET_SIZE ? MAX_PACKET_SIZE : packet->length;
-//         memcpy(qPacket->data, packet->data, qPacket->length);
-//     }
-// }
-
 void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet)
 {
     int full;

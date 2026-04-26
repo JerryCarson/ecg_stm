@@ -23,7 +23,8 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -33,29 +34,30 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "string.h"
 #include <stdbool.h>
+#include "compiler_defs.h"
     // #include "ring_buffer.h"
 
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-/* USER CODE END ET */
+    /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
 
-/* USER CODE END EC */
+    /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+    /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
+    /* USER CODE BEGIN EFP */
     void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
 // void start_dev1();
 // void start_dev2();
@@ -87,7 +89,7 @@ void Error_Handler(void);
 #define DRDY_1_GPIO_Port GPIOB
 #define DRDY_1_EXTI_IRQn EXTI4_IRQn
 
-/* USER CODE BEGIN Private defines */
+    /* USER CODE BEGIN Private defines */
 
     typedef struct Peripheral_latch_set
     {
@@ -126,6 +128,12 @@ void Error_Handler(void);
         SPI_SOURCE_BLANK
     } SPI_Source;
 
+    typedef struct ADC_Telemetry
+    {
+        uint8_t adc1_reg_data[8];
+        uint8_t adc2_reg_data[8];
+    } ADC_Telemetry;
+
     /*
     RINGBUFFER_DEFINE(uint8_t, RingBuffer_8, 256);
     RINGBUFFER_DEFINE(uint16_t, RingBuffer_16, 256);
@@ -143,7 +151,7 @@ void Error_Handler(void);
 
 #define ADC_BUF_SIZE 128 /** Задает размер DMA буфера для внутреннего АЦП */
 
-    _Static_assert(MAX_PACKET_SIZE >= ADC_BUF_SIZE/2,
+    _Static_assert(MAX_PACKET_SIZE >= ADC_BUF_SIZE / 2,
                    "Too large ADC_BUF_SIZE");
 
 #define CMD_HEADER 0xAA /** Заголовочный байт пакетов */
@@ -156,13 +164,14 @@ void Error_Handler(void);
     extern volatile uint16_t active_cs_pin;
     extern GPIO_TypeDef *active_cs_port;
     extern volatile uint8_t spi_busy;
+    extern ADC_Telemetry adc_telemetry;
 
     extern bool dac_running;
     extern bool adc_running;
 
     extern volatile bool DRDY_1_detected;
 
-/* USER CODE END Private defines */
+    /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
