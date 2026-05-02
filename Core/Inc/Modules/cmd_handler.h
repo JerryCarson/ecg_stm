@@ -21,7 +21,7 @@
  * @brief Идентификаторы доступных команд.
  * @note Значения должны совпадать с протоколом обмена с ПК.
  */
-typedef enum
+typedef enum CommandID
 {
     EXT_ADC_RST_CFG,      /**< Перепрошивка внешних ADC */
     STOP_ALL_ANALOG,      /**< Остановка всех ADC и DAC */
@@ -34,7 +34,7 @@ typedef enum
     DISIGNORE_LO_DISRUPT, /**< Не игнорировать отрыв электродов */
     RESET_LATCHES,        /**< Включить всё (выставить все @ref Latches в 0) */
     TEST_SEND_SPI_DATA,   /**< Тестовая команда для отправки данных по SPI */
-    READ_STATUS_REG       /**< Прочитать регистры обоих внешних ADC. Данные отправляются в @ref adc_telemetry */
+    READ_EXT_ADCs_REGS,    /**< Прочитать регистры обоих внешних ADC. Данные отправляются в @ref adc_telemetry */
 } CommandID;
 
 /**
@@ -55,7 +55,7 @@ typedef struct CommandEntry
  * @attention Функция временно отключает прерывания EXTI4 и EXTI15_10.
  *            Блокирует поток данных до завершения чтения регистров.
  */
-void read_status_reg(void);
+void read_ext_adc_regs(void);
 
 /** @brief Остановить работу аналоговой периферии. */
 void stop_all(void);

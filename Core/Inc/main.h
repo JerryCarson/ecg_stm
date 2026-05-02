@@ -23,8 +23,7 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -37,27 +36,27 @@ extern "C"
 #include "compiler_defs.h"
     // #include "ring_buffer.h"
 
-    /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-    /* Exported types ------------------------------------------------------------*/
-    /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-    /* USER CODE END ET */
+/* USER CODE END ET */
 
-    /* Exported constants --------------------------------------------------------*/
-    /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-    /* USER CODE END EC */
+/* USER CODE END EC */
 
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-    /* USER CODE END EM */
+/* USER CODE END EM */
 
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
     void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
 // void start_dev1();
 // void start_dev2();
@@ -76,20 +75,17 @@ extern "C"
 #define RESET_2_GPIO_Port GPIOA
 #define START_2_Pin GPIO_PIN_9
 #define START_2_GPIO_Port GPIOA
-#define DRDY_2_Pin GPIO_PIN_10
-#define DRDY_2_GPIO_Port GPIOA
-#define DRDY_2_EXTI_IRQn EXTI15_10_IRQn
-#define CS_1_Pin GPIO_PIN_10
+#define DRDY_1_Pin GPIO_PIN_10
+#define DRDY_1_GPIO_Port GPIOC
+#define DRDY_1_EXTI_IRQn EXTI15_10_IRQn
+#define CS_1_Pin GPIO_PIN_11
 #define CS_1_GPIO_Port GPIOC
-#define RESET_1_Pin GPIO_PIN_11
-#define RESET_1_GPIO_Port GPIOC
-#define START_1_Pin GPIO_PIN_3
+#define RESET_1_Pin GPIO_PIN_3
+#define RESET_1_GPIO_Port GPIOB
+#define START_1_Pin GPIO_PIN_4
 #define START_1_GPIO_Port GPIOB
-#define DRDY_1_Pin GPIO_PIN_4
-#define DRDY_1_GPIO_Port GPIOB
-#define DRDY_1_EXTI_IRQn EXTI4_IRQn
 
-    /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
     typedef struct Peripheral_latch_set
     {
@@ -114,11 +110,13 @@ extern "C"
     typedef enum StreamDataType
     {
         DATA_NULL,
-        DATA_SPI_1,       /**< Данные от первого внешнего ADC */
-        DATA_SPI_2,       /**< Данные от второго внешнего ADC */
-        DATA_ADC_ECG,     /**< Отсчеты сигнала ЭКГ с внутреннего ADC */
-        DATA_PC_CMD,      /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
-        DATA_PACKET_ERROR /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
+        DATA_SPI_1,        /**< Данные от первого внешнего ADC */
+        DATA_SPI_2,        /**< Данные от второго внешнего ADC */
+        DATA_ADC_ECG,      /**< Отсчеты сигнала ЭКГ с внутреннего ADC */
+        DATA_PC_CMD,       /**< Команда контроллеру от ПК. Сама команда содержится в сегменте данных в пакете */
+        DATA_PACKET_ERROR, /**< Команда от контроллера к ПК, сигнализирующая об ошибке сравнения контрольных сумм (пакет поврежден) */
+        DATA_TM_I_ADC,
+        DATA_TM_II_ADC
     } StreamDataType;
 
     typedef enum SPI_Source
@@ -128,10 +126,12 @@ extern "C"
         SPI_SOURCE_BLANK
     } SPI_Source;
 
+#define ADC_TM_REGS 10U
+
     typedef struct ADC_Telemetry
     {
-        uint8_t adc1_reg_data[8];
-        uint8_t adc2_reg_data[8];
+        uint8_t adc1_reg_data[ADC_TM_REGS];
+        uint8_t adc2_reg_data[ADC_TM_REGS];
     } ADC_Telemetry;
 
     /*
@@ -171,7 +171,7 @@ extern "C"
 
     extern volatile bool DRDY_1_detected;
 
-    /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,8 @@
 #include "cmd_handler.h"
 #include "adc_handler.h"
+#include "usbd_cdc_if.h"
+#include "ring_buffer.h"
+#include "utility_functions.h"
 
 const CommandEntry cmd_table[CMD_TABLE_SIZE] = {{RESET_LATCHES, reset_latches},
                                                 {STOP_ALL_ANALOG, stop_all},
@@ -12,7 +15,7 @@ const CommandEntry cmd_table[CMD_TABLE_SIZE] = {{RESET_LATCHES, reset_latches},
                                                 {IGNORE_LO_DISRUPT, ignore_LO_disrupt},
                                                 {DISIGNORE_LO_DISRUPT, disignore_LO_disrupt},
                                                 {TEST_SEND_SPI_DATA, test_send_spi_data},
-                                                {READ_STATUS_REG, read_status_reg}};
+                                                {READ_EXT_ADCs_REGS, read_ext_adc_regs}};
 
 /**
  * @private
@@ -27,22 +30,50 @@ uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
     uint8_t SPI_Request[2] = {0x40U + reg, 0x00U};
     uint8_t SPI_Answer[2] = {0U, 0U};
     SPI_DMA_TX_RX_byte_array(ctx, SPI_Request, SPI_Answer, 2, false);
-    return SPI_Answer[1];
+
+    uint8_t SPI_Request1[2] = {0x00U, 0x00U};
+    uint8_t SPI_Answer1[2] = {0U, 0U};
+    SPI_DMA_TX_RX_byte_array(ctx, SPI_Request1, SPI_Answer1, 2, false);
+    return SPI_Answer1[0];
 }
 
-void read_status_reg(void)
+void read_ext_adc_regs(void)
 {
     NVIC_DisableIRQ(EXTI4_IRQn);
     NVIC_DisableIRQ(EXTI15_10_IRQn);
-
-    for (size_t i = 0; i < 0x08; i++)
+    NVIC_DisableIRQ(DMA1_Channel2_IRQn);
+    NVIC_DisableIRQ(DMA2_Channel1_IRQn);
+    // const uint8_t regs_count = 9;
+    for (size_t i = 0; i < ADC_TM_REGS; i++)
     {
         adc_telemetry.adc1_reg_data[i] = request_ADC_reg_data(&adc1_ctx, i);
         adc_telemetry.adc2_reg_data[i] = request_ADC_reg_data(&adc2_ctx, i);
     }
 
+    StreamPacket_t packet = create_packet(DATA_TM_I_ADC, ADC_TM_REGS);
+    memcpy(&packet.data, adc_telemetry.adc1_reg_data, ADC_TM_REGS);
+    pushPacket(&EXT_ADC1_Stream, &packet);
+    // HAL_Delay(1000);
+    // CDC_Transmit_FS(NULL, 0);
+    // CDC_Transmit_FS(NULL, 0);
+    StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, ADC_TM_REGS);
+    memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
+    pushPacket(&EXT_ADC2_Stream, &packet1);
+
+    // if (CDC_Transmit_FS(adc_telemetry.adc1_reg_data, ADC_TM_REGS) == USBD_OK)
+    // {
+    //     __NOP();
+    // }
+    // HAL_Delay(100);
+    // if (CDC_Transmit_FS(adc_telemetry.adc2_reg_data, ADC_TM_REGS) == USBD_OK)
+    // {
+    //     __NOP();
+    // }
+
     NVIC_EnableIRQ(EXTI4_IRQn);
     NVIC_EnableIRQ(EXTI15_10_IRQn);
+    NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+    NVIC_EnableIRQ(DMA2_Channel1_IRQn);
 }
 
 void reset_latches(void)
@@ -77,6 +108,8 @@ void stop_all(void) // TODO дописать управление пинами S
     Latches.EXTERNAL_ADC_II_LOCK = 1;
     Latches.INTERNAL_ADC_LOCK = 1;
     Latches.INTERNAL_DAC_LOCK = 1;
+    adc1_ctx.start_port->BSRR = (uint32_t)adc1_ctx.start_pin << 16U; // Pull START LOW
+    adc2_ctx.start_port->BSRR = (uint32_t)adc2_ctx.start_pin << 16U; // Pull START LOW
 }
 
 void enable_internal_DAC(void)
@@ -88,18 +121,22 @@ void enable_both_external_ADC(void)
 {
     Latches.EXTERNAL_ADC_I_LOCK = 0;
     Latches.EXTERNAL_ADC_II_LOCK = 0;
+    adc1_ctx.start_port->BSRR = adc1_ctx.start_pin;
+    adc2_ctx.start_port->BSRR = adc2_ctx.start_pin;
 }
 
 void enable_external_ADC_I(void)
 {
     Latches.EXTERNAL_ADC_I_LOCK = 1;
     Latches.EXTERNAL_ADC_II_LOCK = 0;
+    adc1_ctx.start_port->BSRR = adc1_ctx.start_pin;
 }
 
 void enable_external_ADC_II(void)
 {
     Latches.EXTERNAL_ADC_I_LOCK = 0;
     Latches.EXTERNAL_ADC_II_LOCK = 1;
+    adc2_ctx.start_port->BSRR = adc2_ctx.start_pin;
 }
 
 void read_ecg_only(void)

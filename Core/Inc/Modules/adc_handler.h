@@ -43,7 +43,7 @@
  * @def ADC_SETUP_REGS_COUNT
  * @brief Количество регистров настройки внешнего ADC
  */
-#define ADC_SETUP_REGS_COUNT 6
+#define ADC_SETUP_REGS_COUNT 5
 
 _Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1)) == 0,
                "ADC_BUFFER_ELEMENTS must be power of two");

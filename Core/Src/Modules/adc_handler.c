@@ -148,9 +148,15 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                      ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 
     // Pull CS LOW
+    uint8_t del = 100;
     ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
     __DSB();
-
+    for (size_t i = 0; i < del; i++)
+    {
+        __NOP();
+    }
+    __DSB();
+    __ISB();
     // Enable DMA channels
     ctx->rx->CCR |= DMA_CCR_EN;
     ctx->tx->CCR |= DMA_CCR_EN;
@@ -167,6 +173,14 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
     while ((ctx->spi->SR & SPI_SR_BSY))
         ;
 
+    __DSB();
+    __ISB();
+    for (size_t i = 0; i < del; i++)
+    {
+        __NOP();
+    }
+    __DSB();
+    __ISB();
     // Pull CS HIGH
     ctx->cs_port->BSRR = ctx->cs_pin;
 
@@ -178,13 +192,14 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                      ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 }
 
-uint16_t ADC_setup_regs[ADC_SETUP_REGS_COUNT] =
+const uint16_t ADC_setup_regs[] =
     {
-        0x0358,
+        //0x0260,
+        //0x0358,
         0x0400,
-        0x0540,
-        0x0604,
-        0x07E5,
+        0x0500,
+        0x0610,
+        0x0700,
         0x0800};
 
 void ADC_setup(adc_dma_context_t *ctx)
@@ -193,19 +208,20 @@ void ADC_setup(adc_dma_context_t *ctx)
     static uint8_t rx_dummy[2]; // dummy RX buffer
 
     // ctx->start_port->BSRR = ctx->start_pin;
-    ctx->start_port->BSRR = (uint32_t)ctx->start_pin << 16U; // Pull START LOW
+    // ctx->start_port->BSRR = (uint32_t)ctx->start_pin << 16U; // Pull START LOW
 
     // Disable EXTI interrupts to prevent DRDY ISR firing
-    if (ctx == &adc1_ctx)
-        NVIC_DisableIRQ(EXTI4_IRQn);
-    else if (ctx == &adc2_ctx)
-        NVIC_DisableIRQ(EXTI15_10_IRQn);
+    NVIC_DisableIRQ(EXTI4_IRQn);
+    NVIC_DisableIRQ(EXTI15_10_IRQn);
+    NVIC_DisableIRQ(DMA1_Channel2_IRQn);
+    NVIC_DisableIRQ(DMA2_Channel1_IRQn);
 
     // Stop DMA channels if running
     ctx->rx->CCR &= ~DMA_CCR_EN;
     ctx->tx->CCR &= ~DMA_CCR_EN;
+    uint8_t del = 100;
 
-    for (uint16_t i = 0; i < ADC_SETUP_REGS_COUNT; i++)
+    for (uint16_t i = 0; i < sizeof(ADC_setup_regs)/sizeof(*ADC_setup_regs); i++)
     {
         // Disable DMA channels
         ctx->rx->CCR &= ~DMA_CCR_EN;
@@ -235,6 +251,15 @@ void ADC_setup(adc_dma_context_t *ctx)
 
         // Pull CS LOW for this register
         ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
+
+        __DSB();
+        for (size_t j = 0; j < del; j++)
+        {
+            __NOP();
+        }
+        // __DSB();
+        __ISB();
+
         // HAL_Delay(1);
         __DSB();
         // Enable DMA channels
@@ -242,6 +267,9 @@ void ADC_setup(adc_dma_context_t *ctx)
         ctx->tx->CCR |= DMA_CCR_EN;
 
         // *(volatile uint8_t *)&ctx->spi->DR = 0x00;
+
+        while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
+            ;
 
         while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
             ;
@@ -257,6 +285,16 @@ void ADC_setup(adc_dma_context_t *ctx)
         // Pull CS HIGH
         // HAL_Delay(10);
         // __NOP();
+
+        __DSB();
+        __ISB();
+        for (size_t j = 0; j < del; j++)
+        {
+            __NOP();
+        }
+        __DSB();
+        __ISB();
+
         ctx->cs_port->BSRR = ctx->cs_pin;
 
         // Clear DMA flags
@@ -268,12 +306,12 @@ void ADC_setup(adc_dma_context_t *ctx)
     ctx->tx->CCR &= ~DMA_CCR_EN;
 
     // Re-enable EXTI interrupts
-    if (ctx == &adc1_ctx)
-        NVIC_EnableIRQ(EXTI4_IRQn);
-    else if (ctx == &adc2_ctx)
-        NVIC_EnableIRQ(EXTI15_10_IRQn);
+    NVIC_EnableIRQ(EXTI4_IRQn);
+    NVIC_EnableIRQ(EXTI15_10_IRQn);
+    NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+    NVIC_EnableIRQ(DMA2_Channel1_IRQn);
 
     // ctx->start_port->BSRR = (uint32_t)ctx->start_pin << 16U; // Pull START LOW
     // HAL_Delay(100);
-    ctx->start_port->BSRR = ctx->start_pin;
+    // ctx->start_port->BSRR = ctx->start_pin;
 }

@@ -100,9 +100,9 @@ volatile bool DRDY_1_detected = false;
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
@@ -150,27 +150,27 @@ int main(void)
   // ADC_setup(&adc1_ctx);
   HAL_Delay(100);
   // ADC_setup(&adc2_ctx);
-  Latches.EXTERNAL_ADC_I_LOCK = 0;
+  // Latches.EXTERNAL_ADC_I_LOCK = 0;
   // Latches.EXTERNAL_ADC_II_LOCK = 0;
   // Latches.INTERNAL_ADC_LOCK = 0;
   // Latches.INTERNAL_DAC_LOCK = 1;
 
-  // ADC_setup(&adc1_ctx);
-  // ADC_setup(&adc2_ctx);
+  ADC_setup(&adc1_ctx);
+  ADC_setup(&adc2_ctx);
 
   usbStream.head = usbStream.tail = 0;
 
   /* Старт таймера TIM6 для DAC (генерация синуса) и TIM7 для ADC (чтение сигнала ЭКГ)  */
-  HAL_TIM_Base_Start(&htim6);
-  HAL_TIM_Base_Start(&htim7);
+  // HAL_TIM_Base_Start(&htim6);
+  // HAL_TIM_Base_Start(&htim7);
 
   /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_buffer, ADC_BUF_SIZE);
 
   /* Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
   HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
-  dac_running = true;
-  adc_running = true;
+  dac_running = false;
+  adc_running = false;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -182,6 +182,7 @@ int main(void)
     parse_data_downlink(&usbStream);
     processAdcBatches();
     stream_data_uplink(&EXT_ADC1_Stream);
+    HAL_Delay(100);
     stream_data_uplink(&EXT_ADC2_Stream);
     stream_data_uplink(&INT_ADC_Stream);
     internal_DAC_EN_DIS_mgr();
@@ -194,22 +195,22 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-   */
+  */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
@@ -226,8 +227,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -359,9 +361,9 @@ void processAdcBatches(void) //TODO перетащить в utility_functions
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -374,12 +376,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

@@ -255,27 +255,6 @@ void EXTI1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles EXTI line4 interrupt.
-  */
-void EXTI4_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI4_IRQn 0 */
-  if (EXTI->PR1 & EXTI_PR1_PIF4)
-  {
-    EXTI->PR1 = EXTI_PR1_PIF4;
-    __DSB();
-    if ((!Latches.EXTERNAL_ADC_I_LOCK))
-    {
-      ADC_DRDY_ISR(&adc1_ctx);
-    }
-  }
-  /* USER CODE END EXTI4_IRQn 0 */
-  /* USER CODE BEGIN EXTI4_IRQn 1 */
-
-  /* USER CODE END EXTI4_IRQn 1 */
-}
-
-/**
   * @brief This function handles DMA1 channel1 global interrupt.
   */
 void DMA1_Channel1_IRQHandler(void)
@@ -350,13 +329,23 @@ void USB_LP_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-  if (EXTI->PR1 & EXTI_PR1_PIF10)
+  // if (EXTI->PR1 & EXTI_PR1_PIF10) // Для ADCII
+  // {
+  //   EXTI->PR1 = EXTI_PR1_PIF10;
+  //   __DSB();
+  //   if ((!Latches.EXTERNAL_ADC_II_LOCK))
+  //   {
+  //     ADC_DRDY_ISR(&adc2_ctx);
+  //   }
+  // }
+
+  if (EXTI->PR1 & EXTI_PR1_PIF10) // Для ADC I
   {
     EXTI->PR1 = EXTI_PR1_PIF10;
     __DSB();
-    if ((!Latches.EXTERNAL_ADC_II_LOCK))
+    if ((!Latches.EXTERNAL_ADC_I_LOCK))
     {
-      ADC_DRDY_ISR(&adc2_ctx);
+      ADC_DRDY_ISR(&adc1_ctx);
     }
   }
   /* USER CODE END EXTI15_10_IRQn 0 */
