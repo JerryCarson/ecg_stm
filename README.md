@@ -1,5 +1,7 @@
 # Программа для считывания данных ЭКГ контроллером STM32G431CBU6
 
-Актуальная версия находится в ветке [dev](https://github.com/JerryCarson/ecg_stm/tree/dev)
+Актуальная версия находится в ветке [dev](https://github.com/JerryCarson/ecg_stm/tree/dev).
 
-Версия для работы с реальными прототипами находится в ветке [device-test-runs](https://github.com/JerryCarson/ecg_stm/tree/device-test-runs)
+Версия для работы с реальными прототипами находится в ветке [device-test-runs](https://github.com/JerryCarson/ecg_stm/tree/device-test-runs).
+
+ПК-программа для чтения потоков данных с контроллера находится в [Релизах](https://github.com/JerryCarson/ecg_stm/releases).
