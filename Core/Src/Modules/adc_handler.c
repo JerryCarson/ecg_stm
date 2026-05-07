@@ -194,13 +194,13 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
 
 const uint16_t ADC_setup_regs[] =
     {
-        //0x0260,
-        //0x0358,
-        0x0400,
-        0x0500,
-        0x0610,
-        0x0700,
-        0x0800};
+        // 0x0260U,
+        0x0358U,
+        0x0400U,
+        0x0510U,
+        0x0610U,
+        0x0705U,
+        0x0840U};
 
 void ADC_setup(adc_dma_context_t *ctx)
 {

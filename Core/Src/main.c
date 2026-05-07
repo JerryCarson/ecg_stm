@@ -182,7 +182,6 @@ int main(void)
     parse_data_downlink(&usbStream);
     processAdcBatches();
     stream_data_uplink(&EXT_ADC1_Stream);
-    HAL_Delay(100);
     stream_data_uplink(&EXT_ADC2_Stream);
     stream_data_uplink(&INT_ADC_Stream);
     internal_DAC_EN_DIS_mgr();

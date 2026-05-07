@@ -126,7 +126,7 @@ void Error_Handler(void);
         SPI_SOURCE_BLANK
     } SPI_Source;
 
-#define ADC_TM_REGS 10U
+#define ADC_TM_REGS 5U
 
     typedef struct ADC_Telemetry
     {

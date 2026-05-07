@@ -34,6 +34,7 @@ uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
     uint8_t SPI_Request1[2] = {0x00U, 0x00U};
     uint8_t SPI_Answer1[2] = {0U, 0U};
     SPI_DMA_TX_RX_byte_array(ctx, SPI_Request1, SPI_Answer1, 2, false);
+    __DSB();
     return SPI_Answer1[0];
 }
 
@@ -44,18 +45,16 @@ void read_ext_adc_regs(void)
     NVIC_DisableIRQ(DMA1_Channel2_IRQn);
     NVIC_DisableIRQ(DMA2_Channel1_IRQn);
     // const uint8_t regs_count = 9;
-    for (size_t i = 0; i < ADC_TM_REGS; i++)
+    for (size_t i = 4; i < 9; i++)
     {
         adc_telemetry.adc1_reg_data[i] = request_ADC_reg_data(&adc1_ctx, i);
         adc_telemetry.adc2_reg_data[i] = request_ADC_reg_data(&adc2_ctx, i);
     }
-
+    __DSB();
     StreamPacket_t packet = create_packet(DATA_TM_I_ADC, ADC_TM_REGS);
     memcpy(&packet.data, adc_telemetry.adc1_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC1_Stream, &packet);
-    // HAL_Delay(1000);
-    // CDC_Transmit_FS(NULL, 0);
-    // CDC_Transmit_FS(NULL, 0);
+
     StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, ADC_TM_REGS);
     memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC2_Stream, &packet1);
@@ -127,15 +126,15 @@ void enable_both_external_ADC(void)
 
 void enable_external_ADC_I(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 1;
-    Latches.EXTERNAL_ADC_II_LOCK = 0;
+    Latches.EXTERNAL_ADC_I_LOCK = 0;
+    Latches.EXTERNAL_ADC_II_LOCK = 1;
     adc1_ctx.start_port->BSRR = adc1_ctx.start_pin;
 }
 
 void enable_external_ADC_II(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 0;
-    Latches.EXTERNAL_ADC_II_LOCK = 1;
+    Latches.EXTERNAL_ADC_I_LOCK = 1;
+    Latches.EXTERNAL_ADC_II_LOCK = 0;
     adc2_ctx.start_port->BSRR = adc2_ctx.start_pin;
 }
 
