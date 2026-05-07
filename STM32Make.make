@@ -77,8 +77,8 @@ endif
 C_SOURCES =  \
 Core/Src/Modules/adc_handler.c \
 Core/Src/Modules/cmd_handler.c \
-Core/Src/Modules/ring_buffer.c \
-Core/Src/Modules/usb_parser.c \
+Core/Src/Modules/downlink_parser.c \
+Core/Src/Modules/uplink_buffer.c \
 Core/Src/Modules/utility_functions.c \
 Core/Src/adc.c \
 Core/Src/crc.c \

@@ -1,7 +1,7 @@
 #include "cmd_handler.h"
 #include "adc_handler.h"
 #include "usbd_cdc_if.h"
-#include "ring_buffer.h"
+#include "uplink_buffer.h"
 #include "utility_functions.h"
 
 const CommandEntry cmd_table[CMD_TABLE_SIZE] = {{RESET_LATCHES, reset_latches},
@@ -58,16 +58,6 @@ void read_ext_adc_regs(void)
     StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, ADC_TM_REGS);
     memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC2_Stream, &packet1);
-
-    // if (CDC_Transmit_FS(adc_telemetry.adc1_reg_data, ADC_TM_REGS) == USBD_OK)
-    // {
-    //     __NOP();
-    // }
-    // HAL_Delay(100);
-    // if (CDC_Transmit_FS(adc_telemetry.adc2_reg_data, ADC_TM_REGS) == USBD_OK)
-    // {
-    //     __NOP();
-    // }
 
     NVIC_EnableIRQ(EXTI4_IRQn);
     NVIC_EnableIRQ(EXTI15_10_IRQn);

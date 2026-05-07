@@ -42,12 +42,14 @@ adc_dma_context_t adc1_ctx =
 
         .error_count = &g_adc1_error_count,
 
-        .ring = &adc1_buf,
+        .buf = &adc1_buf,
 
         .batch_count = 0,
         .batch_ready_flag = &adc1_batch_size_reached,
         .spi_buf = g_spi1_buf,
-        .DRDY_low = 0};
+        .DRDY_low = 0,
+        .data_type = DATA_SPI_1,
+        .uplink_stream = &EXT_ADC1_Stream};
 
 adc_dma_context_t adc2_ctx =
     {
@@ -73,12 +75,14 @@ adc_dma_context_t adc2_ctx =
 
         .error_count = &g_adc2_error_count,
 
-        .ring = &adc2_buf,
+        .buf = &adc2_buf,
 
         .batch_count = 0,
         .batch_ready_flag = &adc2_batch_size_reached,
         .spi_buf = g_spi2_buf,
-        .DRDY_low = 0};
+        .DRDY_low = 0,
+        .data_type = DATA_SPI_2,
+        .uplink_stream = &EXT_ADC2_Stream};
 
 void ADC_Handler_Init(void)
 {
@@ -98,15 +102,6 @@ void ADC_Handler_Init(void)
 
     SPI1->CR1 |= SPI_CR1_SPE;
     SPI2->CR1 |= SPI_CR1_SPE;
-
-    // Force G4 SPI FIFO thresholds to match 8-bit DMA transfers
-    // SPI1->CR2 |= SPI_CR2_FRXTH; // RX threshold = 1/4 full (8-bit)
-    // SPI1->CR2 &= ~(0x3U << 4);  // TX threshold = 1/4 full (8-bit)
-    // SPI1->CR2 |= SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN;
-
-    // SPI2->CR2 |= SPI_CR2_FRXTH;
-    // SPI2->CR2 &= ~(0x3U << 4);
-    // SPI2->CR2 |= SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN;
 
     SPI1->CR2 |= SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN;
     SPI2->CR2 |= SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN;
@@ -221,7 +216,7 @@ void ADC_setup(adc_dma_context_t *ctx)
     ctx->tx->CCR &= ~DMA_CCR_EN;
     uint8_t del = 100;
 
-    for (uint16_t i = 0; i < sizeof(ADC_setup_regs)/sizeof(*ADC_setup_regs); i++)
+    for (uint16_t i = 0; i < sizeof(ADC_setup_regs) / sizeof(*ADC_setup_regs); i++)
     {
         // Disable DMA channels
         ctx->rx->CCR &= ~DMA_CCR_EN;

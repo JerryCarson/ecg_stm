@@ -22,7 +22,7 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ring_buffer.h"
+#include "uplink_buffer.h"
 #include "adc_handler.h"
 /* USER CODE END Includes */
 

@@ -1,7 +1,6 @@
-#include "usb_parser.h"
+#include "downlink_parser.h"
 #include "cmd_handler.h"
-#include "ring_buffer.h"
-#include "usbd_cdc_if.h"
+// #include "uplink_buffer.h"
 
 static inline uint16_t stream_available(Downlink_USB_Stream *s)
 {
@@ -61,57 +60,7 @@ inline uint16_t stream_write(Downlink_USB_Stream *s, const uint8_t *data, uint16
     return len;
 }
 
-void stream_data_uplink(Uplink_USB_Stream *stream) //TODO Возможно стоит перенести в ring_buffer 
-{
-    StreamPacket_t *pkt = peekPacket(stream);
-    __DMB();
-    if (pkt)
-    {
-        if (pkt->length > MAX_PACKET_SIZE)
-        {
-            consumePacket(stream);
-            return;
-        }
-        static uint8_t buf[MAX_PACKET_SIZE + HEADER_SIZE + CRC_SIZE];
-        buf[0] = CMD_HEADER;
-        buf[1] = pkt->dataType;
-        buf[2] = (pkt->length) >> 8;
-        buf[3] = (pkt->length) & 0xFF;
-        for (size_t i = 0; i < pkt->length; i++)
-        {
-            buf[HEADER_SIZE + i] = pkt->data[i];
-        }
-        uint16_t total = HEADER_SIZE + pkt->length + CRC_SIZE - 1;
-
-        CRC->CR = (CRC->CR & ~CRC_CR_POLYSIZE_Msk) | CRC_CR_POLYSIZE_1;
-        CRC->POL = 0x07;  // Polynomial
-        CRC->INIT = 0x00; // Initial CRC value
-        CRC->CR |= CRC_CR_RESET;
-        __DSB();
-        __ISB();
-        while (CRC->CR & CRC_CR_RESET)
-            ;
-
-        for (uint16_t i = 0; i < total; i++)
-        {
-            *(__IO uint8_t *)&CRC->DR = buf[i]; 
-        }
-
-        uint8_t crc = (uint8_t)CRC->DR;
-
-        buf[HEADER_SIZE + pkt->length] = crc;
-
-        if (CDC_Transmit_FS(buf, pkt->length + HEADER_SIZE + CRC_SIZE) == USBD_OK)
-        {
-            consumePacket(stream);
-        }
-        // uint8_t nl[] = {0x0D};
-        // CDC_Transmit_FS(nl, 1);
-        // CDC_Transmit_FS(nl, 1);
-    }
-}
-
-void parse_data_downlink(Downlink_USB_Stream *s)
+void parse_downlink_data(Downlink_USB_Stream *s)
 {
     if (!s)
         return;
@@ -173,8 +122,6 @@ void parse_data_downlink(Downlink_USB_Stream *s)
         uint8_t crc = (uint8_t)CRC->DR;
 
         uint8_t received_crc = stream_peek(s, packet_size - 1);
-
-        // volatile uint16_t sa = stream_available(s);
 
         if (crc == received_crc)
         {

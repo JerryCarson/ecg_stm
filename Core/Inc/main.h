@@ -23,7 +23,8 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -36,27 +37,27 @@ extern "C" {
 #include "compiler_defs.h"
     // #include "ring_buffer.h"
 
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-/* USER CODE END ET */
+    /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
 
-/* USER CODE END EC */
+    /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+    /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
+    /* USER CODE BEGIN EFP */
     void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
 // void start_dev1();
 // void start_dev2();
@@ -85,7 +86,7 @@ void Error_Handler(void);
 #define START_1_Pin GPIO_PIN_4
 #define START_1_GPIO_Port GPIOB
 
-/* USER CODE BEGIN Private defines */
+    /* USER CODE BEGIN Private defines */
 
     typedef struct Peripheral_latch_set
     {
@@ -142,39 +143,32 @@ void Error_Handler(void);
 
 #define SPI_PACKET_LEN 3
 
-#define USB_BUF_SIZE 1024
-
 #define SINE_WAVE_SAMPLES 50
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
 #define MAX_PACKET_SIZE 128 /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
 
-#define ADC_BUF_SIZE 128 /** Задает размер DMA буфера для внутреннего АЦП */
+#define ECG_BUF_SIZE 128 /** Задает размер DMA буфера для внутреннего АЦП */
 
-    _Static_assert(MAX_PACKET_SIZE >= ADC_BUF_SIZE / 2,
-                   "Too large ADC_BUF_SIZE");
+    _Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2,
+                   "Too large ECG_BUF_SIZE");
 
-#define CMD_HEADER 0xAA /** Заголовочный байт пакетов */
-
-    extern uint8_t usb_rx_buf[USB_BUF_SIZE];
+#define CMD_HEADER 0xAA                               /** Заголовочный байт пакетов */
+#define HEADER_SIZE 4U                                /**< Размер заголовка пакета: [SYNC][TYPE][LEN_H][LEN_L] [байт]. */
+#define CRC_SIZE 1U                                   /**< Размер контрольной суммы CRC-8 [байт]. */
+#define MIN_PACKET_SIZE (HEADER_SIZE + CRC_SIZE + 1U) /**< Минимальный валидный размер пакета [байт]. */
 
     extern uint8_t SPI_Request[];
     extern uint8_t SPI_Answer[3];
-    extern StreamDataType source;
-    extern volatile uint16_t active_cs_pin;
-    extern GPIO_TypeDef *active_cs_port;
-    extern volatile uint8_t spi_busy;
     extern ADC_Telemetry adc_telemetry;
 
     extern bool dac_running;
     extern bool adc_running;
 
-    extern volatile bool DRDY_1_detected;
-
-/* USER CODE END Private defines */
+    /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __MAIN_H */
+#endif /* __MAIN_H__ */

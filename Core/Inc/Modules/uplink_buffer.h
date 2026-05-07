@@ -1,14 +1,15 @@
 /**
- * @file ring_buffer.h
+ * @file uplink_buffer.h
  * @brief Структура кольцевого буфера для передачи данных на ПК через USB CDC
- * @addtogroup RING_BUFFER Структура кольцевого буфера для передачи данных на ПК через USB CDC
+ * @addtogroup UPLINK_BUFFER Структура кольцевого буфера для передачи данных на ПК через USB CDC
  * @{
  */
 
-#ifndef __RING_BUFFER_H__
-#define __RING_BUFFER_H__
+#ifndef __UPLINK_BUFFER_H__
+#define __UPLINK_BUFFER_H__
 
 #include "main.h"
+#include "usbd_cdc_if.h"
 
 /**
  * @def MAX_QUEUE
@@ -53,7 +54,7 @@ typedef struct Uplink_USB_Stream
  * @warning Если очередь полна, пакет будет молча отброшен. Вызывающий код должен
  *          контролировать заполненность буфера или обрабатывать потерю данных.
  */
-void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet); 
+void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet);
 
 /**
  * @brief Возвращает указатель на пакет в хвосте очереди без изменения индексов.
@@ -71,6 +72,17 @@ StreamPacket_t *peekPacket(Uplink_USB_Stream *stream);
  *       или для удаления из очереди слишком длинного пакета.
  */
 void consumePacket(Uplink_USB_Stream *stream);
+
+/**
+ * @brief Формирование и отправка пакетов в исходящий поток (MCU → PC).
+ * @details Извлекает пакет из очереди, формирует кадр с заголовком и CRC-8,
+ *          вычисляет контрольную сумму аппаратным блоком CRC и передаёт
+ *          через @ref CDC_Transmit_FS(). При @c USBD_OK пакет помечается как обработанный.
+ * @param[in] stream Указатель на структуру исходящего потока. Не должен быть @c NULL.
+ * @note Сбрасывает конфигурацию CRC при каждом вызове. Не гарантирует
+ *       успешную отправку, если USB-стек занят (требует внешней проверки статуса).
+ */
+void stream_data_uplink(Uplink_USB_Stream *stream);
 
 /** @brief Очередь пакетов для I ADC */
 extern Uplink_USB_Stream EXT_ADC1_Stream;
