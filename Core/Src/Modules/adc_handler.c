@@ -146,12 +146,12 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
     uint8_t del = 100;
     ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
     __DSB();
-    for (size_t i = 0; i < del; i++)
-    {
-        __NOP();
-    }
-    __DSB();
-    __ISB();
+    // for (size_t i = 0; i < del; i++)
+    // {
+    //     __NOP();
+    // }
+    // __DSB();
+    // __ISB();
     // Enable DMA channels
     ctx->rx->CCR |= DMA_CCR_EN;
     ctx->tx->CCR |= DMA_CCR_EN;
@@ -169,13 +169,13 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
         ;
 
     __DSB();
-    __ISB();
-    for (size_t i = 0; i < del; i++)
-    {
-        __NOP();
-    }
-    __DSB();
-    __ISB();
+    // __ISB();
+    // for (size_t i = 0; i < del; i++)
+    // {
+    //     __NOP();
+    // }
+    // __DSB();
+    // __ISB();
     // Pull CS HIGH
     ctx->cs_port->BSRR = ctx->cs_pin;
 
@@ -194,7 +194,7 @@ const uint16_t ADC_setup_regs[] =
         0x0400U,
         0x0510U,
         0x0610U,
-        0x0705U,
+        0x0707U,
         0x0840U};
 
 void ADC_setup(adc_dma_context_t *ctx)
@@ -248,12 +248,12 @@ void ADC_setup(adc_dma_context_t *ctx)
         ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
 
         __DSB();
-        for (size_t j = 0; j < del; j++)
-        {
-            __NOP();
-        }
+        // for (size_t j = 0; j < del; j++)
+        // {
+        //     __NOP();
+        // }
         // __DSB();
-        __ISB();
+        // __ISB();
 
         // HAL_Delay(1);
         __DSB();
@@ -282,13 +282,13 @@ void ADC_setup(adc_dma_context_t *ctx)
         // __NOP();
 
         __DSB();
-        __ISB();
-        for (size_t j = 0; j < del; j++)
-        {
-            __NOP();
-        }
-        __DSB();
-        __ISB();
+        // __ISB();
+        // for (size_t j = 0; j < del; j++)
+        // {
+        //     __NOP();
+        // }
+        // __DSB();
+        // __ISB();
 
         ctx->cs_port->BSRR = ctx->cs_pin;
 

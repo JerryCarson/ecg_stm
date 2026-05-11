@@ -71,9 +71,9 @@ StreamPacket_t create_packet(StreamDataType t, uint16_t len)
 
 void processAdcBatches(adc_dma_context_t *ctx)
 {
-    if (ctx->batch_ready_flag)
+    if (*(ctx->batch_ready_flag))
     {
-        ctx->batch_ready_flag = false;
+        *(ctx->batch_ready_flag) = false;
         __DMB();
         StreamPacket_t packet = create_packet(ctx->data_type, ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE);
 

@@ -23,8 +23,7 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -37,27 +36,27 @@ extern "C"
 #include "compiler_defs.h"
     // #include "ring_buffer.h"
 
-    /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-    /* Exported types ------------------------------------------------------------*/
-    /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-    /* USER CODE END ET */
+/* USER CODE END ET */
 
-    /* Exported constants --------------------------------------------------------*/
-    /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-    /* USER CODE END EC */
+/* USER CODE END EC */
 
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-    /* USER CODE END EM */
+/* USER CODE END EM */
 
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
     void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
 // void start_dev1();
 // void start_dev2();
@@ -86,7 +85,7 @@ extern "C"
 #define START_1_Pin GPIO_PIN_4
 #define START_1_GPIO_Port GPIOB
 
-    /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
     typedef struct Peripheral_latch_set
     {
@@ -127,7 +126,7 @@ extern "C"
         SPI_SOURCE_BLANK
     } SPI_Source;
 
-#define ADC_TM_REGS 5U
+#define ADC_TM_REGS 10U
 
     typedef struct ADC_Telemetry
     {
@@ -165,10 +164,10 @@ extern "C"
     extern bool dac_running;
     extern bool adc_running;
 
-    /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __MAIN_H__ */
+#endif /* __MAIN_H */

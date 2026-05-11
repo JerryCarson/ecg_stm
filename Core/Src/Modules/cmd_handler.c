@@ -27,10 +27,17 @@ const CommandEntry cmd_table[CMD_TABLE_SIZE] = {{RESET_LATCHES, reset_latches},
  */
 uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
 {
-    uint8_t SPI_Request[2] = {0x40U + reg, 0x00U};
-    uint8_t SPI_Answer[2] = {0U, 0U};
+    uint8_t SPI_Request[3] = {(0x40U + reg), 0x00U};
+    uint8_t SPI_Answer[3] = {0U, 0U};
     SPI_DMA_TX_RX_byte_array(ctx, SPI_Request, SPI_Answer, 2, false);
-
+    __DSB();
+    __ISB();
+    for (size_t j = 0; j < 200; j++)
+    {
+        __NOP();
+    }
+    __DSB();
+    __ISB();
     uint8_t SPI_Request1[2] = {0x00U, 0x00U};
     uint8_t SPI_Answer1[2] = {0U, 0U};
     SPI_DMA_TX_RX_byte_array(ctx, SPI_Request1, SPI_Answer1, 2, false);
@@ -45,7 +52,7 @@ void read_ext_adc_regs(void)
     NVIC_DisableIRQ(DMA1_Channel2_IRQn);
     NVIC_DisableIRQ(DMA2_Channel1_IRQn);
     // const uint8_t regs_count = 9;
-    for (size_t i = 4; i < 9; i++)
+    for (size_t i = 0; i < 9; i++)
     {
         adc_telemetry.adc1_reg_data[i] = request_ADC_reg_data(&adc1_ctx, i);
         adc_telemetry.adc2_reg_data[i] = request_ADC_reg_data(&adc2_ctx, i);
