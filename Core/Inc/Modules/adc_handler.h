@@ -202,7 +202,9 @@ FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
 
    uint32_t tail = rb->tail;
    if (next == tail)
+   {
       return false;
+   }
 
    rb->buffer[head].data[0] = data[0];
    rb->buffer[head].data[1] = data[1];
@@ -347,7 +349,8 @@ FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx) // TODO Перепрове
       /* Wait until SPI fully finished */
       uint32_t timeout = 1000;
       while ((ctx->spi->SR & SPI_SR_BSY) && --timeout)
-         ;
+      {
+      };
       if (!timeout)
       {
          (*ctx->error_count)++;

@@ -54,6 +54,8 @@ out/
 # VSCode
 
 .vscode/
+.PVS-Studio/
+.pvsconfig
 
 # CLion / JetBrains
 

@@ -27,8 +27,8 @@ const CommandEntry cmd_table[CMD_TABLE_SIZE] = {{RESET_LATCHES, reset_latches},
  */
 uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
 {
-    uint8_t SPI_Request[3] = {(0x40U + reg), 0x00U};
-    uint8_t SPI_Answer[3] = {0U, 0U};
+    uint8_t SPI_Request[2] = {(0x40U + reg), 0x00U};
+    uint8_t SPI_Answer[2] = {0U, 0U};
     SPI_DMA_TX_RX_byte_array(ctx, SPI_Request, SPI_Answer, 2, false);
     __DSB();
     __ISB();
@@ -164,7 +164,9 @@ void test_send_spi_data(void)
 void process_command(const uint8_t *payload, uint16_t len)
 {
     if (len == 0)
+    {
         return;
+    }
 
     uint8_t cmd = payload[0];
 

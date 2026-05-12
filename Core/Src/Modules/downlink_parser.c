@@ -8,7 +8,9 @@ static inline uint16_t stream_available(Downlink_USB_Stream *s)
     uint16_t tail = s->tail;
     __DSB();
     if (head >= tail)
+    {
         return head - tail;
+    }
 
     return PARSER_BUFFER_SIZE - tail + head;
 }
@@ -16,13 +18,13 @@ static inline uint16_t stream_available(Downlink_USB_Stream *s)
 static inline uint8_t stream_peek(Downlink_USB_Stream *s, uint16_t offset)
 {
     __DMB();
-    return s->buffer[(s->tail + offset) & (PARSER_BUFFER_SIZE - 1)];
+    return s->buffer[(s->tail + offset) & (PARSER_BUFFER_SIZE - 1U)];
 }
 
 static inline void stream_consume(Downlink_USB_Stream *s, uint16_t count)
 {
     __DSB();
-    s->tail = (s->tail + count) & (PARSER_BUFFER_SIZE - 1);
+    s->tail = (s->tail + count) & (PARSER_BUFFER_SIZE - 1U);
 }
 
 inline uint16_t stream_write(Downlink_USB_Stream *s, const uint8_t *data, uint16_t len)
@@ -34,20 +36,30 @@ inline uint16_t stream_write(Downlink_USB_Stream *s, const uint8_t *data, uint16
     // Calculate free space using cached values only
     uint16_t free;
     if (head >= tail)
-        free = PARSER_BUFFER_SIZE - (head - tail) - 1;
+    {
+        free = PARSER_BUFFER_SIZE - (head - tail) - 1U;
+    }
     else
-        free = tail - head - 1;
+    {
+        free = tail - head - 1U;
+    }
 
     if (len > free)
+    {
         len = free;
+    }
 
-    if (len == 0)
-        return 0; // Buffer full
+    if (len == 0U)
+    {
+        return 0U;
+    } // Buffer full
 
     // Write data to buffer (wrap-around safe)
     uint16_t first = PARSER_BUFFER_SIZE - head;
     if (first > len)
+    {
         first = len;
+    }
 
     memcpy(&s->buffer[head], data, first);
     memcpy(&s->buffer[0], data + first, len - first);
@@ -63,7 +75,9 @@ inline uint16_t stream_write(Downlink_USB_Stream *s, const uint8_t *data, uint16
 void parse_downlink_data(Downlink_USB_Stream *s)
 {
     if (!s)
+    {
         return;
+    }
     while (stream_available(s) >= MIN_PACKET_SIZE)
     {
 
@@ -114,7 +128,7 @@ void parse_downlink_data(Downlink_USB_Stream *s)
         while (CRC->CR & CRC_CR_RESET)
             ;
 
-        for (uint16_t i = 0; i < packet_size - 1; i++)
+        for (uint16_t i = 0U; i < packet_size - 1U; i++)
         {
             *(__IO uint8_t *)&CRC->DR = stream_peek(s, i);
         }
