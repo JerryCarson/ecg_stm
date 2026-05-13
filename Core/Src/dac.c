@@ -25,7 +25,7 @@
 /* USER CODE END 0 */
 
 DAC_HandleTypeDef hdac1;
-DMA_HandleTypeDef hdma_dac1_ch1;
+DMA_HandleTypeDef hdma_dac1_ch1; //-V2615
 
 /* DAC1 init function */
 void MX_DAC1_Init(void)
@@ -132,7 +132,7 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);
 
     /* DAC1 DMA DeInit */
-    HAL_DMA_DeInit(dacHandle->DMA_Handle1);
+    HAL_DMA_DeInit(dacHandle->DMA_Handle1); //-V2547
   /* USER CODE BEGIN DAC1_MspDeInit 1 */
 
   /* USER CODE END DAC1_MspDeInit 1 */

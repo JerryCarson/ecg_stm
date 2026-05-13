@@ -5,8 +5,8 @@
  * @{
  */
 
-#ifndef __UPLINK_BUFFER_H__
-#define __UPLINK_BUFFER_H__
+#ifndef UPLINK_BUFFER_H
+#define UPLINK_BUFFER_H
 
 #include "main.h"
 #include "usbd_cdc_if.h"
@@ -15,9 +15,9 @@
  * @def MAX_QUEUE
  * @brief Максимальное количество пакетов в очереди. Должно быть степенью двойки.
  */
-#define MAX_QUEUE 32
+#define MAX_QUEUE 32U
 
-_Static_assert((MAX_QUEUE & (MAX_QUEUE - 1)) == 0,
+_Static_assert((MAX_QUEUE & (MAX_QUEUE - 1U)) == 0U,
                "MAX_QUEUE must be power of two");
 
 /**
@@ -50,11 +50,11 @@ typedef struct Uplink_USB_Stream
  * @param[in] packet Указатель на добавляемый пакет.
  * @note Функция атомарна относительно прерываний (использует критическую секцию).
  *       Вызывается как из контекста прерывания так и из контекста основного цикла.
- *       Реентрантность соблюдена. //TODO Перепроверить
+ *       Реентрантность соблюдена.
  * @warning Если очередь полна, пакет будет молча отброшен. Вызывающий код должен
  *          контролировать заполненность буфера или обрабатывать потерю данных.
  */
-void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet);
+void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet); // TODO Перепроверить реентрантность
 
 /**
  * @brief Возвращает указатель на пакет в хвосте очереди без изменения индексов.

@@ -42,12 +42,12 @@ adc_dma_context_t adc1_ctx =
 
         .error_count = &g_adc1_error_count,
 
-        .buf = &adc1_buf,
+        .adc_buf = &adc1_buf,
 
         .batch_count = 0,
-        .batch_ready_flag = &adc1_batch_size_reached,
+        .batch_IsReady = &adc1_batch_size_reached,
         .spi_buf = g_spi1_buf,
-        .DRDY_low = 0,
+        .DRDY_IsLow = 0,
         .data_type = DATA_SPI_1,
         .uplink_stream = &EXT_ADC1_Stream};
 
@@ -75,12 +75,12 @@ adc_dma_context_t adc2_ctx =
 
         .error_count = &g_adc2_error_count,
 
-        .buf = &adc2_buf,
+        .adc_buf = &adc2_buf,
 
         .batch_count = 0,
-        .batch_ready_flag = &adc2_batch_size_reached,
+        .batch_IsReady = &adc2_batch_size_reached,
         .spi_buf = g_spi2_buf,
-        .DRDY_low = 0,
+        .DRDY_IsLow = 0,
         .data_type = DATA_SPI_2,
         .uplink_stream = &EXT_ADC2_Stream};
 
@@ -111,11 +111,11 @@ void ADC_Handler_Init(void)
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
 
-void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
+void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, //-V2506
                               const uint8_t *tx_buf,
                               volatile uint8_t *rx_buf,
                               uint8_t len,
-                              bool uses_rx_cplt_interrupt)
+                              bool uses_rx_cplt_interrupt) 
 {
     /* Check if DMA still active */
     if (((ctx->rx->CCR & DMA_CCR_EN) != 0U) || ((ctx->tx->CCR & DMA_CCR_EN) != 0U))
@@ -143,7 +143,7 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                      ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 
     // Pull CS LOW
-    uint8_t del = 100;
+    // uint8_t del = 100;
     ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
     __DSB();
     // for (size_t i = 0; i < del; i++)
@@ -216,7 +216,7 @@ void ADC_setup(adc_dma_context_t *ctx)
     // Stop DMA channels if running
     ctx->rx->CCR &= ~DMA_CCR_EN;
     ctx->tx->CCR &= ~DMA_CCR_EN;
-    uint8_t del = 100;
+    // uint8_t del = 100;
 
     for (uint16_t i = 0; i < sizeof(ADC_setup_regs) / sizeof(*ADC_setup_regs); i++)
     {

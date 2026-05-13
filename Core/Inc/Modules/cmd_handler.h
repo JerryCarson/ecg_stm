@@ -14,7 +14,7 @@
  * @def CMD_TABLE_SIZE
  * @brief Размер таблицы команд (количество поддерживаемых команд).
  */
-#define CMD_TABLE_SIZE 12
+#define CMD_TABLE_SIZE 12U
 
 /**
  * @enum CommandID

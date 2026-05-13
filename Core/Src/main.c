@@ -70,10 +70,10 @@ void SystemClock_Config(void);
 ADC_Telemetry adc_telemetry = {0};
 
 /** @brief Массив данных для генерации синуса (DAC1) */
-uint16_t sine_wave[SINE_WAVE_SAMPLES];
+static __ALIGNED(4) uint16_t sine_wave[SINE_WAVE_SAMPLES];
 
 /** @brief Буфер значений внутреннего ADC (сигнал ЭКГ) */
-uint16_t ecg_buffer[ECG_BUF_SIZE];
+static __ALIGNED(4) uint16_t ecg_buffer[ECG_BUF_SIZE];
 
 /** @brief Кольцевой буфер для потока данных с ПК */
 Downlink_USB_Stream usbStream;
@@ -89,20 +89,20 @@ Peripheral_latch_set Latches;
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  usbStream.head = usbStream.tail = 0U;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+  HAL_Init(); 
 
   /* USER CODE BEGIN Init */
   GenerateSineWave(sine_wave);
@@ -138,24 +138,31 @@ int main(void)
   stop_all();
   HAL_Delay(100);
   // ADC_setup(&adc2_ctx);
-  // Latches.EXTERNAL_ADC_I_LOCK = 0;
-  // Latches.EXTERNAL_ADC_II_LOCK = 0;
-  // Latches.INTERNAL_ADC_LOCK = 0;
-  // Latches.INTERNAL_DAC_LOCK = 1;
+  // Latches.EXTERNAL_ADC_I_IsLocked = 0;
+  // Latches.EXTERNAL_ADC_II_IsLocked = 0;
+  // Latches.INTERNAL_ADC_IsLocked = 0;
+  // Latches.INTERNAL_DAC_IsLocked = 1;
 
   ADC_setup(&adc1_ctx);
   ADC_setup(&adc2_ctx);
 
-  usbStream.head = usbStream.tail = 0;
+    /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
+  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)(void *)ecg_buffer, ECG_BUF_SIZE) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
-  /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ecg_buffer, ECG_BUF_SIZE);
+  // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)(void *)ecg_buffer, ECG_BUF_SIZE);
 
   /* Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
-  HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
-  
-  dac_running = false;
-  adc_running = false;
+  // HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)(void *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
+  if (HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)(void *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  dac_running = (bool)false;
+  adc_running = (bool)false;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -180,29 +187,29 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
-  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
+   */
+  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST); //-V2547
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48;
+   * in the RCC_OscInitTypeDef structure.
+   */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 85;
+  RCC_OscInitStruct.PLL.PLLN = 85; //-V2568
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -212,9 +219,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -231,23 +237,23 @@ void SystemClock_Config(void)
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении первой половины буфера*/
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if ((hadc->Instance == ADC1)) /* && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK))) */
+  if ((hadc->Instance == ADC1)) /* && (!Latches.INTERNAL_ADC_IsLocked) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_IsLocked))) */
   {
     if (Latches.LO_DISRUPTED)
     {
-      if (!Latches.LO_SIGLNAL_USAGE_LOCK)
+      if (!Latches.LO_SIGLNAL_USAGE_IsLocked)
       {
         return;
       }
     }
     // TODO Перепроверить, возможно схлопнуть в один колбэк
 
-    StreamPacket_t packet = create_packet(DATA_ADC_ECG, ECG_BUF_SIZE);
+    StreamPacket_t packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
 
-    for (int i = 0; i < ECG_BUF_SIZE / 2; i++)
+    for (uint16_t i = 0; i < ECG_BUF_SIZE / 2U; i++)
     {
-      packet.data[i * 2] = ecg_buffer[i] & 0xFF;
-      packet.data[i * 2 + 1] = (ecg_buffer[i] >> 8) & 0xFF;
+      packet.data[i * 2U] = (uint8_t)(ecg_buffer[i] & 0xFFU);
+      packet.data[i * 2U + 1U] = (uint8_t)((ecg_buffer[i] >> 8U) & 0xFFU);
     }
 
     pushPacket(&INT_ADC_Stream, &packet);
@@ -257,21 +263,21 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении второй половины буфера*/
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if ((hadc->Instance == ADC1)) /*&& (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))*/
+  if ((hadc->Instance == ADC1)) /*&& (!Latches.INTERNAL_ADC_IsLocked) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_IsLocked)))*/
   {
     if (Latches.LO_DISRUPTED)
     {
-      if (!Latches.LO_SIGLNAL_USAGE_LOCK)
+      if (!Latches.LO_SIGLNAL_USAGE_IsLocked)
       {
         return;
       }
     }
-    StreamPacket_t packet = create_packet(DATA_ADC_ECG, ECG_BUF_SIZE);
+    StreamPacket_t packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
 
-    for (int i = 0; i < ECG_BUF_SIZE / 2; i++)
+    for (uint16_t i = 0U; i < ECG_BUF_SIZE / 2U; i++)
     {
-      packet.data[i * 2] = ecg_buffer[i + ECG_BUF_SIZE / 2] & 0xFF;
-      packet.data[i * 2 + 1] = (ecg_buffer[i + ECG_BUF_SIZE / 2] >> 8) & 0xFF;
+      packet.data[i * 2U] = (uint8_t)(ecg_buffer[i + ECG_BUF_SIZE / 2U] & 0xFFU);
+      packet.data[i * 2U + 1U] = (uint8_t)((ecg_buffer[i + ECG_BUF_SIZE / 2U] >> 8U) & 0xFFU);
     }
 
     pushPacket(&INT_ADC_Stream, &packet);
@@ -281,9 +287,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -296,12 +302,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

@@ -58,9 +58,7 @@ extern "C"
     void Error_Handler(void);
 
     /* USER CODE BEGIN EFP */
-    void start_device(GPIO_TypeDef *cs_port, uint16_t cs_pin, uint8_t src);
-// void start_dev1();
-// void start_dev2();
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -90,12 +88,12 @@ extern "C"
 
     typedef struct Peripheral_latch_set
     {
-        volatile bool INTERNAL_DAC_LOCK;
-        volatile bool INTERNAL_ADC_LOCK;
-        volatile bool EXTERNAL_ADC_I_LOCK;
-        volatile bool EXTERNAL_ADC_II_LOCK;
+        volatile bool INTERNAL_DAC_IsLocked;
+        volatile bool INTERNAL_ADC_IsLocked;
+        volatile bool EXTERNAL_ADC_I_IsLocked;
+        volatile bool EXTERNAL_ADC_II_IsLocked;
         volatile bool LO_DISRUPTED;
-        volatile bool LO_SIGLNAL_USAGE_LOCK;
+        volatile bool LO_SIGLNAL_USAGE_IsLocked;
 
     } Peripheral_latch_set;
 
@@ -120,13 +118,6 @@ extern "C"
         DATA_TM_II_ADC
     } StreamDataType;
 
-    typedef enum SPI_Source
-    {
-        SPI_SOURCE_ADC0,
-        SPI_SOURCE_ADC1,
-        SPI_SOURCE_BLANK
-    } SPI_Source;
-
 #define ADC_TM_REGS 10U
 
     typedef struct ADC_Telemetry
@@ -135,22 +126,14 @@ extern "C"
         uint8_t adc2_reg_data[ADC_TM_REGS];
     } ADC_Telemetry;
 
-    /*
-    RINGBUFFER_DEFINE(uint8_t, RingBuffer_8, 256);
-    RINGBUFFER_DEFINE(uint16_t, RingBuffer_16, 256);
-    RINGBUFFER_DEFINE(uint32_t, RingBuffer_32, 1024);
-    */
-
-#define SPI_PACKET_LEN 3
-
-#define SINE_WAVE_SAMPLES 50
+#define SINE_WAVE_SAMPLES 50U
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
-#define MAX_PACKET_SIZE 128 /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
+#define MAX_PACKET_SIZE 128U /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
 
-#define ECG_BUF_SIZE 128 /** Задает размер DMA буфера для внутреннего АЦП */
+#define ECG_BUF_SIZE 128U /** Задает размер DMA буфера для внутреннего АЦП */
 
-    _Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2,
+    _Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2U,
                    "Too large ECG_BUF_SIZE");
 
 #define CMD_HEADER 0xAAU                              /** Заголовочный байт пакетов */

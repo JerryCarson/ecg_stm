@@ -25,14 +25,14 @@ const CommandEntry cmd_table[CMD_TABLE_SIZE] = {{RESET_LATCHES, reset_latches},
  * @retval uint8_t Значение прочитанного регистра.
  * @note Использует синхронный SPI-DMA обмен. Блокирует поток до завершения.
  */
-uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
+static uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
 {
-    uint8_t SPI_Request[2] = {(0x40U + reg), 0x00U};
-    uint8_t SPI_Answer[2] = {0U, 0U};
-    SPI_DMA_TX_RX_byte_array(ctx, SPI_Request, SPI_Answer, 2, false);
+    uint8_t SPI_Request_loc[2] = {(0x40U + reg), 0x00U};
+    uint8_t SPI_Answer_loc[2] = {0U, 0U};
+    SPI_DMA_TX_RX_byte_array(ctx, SPI_Request_loc, SPI_Answer_loc, 2, false);
     __DSB();
     __ISB();
-    for (size_t j = 0; j < 200; j++)
+    for (size_t j = 0U; j < 200U; j++)
     {
         __NOP();
     }
@@ -52,18 +52,18 @@ void read_ext_adc_regs(void)
     NVIC_DisableIRQ(DMA1_Channel2_IRQn);
     NVIC_DisableIRQ(DMA2_Channel1_IRQn);
     // const uint8_t regs_count = 9;
-    for (size_t i = 0; i < 9; i++)
+    for (uint8_t i = 0U; i < 9U; i++)
     {
         adc_telemetry.adc1_reg_data[i] = request_ADC_reg_data(&adc1_ctx, i);
         adc_telemetry.adc2_reg_data[i] = request_ADC_reg_data(&adc2_ctx, i);
     }
     __DSB();
-    StreamPacket_t packet = create_packet(DATA_TM_I_ADC, ADC_TM_REGS);
-    memcpy(&packet.data, adc_telemetry.adc1_reg_data, ADC_TM_REGS);
+    StreamPacket_t packet = create_packet(DATA_TM_I_ADC, (uint16_t)ADC_TM_REGS);
+    (void)memcpy(&packet.data, adc_telemetry.adc1_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC1_Stream, &packet);
 
-    StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, ADC_TM_REGS);
-    memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
+    StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, (uint16_t)ADC_TM_REGS);
+    (void)memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC2_Stream, &packet1);
 
     NVIC_EnableIRQ(EXTI4_IRQn);
@@ -74,22 +74,22 @@ void read_ext_adc_regs(void)
 
 void reset_latches(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 0;
-    Latches.EXTERNAL_ADC_II_LOCK = 0;
-    Latches.INTERNAL_ADC_LOCK = 0;
-    Latches.INTERNAL_DAC_LOCK = 0;
-    Latches.LO_SIGLNAL_USAGE_LOCK = 0;
-    Latches.LO_DISRUPTED = 0;
+    Latches.EXTERNAL_ADC_I_IsLocked = (bool)false;
+    Latches.EXTERNAL_ADC_II_IsLocked = (bool)false;
+    Latches.INTERNAL_ADC_IsLocked = (bool)false;
+    Latches.INTERNAL_DAC_IsLocked = (bool)false;
+    Latches.LO_SIGLNAL_USAGE_IsLocked = (bool)false;
+    Latches.LO_DISRUPTED = (bool)false;
 }
 
 void set_latches(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 1;
-    Latches.EXTERNAL_ADC_II_LOCK = 1;
-    Latches.INTERNAL_ADC_LOCK = 1;
-    Latches.INTERNAL_DAC_LOCK = 1;
-    Latches.LO_SIGLNAL_USAGE_LOCK = 1;
-    Latches.LO_DISRUPTED = 1;
+    Latches.EXTERNAL_ADC_I_IsLocked = (bool)true;
+    Latches.EXTERNAL_ADC_II_IsLocked = (bool)true;
+    Latches.INTERNAL_ADC_IsLocked = (bool)true;
+    Latches.INTERNAL_DAC_IsLocked = (bool)true;
+    Latches.LO_SIGLNAL_USAGE_IsLocked = (bool)true;
+    Latches.LO_DISRUPTED = (bool)true;
 }
 
 void EXT_ADC_RST_RECONFIG(void)
@@ -100,77 +100,77 @@ void EXT_ADC_RST_RECONFIG(void)
 
 void stop_all(void) // TODO дописать управление пинами START
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 1;
-    Latches.EXTERNAL_ADC_II_LOCK = 1;
-    Latches.INTERNAL_ADC_LOCK = 1;
-    Latches.INTERNAL_DAC_LOCK = 1;
+    Latches.EXTERNAL_ADC_I_IsLocked = (bool)true;
+    Latches.EXTERNAL_ADC_II_IsLocked = (bool)true;
+    Latches.INTERNAL_ADC_IsLocked = (bool)true;
+    Latches.INTERNAL_DAC_IsLocked = (bool)true;
     adc1_ctx.start_port->BSRR = (uint32_t)adc1_ctx.start_pin << 16U; // Pull START LOW
     adc2_ctx.start_port->BSRR = (uint32_t)adc2_ctx.start_pin << 16U; // Pull START LOW
 }
 
 void enable_internal_DAC(void)
 {
-    Latches.INTERNAL_DAC_LOCK = 0;
+    Latches.INTERNAL_DAC_IsLocked = (bool)false;
 }
 
 void enable_both_external_ADC(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 0;
-    Latches.EXTERNAL_ADC_II_LOCK = 0;
+    Latches.EXTERNAL_ADC_I_IsLocked = (bool)false;
+    Latches.EXTERNAL_ADC_II_IsLocked = (bool)false;
     adc1_ctx.start_port->BSRR = adc1_ctx.start_pin;
     adc2_ctx.start_port->BSRR = adc2_ctx.start_pin;
 }
 
 void enable_external_ADC_I(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 0;
-    Latches.EXTERNAL_ADC_II_LOCK = 1;
+    Latches.EXTERNAL_ADC_I_IsLocked = (bool)false;
+    Latches.EXTERNAL_ADC_II_IsLocked = (bool)true;
     adc1_ctx.start_port->BSRR = adc1_ctx.start_pin;
 }
 
 void enable_external_ADC_II(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 1;
-    Latches.EXTERNAL_ADC_II_LOCK = 0;
+    Latches.EXTERNAL_ADC_I_IsLocked = (bool)true;
+    Latches.EXTERNAL_ADC_II_IsLocked = (bool)false;
     adc2_ctx.start_port->BSRR = adc2_ctx.start_pin;
 }
 
 void read_ecg_only(void)
 {
-    Latches.EXTERNAL_ADC_I_LOCK = 1;
-    Latches.EXTERNAL_ADC_II_LOCK = 1;
-    Latches.INTERNAL_ADC_LOCK = 0;
+    Latches.EXTERNAL_ADC_I_IsLocked = (bool)true;
+    Latches.EXTERNAL_ADC_II_IsLocked = (bool)true;
+    Latches.INTERNAL_ADC_IsLocked = (bool)false;
 }
 
 void ignore_LO_disrupt(void)
 {
-    Latches.LO_SIGLNAL_USAGE_LOCK = 1;
+    Latches.LO_SIGLNAL_USAGE_IsLocked = (bool)true;
 }
 
 void disignore_LO_disrupt(void)
 {
-    Latches.LO_SIGLNAL_USAGE_LOCK = 0;
+    Latches.LO_SIGLNAL_USAGE_IsLocked = (bool)false;
 }
 
 void test_send_spi_data(void)
 {
-    const uint8_t SPI_Request[3] = {0xAA, 0xBB, 0xCC};
-    volatile uint8_t SPI_Answer[3] = {0};
+    const uint8_t SPI_Request_loc[3] = {0xAAU, 0xBBU, 0xCCU};
+    volatile uint8_t SPI_Answer_loc[3] = {0U, 0U, 0U};
 
     adc_dma_context_t *ctx = &adc2_ctx; // Example: using ADC1 context for this test
-    SPI_DMA_TX_RX_byte_array(ctx, SPI_Request, SPI_Answer, 3, false);
+    SPI_DMA_TX_RX_byte_array(ctx, SPI_Request_loc, SPI_Answer_loc, 3, false);
 }
 
-void process_command(const uint8_t *payload, uint16_t len)
+void process_command(const uint8_t *payload, uint16_t len) //-V2506
 {
-    if (len == 0)
+    if (len == 0U)
     {
         return;
     }
 
     uint8_t cmd = payload[0];
 
-    for (uint32_t i = 0; i < CMD_TABLE_SIZE; i++)
+    for (uint32_t i = 0U; i < CMD_TABLE_SIZE; i++)
     {
         if (cmd_table[i].cmd_id == cmd)
         {

@@ -2,11 +2,11 @@
 #include "cmd_handler.h"
 // #include "uplink_buffer.h"
 
-static inline uint16_t stream_available(Downlink_USB_Stream *s)
+static inline uint32_t stream_available(Downlink_USB_Stream *s) //-V2506
 {
-    uint16_t head = s->head;
-    uint16_t tail = s->tail;
-    __DSB();
+    const uint32_t head = (uint32_t)__atomic_load_n(&(s->head), __ATOMIC_ACQUIRE);
+    const uint32_t tail = (uint32_t)__atomic_load_n(&(s->tail), __ATOMIC_RELAXED);
+    // __ISB();
     if (head >= tail)
     {
         return head - tail;
@@ -15,64 +15,20 @@ static inline uint16_t stream_available(Downlink_USB_Stream *s)
     return PARSER_BUFFER_SIZE - tail + head;
 }
 
-static inline uint8_t stream_peek(Downlink_USB_Stream *s, uint16_t offset)
+static inline uint8_t stream_peek(Downlink_USB_Stream *s, uint32_t offset)
 {
-    __DMB();
-    return s->buffer[(s->tail + offset) & (PARSER_BUFFER_SIZE - 1U)];
+    // __DMB();
+    const uint32_t idx = (s->tail + offset) & (PARSER_BUFFER_SIZE - 1U); // TODO проверить работоспособность
+    return s->buffer[idx];
+    // return s->buffer[(s->tail + offset) & (PARSER_BUFFER_SIZE - 1U)];
 }
 
-static inline void stream_consume(Downlink_USB_Stream *s, uint16_t count)
+static inline void stream_consume(Downlink_USB_Stream *s, uint32_t count)
 {
-    __DSB();
     s->tail = (s->tail + count) & (PARSER_BUFFER_SIZE - 1U);
 }
 
-inline uint16_t stream_write(Downlink_USB_Stream *s, const uint8_t *data, uint16_t len)
-{
-    // ⚠️ Cache volatile reads ONCE at start
-    uint16_t head = s->head;
-    uint16_t tail = s->tail;
-
-    // Calculate free space using cached values only
-    uint16_t free;
-    if (head >= tail)
-    {
-        free = PARSER_BUFFER_SIZE - (head - tail) - 1U;
-    }
-    else
-    {
-        free = tail - head - 1U;
-    }
-
-    if (len > free)
-    {
-        len = free;
-    }
-
-    if (len == 0U)
-    {
-        return 0U;
-    } // Buffer full
-
-    // Write data to buffer (wrap-around safe)
-    uint16_t first = PARSER_BUFFER_SIZE - head;
-    if (first > len)
-    {
-        first = len;
-    }
-
-    memcpy(&s->buffer[head], data, first);
-    memcpy(&s->buffer[0], data + first, len - first);
-
-    __DMB();
-
-    // Update head (this is the ONLY writer of head)
-    s->head = (head + len) & (PARSER_BUFFER_SIZE - 1);
-
-    return len;
-}
-
-void parse_downlink_data(Downlink_USB_Stream *s)
+void parse_downlink_data(Downlink_USB_Stream *s) //-V2506
 {
     if (!s)
     {
@@ -81,13 +37,13 @@ void parse_downlink_data(Downlink_USB_Stream *s)
     while (stream_available(s) >= MIN_PACKET_SIZE)
     {
 
-        if (stream_peek(s, 0) != CMD_HEADER)
+        if (stream_peek(s, 0U) != CMD_HEADER)
         {
-            stream_consume(s, 1);
+            stream_consume(s, 1U);
             continue;
         }
 
-        StreamDataType type = stream_peek(s, 1);
+        StreamDataType type = (StreamDataType)stream_peek(s, 1U);
 
         if (type != DATA_PC_CMD)
         {
@@ -97,15 +53,16 @@ void parse_downlink_data(Downlink_USB_Stream *s)
 
         // uint8_t cmd = stream_peek(s, 2);
 
-        uint16_t len = ((uint16_t)stream_peek(s, 2) << 8) | stream_peek(s, 3);
+        // uint16_t len = (uint16_t)((uint16_t)(stream_peek(s, 2U) << 8U) | stream_peek(s, 3U));
+        uint16_t len = (uint16_t)(((uint16_t)stream_peek(s, 2U) << 8U) | (uint16_t)stream_peek(s, 3U));
 
-        if (len == 0 || len > MAX_PAYLOAD)
+        if ((len == 0U) || (len > MAX_PAYLOAD))
         {
-            stream_consume(s, 1); // ignore packet without payload
+            stream_consume(s, 1U); // ignore packet without payload
             continue;
         }
 
-        uint16_t packet_size = HEADER_SIZE + len + CRC_SIZE;
+        uint16_t packet_size = (uint16_t)(HEADER_SIZE + len + CRC_SIZE);
 
         if (stream_available(s) < packet_size)
         {
@@ -116,17 +73,18 @@ void parse_downlink_data(Downlink_USB_Stream *s)
         CRC->CR = (CRC->CR & ~CRC_CR_POLYSIZE_Msk) | CRC_CR_POLYSIZE_1;
 
         /* 2. Configure CRC-8 parameters (adjust to your protocol spec) */
-        CRC->POL = 0x07;  // Polynomial
-        CRC->INIT = 0x00; // Initial CRC value
+        CRC->POL = 0x07U;  // Polynomial
+        CRC->INIT = 0x00U; // Initial CRC value
         // CRC->XOR = 0x00; // Final XOR (CMSIS names it XORDATA, not XOR)
 
         CRC->CR |= CRC_CR_RESET;
-        __DSB();
-        __ISB();
+        // __DSB(); //TODO проверить работоспособность
+        // __ISB();
 
         // 2. Wait for hardware to clear the reset bit (safe practice)
-        while (CRC->CR & CRC_CR_RESET)
-            ;
+        while ((CRC->CR & CRC_CR_RESET) != 0U)
+        {
+        };
 
         for (uint16_t i = 0U; i < packet_size - 1U; i++)
         {
@@ -135,12 +93,12 @@ void parse_downlink_data(Downlink_USB_Stream *s)
 
         uint8_t crc = (uint8_t)CRC->DR;
 
-        uint8_t received_crc = stream_peek(s, packet_size - 1);
+        uint8_t received_crc = stream_peek(s, packet_size - 1U);
 
         if (crc == received_crc)
         {
             uint8_t payload[MAX_PAYLOAD];
-            for (uint16_t i = 0; i < len; i++)
+            for (uint16_t i = 0U; i < len; i++)
             {
                 payload[i] = stream_peek(s, HEADER_SIZE + i);
             }
@@ -150,11 +108,15 @@ void parse_downlink_data(Downlink_USB_Stream *s)
         }
         else
         {
-            stream_consume(s, 1);
+            stream_consume(s, 1U);
 
-            while ((stream_available(s) > 0) && (stream_peek(s, 0) != CMD_HEADER))
+            while (stream_available(s) > 0U)
             {
-                stream_consume(s, 1);
+                if (stream_peek(s, 0U) == CMD_HEADER)
+                {
+                    break; // Заголовок найден
+                }
+                stream_consume(s, 1U);
             }
         }
     }
