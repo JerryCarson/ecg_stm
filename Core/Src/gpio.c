@@ -80,6 +80,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : DRDY_2_Pin */
+  GPIO_InitStruct.Pin = DRDY_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(DRDY_2_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : DRDY_1_Pin */
   GPIO_InitStruct.Pin = DRDY_1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;

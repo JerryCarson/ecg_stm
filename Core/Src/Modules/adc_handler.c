@@ -42,12 +42,12 @@ adc_dma_context_t adc1_ctx =
 
         .error_count = &g_adc1_error_count,
 
-        .buf = &adc1_buf,
+        .adc_buf = &adc1_buf,
 
         .batch_count = 0,
-        .batch_ready_flag = &adc1_batch_size_reached,
+        .batch_IsReady = &adc1_batch_size_reached,
         .spi_buf = g_spi1_buf,
-        .DRDY_low = 0,
+        .DRDY_IsLow = 0,
         .data_type = DATA_SPI_1,
         .uplink_stream = &EXT_ADC1_Stream};
 
@@ -75,12 +75,12 @@ adc_dma_context_t adc2_ctx =
 
         .error_count = &g_adc2_error_count,
 
-        .buf = &adc2_buf,
+        .adc_buf = &adc2_buf,
 
         .batch_count = 0,
-        .batch_ready_flag = &adc2_batch_size_reached,
+        .batch_IsReady = &adc2_batch_size_reached,
         .spi_buf = g_spi2_buf,
-        .DRDY_low = 0,
+        .DRDY_IsLow = 0,
         .data_type = DATA_SPI_2,
         .uplink_stream = &EXT_ADC2_Stream};
 
@@ -100,6 +100,11 @@ void ADC_Handler_Init(void)
     DMA2_Channel1->CCR |= DMA_CCR_TCIE;
     DMA1_Channel2->CCR |= DMA_CCR_TCIE;
 
+    // adc1_ctx.tx->CPAR
+    // adc1_ctx.spi->DR
+    adc1_ctx.tx->CPAR = (uint32_t)&adc1_ctx.spi->DR; // Peripheral address is SPI data register
+    adc1_ctx.rx->CPAR = (uint32_t)&adc1_ctx.spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
+
     SPI1->CR1 |= SPI_CR1_SPE;
     SPI2->CR1 |= SPI_CR1_SPE;
 
@@ -111,14 +116,14 @@ void ADC_Handler_Init(void)
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
 
-void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
+void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, //-V2506
                               const uint8_t *tx_buf,
                               volatile uint8_t *rx_buf,
                               uint8_t len,
                               bool uses_rx_cplt_interrupt)
 {
     /* Check if DMA still active */
-    if ((ctx->rx->CCR & DMA_CCR_EN) & (ctx->tx->CCR & DMA_CCR_EN))
+    if (((ctx->rx->CCR & DMA_CCR_EN) != 0U) || ((ctx->tx->CCR & DMA_CCR_EN) != 0U))
     {
         ctx->error_count++;
         return;
@@ -128,9 +133,9 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
     ctx->rx->CCR &= ~DMA_CCR_EN;
     ctx->tx->CCR &= ~DMA_CCR_EN;
     __DSB();
-    ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
-    ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
-    __DSB();
+    // ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+    // ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
+    // __DSB();
     ctx->tx->CMAR = (uint32_t)tx_buf; // Memory address of TX buffer
     ctx->tx->CNDTR = len;             // Number of bytes to transfer
     __DSB();
@@ -143,7 +148,7 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                      ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 
     // Pull CS LOW
-    uint8_t del = 100;
+    // uint8_t del = 100;
     ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
     __DSB();
     // for (size_t i = 0; i < del; i++)
@@ -162,11 +167,13 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
         return;
     }
 
-    while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
-        ;
+    while (((ctx->dma->ISR & ctx->tcif_tx_ch) == 0U) && ((ctx->dma->ISR & ctx->tcif_rx_ch) == 0U))
+    {
+    };
 
-    while ((ctx->spi->SR & SPI_SR_BSY))
-        ;
+    while ((ctx->spi->SR & SPI_SR_BSY) != 0U)
+    {
+    };
 
     __DSB();
     // __ISB();
@@ -187,15 +194,15 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
                      ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
 }
 
-const uint16_t ADC_setup_regs[] =
+static const uint16_t ADC_setup_regs[] =
     {
-        // 0x0260U,
+        //0x0260U,
         0x0358U,
         0x0400U,
-        0x0510U,
-        0x0610U,
-        0x0707U,
-        0x0840U};
+        0x0500U,
+        0x0614U,
+        0x0701U,
+        0x0800U};
 
 void ADC_setup(adc_dma_context_t *ctx)
 {
@@ -214,7 +221,7 @@ void ADC_setup(adc_dma_context_t *ctx)
     // Stop DMA channels if running
     ctx->rx->CCR &= ~DMA_CCR_EN;
     ctx->tx->CCR &= ~DMA_CCR_EN;
-    uint8_t del = 100;
+    // uint8_t del = 100;
 
     for (uint16_t i = 0; i < sizeof(ADC_setup_regs) / sizeof(*ADC_setup_regs); i++)
     {
@@ -226,15 +233,15 @@ void ADC_setup(adc_dma_context_t *ctx)
         ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
         __DSB();
         // Split 16-bit register into MSB/LSB
-        tx_buf[0] = ((ADC_setup_regs[i] >> 8) & 0xFF) + 0x80; // 0x80 sets WRITE operation
-        tx_buf[1] = ADC_setup_regs[i] & 0xFF;
+        tx_buf[0] = (uint8_t)(((ADC_setup_regs[i] >> 8) & 0xFFU) + 0x80U); // 0x80 sets WRITE operation
+        tx_buf[1] = (uint8_t)(ADC_setup_regs[i] & 0xFFU);
 
         // Set DMA addresses and counts for this 2-byte transfer
         ctx->tx->CMAR = (uint32_t)tx_buf;
-        ctx->tx->CNDTR = 2;
+        ctx->tx->CNDTR = 2U;
         __DSB();
         ctx->rx->CMAR = (uint32_t)rx_dummy;
-        ctx->rx->CNDTR = 2;
+        ctx->rx->CNDTR = 2U;
         __DSB();
         // 4️⃣ Clear pending DMA flags
         ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
@@ -263,19 +270,22 @@ void ADC_setup(adc_dma_context_t *ctx)
 
         // *(volatile uint8_t *)&ctx->spi->DR = 0x00;
 
-        while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
-            ;
+        while (((ctx->dma->ISR & ctx->tcif_tx_ch) == 0U) && ((ctx->dma->ISR & ctx->tcif_rx_ch) == 0U))
+        {
+        };
 
-        while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
-            ;
+        // while ((!(ctx->dma->ISR & ctx->tcif_tx_ch)) && !(ctx->dma->ISR & ctx->tcif_rx_ch))
+        //     ;
 
         // 2️⃣ Wait for SPI transmit buffer/FIFO to empty (TXE)
         // timeout = 10000;
-        while (!(ctx->spi->SR & SPI_SR_TXE))
-            ;
+        while ((ctx->spi->SR & SPI_SR_TXE) == 0U)
+        {
+        };
 
-        while ((ctx->spi->SR & SPI_SR_BSY))
-            ;
+        while ((ctx->spi->SR & SPI_SR_BSY) != 0U)
+        {
+        };
 
         // Pull CS HIGH
         // HAL_Delay(10);

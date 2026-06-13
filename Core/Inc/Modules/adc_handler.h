@@ -25,28 +25,28 @@
  * @def ADC_BYTES_PER_SAMPLE
  * @brief Размер пакета данных в байтах для общения с внешним ADC.
  */
-#define ADC_BYTES_PER_SAMPLE 3
+#define ADC_BYTES_PER_SAMPLE 3U
 
 /**
  * @def ADC_BATCH_SIZE
  * @brief Порог количества сэмплов внешнего ADC в кольцевом буфере @ref AdcRingBuffer_t,
  * после которого значения из него отправляются в буфер @ref Uplink_USB_Stream для дальнейшей отправки на ПК.
  */
-#define ADC_BATCH_SIZE 42 // Send 42 pairs per USB packet
+#define ADC_BATCH_SIZE 42U // Send 42 pairs per USB packet
 
 /**
  * @def ADC_BUFFER_ELEMENTS
  * @brief Размер буфера @ref AdcRingBuffer_t который содержит сэмплы, полученные от внешнего ADC.
  */
-#define ADC_BUFFER_ELEMENTS 512
+#define ADC_BUFFER_ELEMENTS 512U
 
 /**
  * @def ADC_SETUP_REGS_COUNT
  * @brief Количество регистров настройки внешнего ADC
  */
-#define ADC_SETUP_REGS_COUNT 5
+#define ADC_SETUP_REGS_COUNT 5U
 
-_Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1)) == 0,
+_Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1U)) == 0U,
                "ADC_BUFFER_ELEMENTS must be power of two");
 
 _Static_assert(ADC_BATCH_SIZE < MAX_PACKET_SIZE,
@@ -95,11 +95,11 @@ typedef struct adc_dma_context_t
    GPIO_TypeDef *start_port;         /**< Адрес порта, на котором находится пин START */
    uint16_t start_pin;               /**< Адрес пина START */
    volatile uint32_t *error_count;   /**< Счетчик ошибок */
-   AdcRingBuffer_t *buf;             /**< Указатель на кольцевой буфер */
+   AdcRingBuffer_t *adc_buf;         /**< Указатель на кольцевой буфер */
    volatile uint32_t batch_count;    /**< Счетчик количества сэмплов в буфере @ref AdcRingBuffer_t */
-   volatile bool *batch_ready_flag;  /**< Флаг достижения в буфере количества сэмплов, равного @ref ADC_BATCH_SIZE*/
+   volatile bool *batch_IsReady;     /**< Флаг достижения в буфере количества сэмплов, равного @ref ADC_BATCH_SIZE*/
    volatile uint8_t *spi_buf;        /**< Указатель на массив, в который поступают данные от DMA RX канала */
-   volatile bool DRDY_low;           /**< Флаг срабатывания DRDY */
+   volatile bool DRDY_IsLow;         /**< Флаг срабатывания DRDY */
    StreamDataType data_type;         /**< Тип данных, привязанный к контексту, необходим для маркировки пакета данных при отправке на ПК */
    Uplink_USB_Stream *uplink_stream; /**< Указатель на буфер, из которого данные отправляются на ПК */
 } adc_dma_context_t;
@@ -142,13 +142,13 @@ extern volatile bool adc2_batch_size_reached;
  * @brief Буфер для приема данных по SPI с первого ADC.
  * Массив байтов, в который DMA RX канал записывает новые сэмплы.
  */
-extern volatile uint8_t g_spi1_buf[];
+extern volatile uint8_t g_spi1_buf[] __attribute__((aligned(4))); // TODO выяснить про выравнивание
 
 /**
  * @brief Буфер для приема данных по SPI со второго ADC.
  * Массив байтов, в который DMA RX канал записывает новые сэмплы.
  */
-extern volatile uint8_t g_spi2_buf[];
+extern volatile uint8_t g_spi2_buf[] __attribute__((aligned(4)));
 
 /**
  * @brief Массив пустых данных для передачи по SPI при чтении ADC.
@@ -195,21 +195,28 @@ void ADC_setup(adc_dma_context_t *ctx);
  *
  * @note Вызывается из контекста ISR/DMA @ref adc_dma_isr. Не содержит блокирующих операций и аллокаций памяти.
  */
-FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data)
+//+ PVS-Studio: function_type = interrupt_handler
+FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data) //-V2506
 {
-   uint32_t head = rb->head;
-   uint32_t next = (head + 1) & (ADC_BUFFER_ELEMENTS - 1);
+   // uint32_t head = rb->head;
+   uint32_t head = (uint32_t)__atomic_load_n(&rb->head, __ATOMIC_RELAXED);
+   uint32_t next = (head + 1U) & (ADC_BUFFER_ELEMENTS - 1U);
 
-   uint32_t tail = rb->tail;
+   // uint32_t tail = rb->tail;
+   uint32_t tail = (uint32_t)__atomic_load_n(&rb->tail, __ATOMIC_RELAXED);
    if (next == tail)
+   {
       return false;
+   }
 
    rb->buffer[head].data[0] = data[0];
    rb->buffer[head].data[1] = data[1];
    rb->buffer[head].data[2] = data[2];
 
-   __DMB();
-   rb->head = next;
+   // __DMB();
+   // rb->head = next;
+
+   __atomic_store_n(&rb->head, next, __ATOMIC_RELEASE); //-V2547 not a function
 
    return true;
 }
@@ -243,29 +250,29 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
  * @param tx_buf Указатель на массив отправляемых данных.
  * @param rx_buf Указатель на массив принимаемых данных.
  */
+//+ PVS-Studio: function_type = interrupt_handler
 FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_dma_context_t *ctx, // TODO На всякий случай перепроверить на реентрантность
                                                const uint8_t *tx_buf,
                                                volatile uint8_t *rx_buf)
 {
    /* Check if DMA still active */
-   if ((ctx->rx->CCR & DMA_CCR_EN) || (ctx->tx->CCR & DMA_CCR_EN)) // TODO возможно нужно && вместо ||
+   if (((ctx->rx->CCR & DMA_CCR_EN) != 0U) || ((ctx->tx->CCR & DMA_CCR_EN) != 0U))
    {
       ctx->error_count++;
       return;
    }
-
    // Disable DMA channels
    ctx->rx->CCR &= ~DMA_CCR_EN;
    ctx->tx->CCR &= ~DMA_CCR_EN;
    __DSB();
-   ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
-   ctx->rx->CPAR = (uint32_t)&ctx->spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
+   // ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+   // ctx->rx->CPAR = (uint32_t)&ctx->spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
    // __DSB();
    ctx->tx->CMAR = (uint32_t)tx_buf; // Memory address of TX buffer
-   ctx->tx->CNDTR = 3;               // Number of bytes to transfer
+   ctx->tx->CNDTR = 3U;              // Number of bytes to transfer
    // __DSB();
    ctx->rx->CMAR = (uint32_t)rx_buf; // Memory address of RX buffer
-   ctx->rx->CNDTR = 3;               // Number of bytes to transfer
+   ctx->rx->CNDTR = 3U;              // Number of bytes to transfer
    // __DSB();
 
    // Clear pending DMA flags
@@ -293,9 +300,10 @@ FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_dma_context_t *ctx, // TODO �
  *
  * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
  */
+//+ PVS-Studio: function_type = interrupt_handler
 FORCE_INLINE void ADC_DRDY_ISR(adc_dma_context_t *ctx)
 {
-   ctx->DRDY_low = true;
+   ctx->DRDY_IsLow = (bool)1;
    SPI_DMA_TX_RX_byte_array_isr(ctx, SPI_DUMMY_TX, ctx->spi_buf);
 }
 
@@ -314,20 +322,21 @@ FORCE_INLINE void ADC_DRDY_ISR(adc_dma_context_t *ctx)
  *
  * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
  */
-FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx) // TODO Перепроверить на реентрантность
+//+ PVS-Studio: function_type = interrupt_handler
+FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx)
 {
-   ctx->DRDY_low = false;
+   ctx->DRDY_IsLow = (bool)0;
    uint32_t isr = ctx->dma->ISR;
 
    /* --- Transfer Error --- */
-   if (isr & ctx->teif_rx_ch)
+   if ((isr & ctx->teif_rx_ch) != 0U)
    {
       ctx->dma->IFCR = ctx->teif_rx_ch;
 
       ctx->tx->CCR &= ~DMA_CCR_EN;
       ctx->rx->CCR &= ~DMA_CCR_EN;
 
-      if (ctx->spi->SR & SPI_SR_OVR)
+      if ((ctx->spi->SR & SPI_SR_OVR) != 0U)
       {
          (void)ctx->spi->DR;
          (void)ctx->spi->SR;
@@ -340,15 +349,16 @@ FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx) // TODO Перепрове
    }
 
    /* --- Transfer Complete --- */
-   if (isr & ctx->tcif_rx_ch)
+   if ((isr & ctx->tcif_rx_ch) != 0U)
    {
       ctx->dma->IFCR = ctx->tcif_rx_ch;
 
       /* Wait until SPI fully finished */
       uint32_t timeout = 1000;
-      while ((ctx->spi->SR & SPI_SR_BSY) && --timeout)
-         ;
-      if (!timeout)
+      while (((ctx->spi->SR & SPI_SR_BSY) != 0U) && ((--timeout) > 0U))
+      {
+      };
+      if (timeout == 0U)
       {
          (*ctx->error_count)++;
          return;
@@ -366,7 +376,7 @@ FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx) // TODO Перепрове
       (void)ctx->spi->SR;
 
       /* Push sample */
-      if (!adc_push(ctx->buf, ctx->spi_buf))
+      if (!adc_push(ctx->adc_buf, ctx->spi_buf))
       {
          (*ctx->error_count)++;
       }
@@ -375,8 +385,8 @@ FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx) // TODO Перепрове
       ctx->batch_count++;
       if (ctx->batch_count >= ADC_BATCH_SIZE)
       {
-         *(ctx->batch_ready_flag) = true;
-         ctx->batch_count = 0;
+         *(ctx->batch_IsReady) = (bool)true;
+         ctx->batch_count = 0U;
       }
    }
 }

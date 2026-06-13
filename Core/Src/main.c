@@ -70,10 +70,10 @@ void SystemClock_Config(void);
 ADC_Telemetry adc_telemetry = {0};
 
 /** @brief Массив данных для генерации синуса (DAC1) */
-uint16_t sine_wave[SINE_WAVE_SAMPLES];
+static __ALIGNED(4) uint16_t sine_wave[SINE_WAVE_SAMPLES];
 
 /** @brief Буфер значений внутреннего ADC (сигнал ЭКГ) */
-uint16_t ecg_buffer[ECG_BUF_SIZE];
+static __ALIGNED(4) uint16_t ecg_buffer[ECG_BUF_SIZE];
 
 /** @brief Кольцевой буфер для потока данных с ПК */
 Downlink_USB_Stream usbStream;
@@ -96,7 +96,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  usbStream.head = usbStream.tail = 0U;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -138,24 +138,31 @@ int main(void)
   stop_all();
   HAL_Delay(100);
   // ADC_setup(&adc2_ctx);
-  // Latches.EXTERNAL_ADC_I_LOCK = 0;
-  // Latches.EXTERNAL_ADC_II_LOCK = 0;
-  // Latches.INTERNAL_ADC_LOCK = 0;
-  // Latches.INTERNAL_DAC_LOCK = 1;
+  // Latches.EXTERNAL_ADC_I_IsLocked = 0;
+  // Latches.EXTERNAL_ADC_II_IsLocked = 0;
+  // Latches.INTERNAL_ADC_IsLocked = 0;
+  // Latches.INTERNAL_DAC_IsLocked = 1;
 
   ADC_setup(&adc1_ctx);
   ADC_setup(&adc2_ctx);
 
-  usbStream.head = usbStream.tail = 0;
+    /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
+  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)(void *)ecg_buffer, ECG_BUF_SIZE) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
-  /* Старт ADC1 (чтение сигнала ЭКГ по ивенту от TIM6) */
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ecg_buffer, ECG_BUF_SIZE);
+  // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)(void *)ecg_buffer, ECG_BUF_SIZE);
 
   /* Старт DAC1 (генерация синуса, отсчеты по таймеру TIM6) */
-  HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
-  
-  dac_running = false;
-  adc_running = false;
+  // HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)(void *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R);
+  if (HAL_DAC_Start_DMA(&hdac1, DAC1_CHANNEL_1, (uint32_t *)(void *)sine_wave, SINE_WAVE_SAMPLES, DAC_ALIGN_12B_R) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  dac_running = (bool)false;
+  adc_running = (bool)false;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -231,23 +238,23 @@ void SystemClock_Config(void)
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении первой половины буфера*/
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if ((hadc->Instance == ADC1)) /* && (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK))) */
+  if ((hadc->Instance == ADC1)) /* && (!Latches.INTERNAL_ADC_IsLocked) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_IsLocked))) */
   {
     if (Latches.LO_DISRUPTED)
     {
-      if (!Latches.LO_SIGLNAL_USAGE_LOCK)
+      if (!Latches.LO_SIGLNAL_USAGE_IsLocked)
       {
         return;
       }
     }
     // TODO Перепроверить, возможно схлопнуть в один колбэк
 
-    StreamPacket_t packet = create_packet(DATA_ADC_ECG, ECG_BUF_SIZE);
+    StreamPacket_t packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
 
-    for (int i = 0; i < ECG_BUF_SIZE / 2; i++)
+    for (uint16_t i = 0; i < ECG_BUF_SIZE / 2U; i++)
     {
-      packet.data[i * 2] = ecg_buffer[i] & 0xFF;
-      packet.data[i * 2 + 1] = (ecg_buffer[i] >> 8) & 0xFF;
+      packet.data[i * 2U] = (uint8_t)(ecg_buffer[i] & 0xFFU);
+      packet.data[i * 2U + 1U] = (uint8_t)((ecg_buffer[i] >> 8U) & 0xFFU);
     }
 
     pushPacket(&INT_ADC_Stream, &packet);
@@ -257,21 +264,21 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 /** @brief Двойная буферизация сигнала ЭКГ. Срабатывает  при заполнении второй половины буфера*/
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  if ((hadc->Instance == ADC1)) /*&& (!Latches.INTERNAL_ADC_LOCK) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_LOCK)))*/
+  if ((hadc->Instance == ADC1)) /*&& (!Latches.INTERNAL_ADC_IsLocked) && ((!Latches.LO_DISRUPTED) && (!Latches.LO_SIGLNAL_USAGE_IsLocked)))*/
   {
     if (Latches.LO_DISRUPTED)
     {
-      if (!Latches.LO_SIGLNAL_USAGE_LOCK)
+      if (!Latches.LO_SIGLNAL_USAGE_IsLocked)
       {
         return;
       }
     }
-    StreamPacket_t packet = create_packet(DATA_ADC_ECG, ECG_BUF_SIZE);
+    StreamPacket_t packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
 
-    for (int i = 0; i < ECG_BUF_SIZE / 2; i++)
+    for (uint16_t i = 0U; i < ECG_BUF_SIZE / 2U; i++)
     {
-      packet.data[i * 2] = ecg_buffer[i + ECG_BUF_SIZE / 2] & 0xFF;
-      packet.data[i * 2 + 1] = (ecg_buffer[i + ECG_BUF_SIZE / 2] >> 8) & 0xFF;
+      packet.data[i * 2U] = (uint8_t)(ecg_buffer[i + ECG_BUF_SIZE / 2U] & 0xFFU);
+      packet.data[i * 2U + 1U] = (uint8_t)((ecg_buffer[i + ECG_BUF_SIZE / 2U] >> 8U) & 0xFFU);
     }
 
     pushPacket(&INT_ADC_Stream, &packet);
