@@ -265,8 +265,8 @@ FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_dma_context_t *ctx, // TODO �
    ctx->rx->CCR &= ~DMA_CCR_EN;
    ctx->tx->CCR &= ~DMA_CCR_EN;
    __DSB();
-   ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
-   ctx->rx->CPAR = (uint32_t)&ctx->spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
+   // ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+   // ctx->rx->CPAR = (uint32_t)&ctx->spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
    // __DSB();
    ctx->tx->CMAR = (uint32_t)tx_buf; // Memory address of TX buffer
    ctx->tx->CNDTR = 3U;              // Number of bytes to transfer

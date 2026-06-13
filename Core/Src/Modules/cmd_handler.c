@@ -62,9 +62,9 @@ void read_ext_adc_regs(void)
     (void)memcpy(&packet.data, adc_telemetry.adc1_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC1_Stream, &packet);
 
-    StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, (uint16_t)ADC_TM_REGS);
-    (void)memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
-    pushPacket(&EXT_ADC2_Stream, &packet1);
+    // StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, (uint16_t)ADC_TM_REGS);
+    // (void)memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
+    // pushPacket(&EXT_ADC2_Stream, &packet1);
 
     NVIC_EnableIRQ(EXTI4_IRQn);
     NVIC_EnableIRQ(EXTI15_10_IRQn);

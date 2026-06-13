@@ -100,6 +100,11 @@ void ADC_Handler_Init(void)
     DMA2_Channel1->CCR |= DMA_CCR_TCIE;
     DMA1_Channel2->CCR |= DMA_CCR_TCIE;
 
+    // adc1_ctx.tx->CPAR
+    // adc1_ctx.spi->DR
+    adc1_ctx.tx->CPAR = (uint32_t)&adc1_ctx.spi->DR; // Peripheral address is SPI data register
+    adc1_ctx.rx->CPAR = (uint32_t)&adc1_ctx.spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
+
     SPI1->CR1 |= SPI_CR1_SPE;
     SPI2->CR1 |= SPI_CR1_SPE;
 
@@ -115,7 +120,7 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, //-V2506
                               const uint8_t *tx_buf,
                               volatile uint8_t *rx_buf,
                               uint8_t len,
-                              bool uses_rx_cplt_interrupt) 
+                              bool uses_rx_cplt_interrupt)
 {
     /* Check if DMA still active */
     if (((ctx->rx->CCR & DMA_CCR_EN) != 0U) || ((ctx->tx->CCR & DMA_CCR_EN) != 0U))
@@ -128,9 +133,9 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, //-V2506
     ctx->rx->CCR &= ~DMA_CCR_EN;
     ctx->tx->CCR &= ~DMA_CCR_EN;
     __DSB();
-    ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
-    ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
-    __DSB();
+    // ctx->tx->CPAR = (uint32_t)&ctx->spi->DR; // Peripheral address is SPI data register
+    // ctx->rx->CPAR = (uint32_t)&ctx->spi->DR;
+    // __DSB();
     ctx->tx->CMAR = (uint32_t)tx_buf; // Memory address of TX buffer
     ctx->tx->CNDTR = len;             // Number of bytes to transfer
     __DSB();
@@ -191,13 +196,13 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, //-V2506
 
 static const uint16_t ADC_setup_regs[] =
     {
-        // 0x0260U,
+        //0x0260U,
         0x0358U,
         0x0400U,
-        0x0510U,
-        0x0610U,
-        0x0707U,
-        0x0840U};
+        0x0500U,
+        0x0614U,
+        0x0701U,
+        0x0800U};
 
 void ADC_setup(adc_dma_context_t *ctx)
 {
