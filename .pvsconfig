@@ -1,0 +1,5 @@
+enable-misra-c2025 = true
+check-null-pointers = true
+check-recursion = true
+check-dynamic-memory = true
+max-cyclomatic-complexity = 15

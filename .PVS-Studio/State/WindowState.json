@@ -1,0 +1,27 @@
+{
+  "isDataChanged": false,
+  "filters": {
+    "code": "",
+    "cwe": "",
+    "sastId": "",
+    "message": "",
+    "files": "",
+    "level": [
+      0,
+      1,
+      2
+    ],
+    "isColumnFiltersVisible": false,
+    "isLevelFiltersVisible": true,
+    "isGroupFiltersVisible": true,
+    "type": [
+      "General",
+      "Optimization",
+      "MISRA",
+      "64-bit",
+      "AUTOSAR",
+      "OWASP"
+    ]
+  },
+  "loadableProcessIds": []
+}

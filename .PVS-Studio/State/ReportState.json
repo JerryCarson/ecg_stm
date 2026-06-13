@@ -1,0 +1,3676 @@
+{
+  "json": [
+    {
+      "code": "V2504",
+      "message": "Size of the 'SPI_Request' array with external linkage should be explicitly specified.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 144,
+          "endLine": 144,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\main.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 915290396,
+            "nextLine": 915281236,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-8.11",
+      "projects": [],
+      "id": 1386726973
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 43,
+          "endLine": 43,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dma.c",
+          "navigation": {
+            "previousLine": 616521870,
+            "currentLine": 1232019002,
+            "nextLine": 1764859426,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 403225794
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 44,
+          "endLine": 44,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dma.c",
+          "navigation": {
+            "previousLine": 1232019002,
+            "currentLine": 1764859426,
+            "nextLine": 1764843042,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 423563169
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 45,
+          "endLine": 45,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dma.c",
+          "navigation": {
+            "previousLine": 1764859426,
+            "currentLine": 1764843042,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 443900544
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 47,
+          "endLine": 47,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 40963077,
+            "nextLine": 1150193347,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 481538534
+    },
+    {
+      "code": "V1048",
+      "message": "The 'multimode.Mode' variable was assigned the same value.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 70,
+          "endLine": 70,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 773281908,
+            "nextLine": 466117118,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 1164,
+      "sastId": "",
+      "projects": [],
+      "id": 1100037895
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 99,
+          "endLine": 99,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 842861400,
+            "currentLine": -1926097390,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3674506409
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 115,
+          "endLine": 115,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 10059919,
+            "currentLine": -763404761,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 390612890
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 117,
+          "endLine": 117,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -765026777,
+            "nextLine": 527225124,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 431287640
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 124,
+          "endLine": 124,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 964183721,
+            "currentLine": 483801049,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1000734140
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 128,
+          "endLine": 128,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 79587,
+            "currentLine": -233274143,
+            "nextLine": 1920833148,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1082083640
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 153,
+          "endLine": 153,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -1926097390,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2871772640
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 159,
+          "endLine": 159,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 1328236239,
+            "currentLine": -1526811988,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2993796890
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 164,
+          "endLine": 164,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\adc.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": -2039467525,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3522568640
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 40,
+          "endLine": 40,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\crc.c",
+          "navigation": {
+            "previousLine": 285605519,
+            "currentLine": 9537117,
+            "nextLine": -269839947,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 341441025
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 62,
+          "endLine": 62,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\crc.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -812053683,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1643033025
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 68,
+          "endLine": 68,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\crc.c",
+          "navigation": {
+            "previousLine": 5046415,
+            "currentLine": -1264804320,
+            "nextLine": 548728589,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1765057275
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 78,
+          "endLine": 78,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\crc.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -812053683,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2395515900
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 84,
+          "endLine": 84,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\crc.c",
+          "navigation": {
+            "previousLine": 1328236239,
+            "currentLine": 1765356194,
+            "nextLine": -2100053881,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2944625025
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 46,
+          "endLine": 46,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 40832125,
+            "nextLine": 2133081140,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 463882349
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 77,
+          "endLine": 77,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": -925775528,
+            "currentLine": -2110646678,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2375595599
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 83,
+          "endLine": 83,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 10354831,
+            "currentLine": 1765580322,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2924704724
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 85,
+          "endLine": 85,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -765026777,
+            "nextLine": 521457956,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2965379474
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 92,
+          "endLine": 92,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 964183721,
+            "currentLine": 483801049,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3534825974
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 96,
+          "endLine": 96,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 1283171,
+            "currentLine": -1474789362,
+            "nextLine": -3546171,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3616175474
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 121,
+          "endLine": 121,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -2110646678,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 942403205
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 127,
+          "endLine": 127,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 1328236239,
+            "currentLine": -763809113,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1064427455
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 132,
+          "endLine": 132,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": -2039467537,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1593199205
+    },
+    {
+      "code": "V2547",
+      "message": "The return value of non-void function 'HAL_DMA_DeInit' should be used.",
+      "falseAlarm": true,
+      "level": 2,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 135,
+          "endLine": 135,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 2581859,
+            "currentLine": -2071075550,
+            "nextLine": 94681246,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-17.7",
+      "projects": [],
+      "id": 377988415
+    },
+    {
+      "code": "V2615",
+      "message": "A compatible declaration should be visible when an object or function with external linkage is defined.",
+      "falseAlarm": true,
+      "level": 2,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 28,
+          "endLine": 28,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\dac.c",
+          "navigation": {
+            "previousLine": 507921565,
+            "currentLine": -431726738,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-8.4",
+      "projects": [],
+      "id": 4074694707
+    },
+    {
+      "code": "V2504",
+      "message": "Size of the 'g_spi1_buf' array with external linkage should be explicitly specified.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 145,
+          "endLine": 145,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": -1440808042,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-8.11",
+      "projects": [],
+      "id": 2018016986
+    },
+    {
+      "code": "V2504",
+      "message": "Size of the 'g_spi2_buf' array with external linkage should be explicitly specified.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 151,
+          "endLine": 151,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 1990753299,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-8.11",
+      "projects": [],
+      "id": 1053103806
+    },
+    {
+      "code": "V2504",
+      "message": "Size of the 'SPI_DUMMY_TX' array with external linkage should be explicitly specified.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 158,
+          "endLine": 158,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": -501456384,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-8.11",
+      "projects": [],
+      "id": 3969317051
+    },
+    {
+      "code": "V2547",
+      "message": "The return value of non-void function '__atomic_store_n' should be used.",
+      "falseAlarm": true,
+      "level": 2,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 219,
+          "endLine": 219,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 1353754879,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-17.7",
+      "projects": [],
+      "id": 783758591
+    },
+    {
+      "code": "V2506",
+      "message": "A function should have a single point of exit at the end.",
+      "falseAlarm": true,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 199,
+          "endLine": 199,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": -1627942397,
+            "currentLine": -1730024098,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 209,
+          "endLine": 209,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 221,
+          "endLine": 221,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 4159301718
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) & ctx->spi->DR'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 268,
+          "endLine": 268,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 14121,
+            "currentLine": 1611772578,
+            "nextLine": -616974350,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3320738382
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) & ctx->spi->DR'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 269,
+          "endLine": 269,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 1611772578,
+            "currentLine": -616974350,
+            "nextLine": 17961,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1211705133
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) tx_buf'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 271,
+          "endLine": 271,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 17961,
+            "currentLine": -2078287178,
+            "nextLine": 190816414,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4219392563
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) rx_buf'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 274,
+          "endLine": 274,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 17961,
+            "currentLine": -2079860299,
+            "nextLine": 190816350,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 620502162
+    },
+    {
+      "code": "V2506",
+      "message": "The 'return' statement should be the last statement of a function.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 254,
+          "endLine": 254,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": -1627942397,
+            "currentLine": 317315474,
+            "nextLine": 35916500,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 262,
+          "endLine": 262,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 280757722
+    },
+    {
+      "code": "V2506",
+      "message": "A function should have a single point of exit at the end.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 326,
+          "endLine": 326,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": -1627942397,
+            "currentLine": -25498415,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 348,
+          "endLine": 348,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 364,
+          "endLine": 364,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\adc_handler.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 3528812788
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 23,
+          "endLine": 23,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 5634,
+            "nextLine": 191469064,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4077324798
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 32,
+          "endLine": 32,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 1246384,
+            "nextLine": 1377458,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 935869472
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 33,
+          "endLine": 33,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 1246384,
+            "currentLine": 1377458,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3121803519
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 35,
+          "endLine": 35,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 3130,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3198704317
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 37,
+          "endLine": 37,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 117293524,
+            "nextLine": 874308,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3275605115
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 40,
+          "endLine": 40,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 2128437716,
+            "nextLine": 16283076,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4198414691
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 56,
+          "endLine": 56,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 5636,
+            "nextLine": 191469070,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3473595806
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 65,
+          "endLine": 65,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 1247414,
+            "nextLine": 1378480,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 332140480
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 66,
+          "endLine": 66,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 1247414,
+            "currentLine": 1378480,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2518074527
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 68,
+          "endLine": 68,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 3132,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2594975325
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 70,
+          "endLine": 70,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 117299668,
+            "nextLine": 874276,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1331850854
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 73,
+          "endLine": 73,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 2128443860,
+            "nextLine": 16283044,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3594685699
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 95,
+          "endLine": 95,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": -998162089,
+            "currentLine": -887463102,
+            "nextLine": -1021680818,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1760543939
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 96,
+          "endLine": 96,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": -887463102,
+            "currentLine": -1021680818,
+            "nextLine": -753245314,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3946477986
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 97,
+          "endLine": 97,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": -1021680818,
+            "currentLine": -753245314,
+            "nextLine": -887463054,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1837444737
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 98,
+          "endLine": 98,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": -753245314,
+            "currentLine": -887463054,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4023378784
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 100,
+          "endLine": 100,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 1169377631,
+            "nextLine": 629360991,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 537061844
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 101,
+          "endLine": 101,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 1169377631,
+            "currentLine": 629360991,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2722995891
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 103,
+          "endLine": 103,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 460927161,
+            "nextLine": 459354297,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2799896689
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 104,
+          "endLine": 104,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 460927161,
+            "currentLine": 459354297,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 690863440
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 106,
+          "endLine": 106,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 195018612,
+            "nextLine": 195018484,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 767764238
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 107,
+          "endLine": 107,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 195018612,
+            "currentLine": 195018484,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2953698285
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 110,
+          "endLine": 110,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": -1703945161,
+            "currentLine": -1354270256,
+            "nextLine": -1354270336,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3876507861
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 111,
+          "endLine": 111,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": -1354270256,
+            "currentLine": -1354270336,
+            "nextLine": 125,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1767474612
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) & ctx->spi->DR'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 131,
+          "endLine": 131,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 14121,
+            "currentLine": 1611772578,
+            "nextLine": -1394100638,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4090523540
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) & ctx->spi->DR'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 132,
+          "endLine": 132,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 1611772578,
+            "currentLine": -1394100638,
+            "nextLine": 14121,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1981490291
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) tx_buf'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 134,
+          "endLine": 134,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 14121,
+            "currentLine": -2078287178,
+            "nextLine": 660387633,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2034235694
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) rx_buf'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 137,
+          "endLine": 137,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 14121,
+            "currentLine": -2079860299,
+            "nextLine": 660387505,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2730312589
+    },
+    {
+      "code": "V2506",
+      "message": "A function should have a single point of exit at the end.",
+      "falseAlarm": true,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 114,
+          "endLine": 114,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -1437944446,
+            "nextLine": 35916500,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 124,
+          "endLine": 124,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 162,
+          "endLine": 162,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 446958210
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) & ctx->spi->DR'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 227,
+          "endLine": 227,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 14121,
+            "currentLine": 1611772578,
+            "nextLine": -1394100638,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1425391340
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) & ctx->spi->DR'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 228,
+          "endLine": 228,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 1611772578,
+            "currentLine": -1394100638,
+            "nextLine": 14121,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3611325387
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) tx_buf'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 235,
+          "endLine": 235,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": -1491625393,
+            "currentLine": -695608493,
+            "nextLine": 8827665,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 368813868
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed. Consider inspecting the expression: '(uint32_t) rx_dummy'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 238,
+          "endLine": 238,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\adc_handler.c",
+          "navigation": {
+            "previousLine": 14121,
+            "currentLine": 1780968006,
+            "nextLine": 8835857,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1913191104
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 43,
+          "endLine": 43,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": 326570127,
+            "currentLine": -764977625,
+            "nextLine": -765026777,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3999022287
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 44,
+          "endLine": 44,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -764977625,
+            "currentLine": -765026777,
+            "nextLine": -765043161,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 334513616
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 45,
+          "endLine": 45,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -765026777,
+            "currentLine": -765043161,
+            "nextLine": -765059545,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 964972241
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 46,
+          "endLine": 46,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -765043161,
+            "currentLine": -765059545,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1595430866
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 49,
+          "endLine": 49,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -262357717,
+            "currentLine": -1627775295,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3486806741
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 52,
+          "endLine": 52,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -262357717,
+            "currentLine": -1060958698,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1437944557
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 55,
+          "endLine": 55,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -262357717,
+            "currentLine": -1063057392,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3329320432
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 61,
+          "endLine": 61,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -438236149,
+            "currentLine": -2022446838,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3171834123
+    },
+    {
+      "code": "V1048",
+      "message": "The 'GPIO_InitStruct.Mode' variable was assigned the same value.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 65,
+          "endLine": 65,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": 597146228,
+            "currentLine": 1739896238,
+            "nextLine": -438236149,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 1164,
+      "sastId": "",
+      "projects": [],
+      "id": 281890353
+    },
+    {
+      "code": "V1048",
+      "message": "The 'GPIO_InitStruct.Pull' variable was assigned the same value.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 66,
+          "endLine": 66,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": 1739896238,
+            "currentLine": -438236149,
+            "nextLine": 661907721,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 1164,
+      "sastId": "",
+      "projects": [],
+      "id": 3038649680
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 67,
+          "endLine": 67,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -438236149,
+            "currentLine": 661907721,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2659618577
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 74,
+          "endLine": 74,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -234487622,
+            "currentLine": 482752473,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3132590893
+    },
+    {
+      "code": "V1048",
+      "message": "The 'GPIO_InitStruct.Mode' variable was assigned the same value.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 78,
+          "endLine": 78,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -793774984,
+            "currentLine": 1801961466,
+            "nextLine": -438236149,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 1164,
+      "sastId": "",
+      "projects": [],
+      "id": 242647123
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 81,
+          "endLine": 81,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -117243861,
+            "currentLine": 483801049,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3605563209
+    },
+    {
+      "code": "V1048",
+      "message": "The 'GPIO_InitStruct.Pull' variable was assigned the same value.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 86,
+          "endLine": 86,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -691051849,
+            "currentLine": -438236149,
+            "nextLine": 119110106,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 1164,
+      "sastId": "",
+      "projects": [],
+      "id": 3472378766
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 87,
+          "endLine": 87,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -438236149,
+            "currentLine": 119110106,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3093347663
+    },
+    {
+      "code": "V1048",
+      "message": "The 'GPIO_InitStruct.Pull' variable was assigned the same value.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 92,
+          "endLine": 92,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": 1801961466,
+            "currentLine": -438236149,
+            "nextLine": -117243861,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 1164,
+      "sastId": "",
+      "projects": [],
+      "id": 3314892457
+    },
+    {
+      "code": "V1048",
+      "message": "The 'GPIO_InitStruct.Speed' variable was assigned the same value.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 93,
+          "endLine": 93,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -438236149,
+            "currentLine": -117243861,
+            "nextLine": 483276761,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 1164,
+      "sastId": "",
+      "projects": [],
+      "id": 4254945144
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 94,
+          "endLine": 94,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -117243861,
+            "currentLine": 483276761,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3566319979
+    },
+    {
+      "code": "V525",
+      "message": "The code contains the collection of similar blocks. Check items 'GPIO_PIN_SET', 'GPIO_PIN_RESET', 'GPIO_PIN_RESET' in lines 49, 52, 55.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 49,
+          "endLine": 49,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": -262357717,
+            "currentLine": -1627775295,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 52,
+          "endLine": 52,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 55,
+          "endLine": 55,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\gpio.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 682,
+      "sastId": "",
+      "projects": [],
+      "id": 2459003581
+    },
+    {
+      "code": "V2562",
+      "message": "Expressions with pointer type should not be used in the '+', '-', '+=' and '-=' operations.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 99,
+          "endLine": 99,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\downlink_parser.h",
+          "navigation": {
+            "previousLine": 972803350,
+            "currentLine": -1423537987,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-18.4",
+      "projects": [],
+      "id": 4240985844
+    },
+    {
+      "code": "V2547",
+      "message": "The return value of non-void function '__atomic_store_n' should be used.",
+      "falseAlarm": true,
+      "level": 2,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 106,
+          "endLine": 106,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\downlink_parser.h",
+          "navigation": {
+            "previousLine": 1099,
+            "currentLine": 939272561,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-17.7",
+      "projects": [],
+      "id": 1890542969
+    },
+    {
+      "code": "V2506",
+      "message": "A function should have a single point of exit at the end.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 61,
+          "endLine": 61,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\downlink_parser.h",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": -1995031858,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 88,
+          "endLine": 88,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\downlink_parser.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 108,
+          "endLine": 108,
+          "file": "c:\\users\\jougasaki_\\desktop\\ecg_stm_proj\\Core\\Inc\\Modules\\downlink_parser.h",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 1257880106
+    },
+    {
+      "code": "V2506",
+      "message": "A function should have a single point of exit at the end.",
+      "falseAlarm": true,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 5,
+          "endLine": 5,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -1517660078,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 12,
+          "endLine": 12,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 15,
+          "endLine": 15,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 1228761233
+    },
+    {
+      "code": "V2531",
+      "message": "The 'stream_peek(s, 1U)' expression of the essential 'unsigned' type should not be cast to the essential 'enum<StreamDataType>' type.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 46,
+          "endLine": 46,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -683013436,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-10.5",
+      "projects": [],
+      "id": 272839463
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 73,
+          "endLine": 73,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": -2064522876,
+            "currentLine": -688279226,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 325249338
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 76,
+          "endLine": 76,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 1627403590,
+            "currentLine": -27133421,
+            "nextLine": 671154760,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3651694935
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 77,
+          "endLine": 77,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": -27133421,
+            "currentLine": 671154760,
+            "nextLine": 2016359300,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 465542838
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 80,
+          "endLine": 80,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 266715855,
+            "nextLine": 1150475,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1307303838
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 85,
+          "endLine": 85,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 2066051219,
+            "currentLine": -1881909176,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2556412537
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 91,
+          "endLine": 91,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 1741663812,
+            "nextLine": 125,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2429651838
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 94,
+          "endLine": 94,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -1525415219,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1461130139
+    },
+    {
+      "code": "V2506",
+      "message": "A function should have a single point of exit at the end.",
+      "falseAlarm": true,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 31,
+          "endLine": 31,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -664050281,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 35,
+          "endLine": 35,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 69,
+          "endLine": 69,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\downlink_parser.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 3890974666
+    },
+    {
+      "code": "V2506",
+      "message": "A function should have a single point of exit at the end.",
+      "falseAlarm": true,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 164,
+          "endLine": 164,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\cmd_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -2072550619,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 168,
+          "endLine": 168,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\cmd_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 178,
+          "endLine": 178,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\Modules\\cmd_handler.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 4280488848
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 45,
+          "endLine": 45,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 571149967,
+            "currentLine": 35327405,
+            "nextLine": -1229063206,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 457850420
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 79,
+          "endLine": 79,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 571149711,
+            "currentLine": 35294635,
+            "nextLine": -1363280934,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2430575795
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 107,
+          "endLine": 107,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": -925775528,
+            "currentLine": -1204676678,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4112782947
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 113,
+          "endLine": 113,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 8585359,
+            "currentLine": 1762041378,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 366924776
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 115,
+          "endLine": 115,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -765026777,
+            "nextLine": 516215076,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 407599526
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 126,
+          "endLine": 126,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": -1275219599,
+            "currentLine": 483801049,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1058395526
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 130,
+          "endLine": 130,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 531235,
+            "currentLine": -1256683785,
+            "nextLine": -1813719716,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1566829901
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 147,
+          "endLine": 147,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 530467,
+            "currentLine": -1189574923,
+            "nextLine": -1813719692,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2339650151
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 167,
+          "endLine": 167,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 125,
+            "currentLine": -667805697,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3600567401
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 173,
+          "endLine": 173,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 8609935,
+            "currentLine": 1762024994,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4149676526
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 175,
+          "endLine": 175,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -765043161,
+            "nextLine": 516084004,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4190351276
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 186,
+          "endLine": 186,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": -1275219593,
+            "currentLine": 483276761,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 546179980
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 190,
+          "endLine": 190,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 531747,
+            "currentLine": -1390900495,
+            "nextLine": -1813719796,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1054614355
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 207,
+          "endLine": 207,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 532003,
+            "currentLine": -1592227081,
+            "nextLine": -1813719772,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 2182163842
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 232,
+          "endLine": 232,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": -1204676678,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3971852842
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 238,
+          "endLine": 238,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 1328236239,
+            "currentLine": -770887001,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 4093877092
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 245,
+          "endLine": 245,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 1110363393,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 368356296
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 254,
+          "endLine": 254,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 125,
+            "currentLine": -667805697,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 978477546
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 260,
+          "endLine": 260,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 1328236239,
+            "currentLine": -770919769,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1527586671
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 267,
+          "endLine": 267,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\spi.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 1663484646,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 1669948296
+    },
+    {
+      "code": "V2561",
+      "message": "The result of an assignment expression should not be used. Consider inspecting the expression: 'usbStream.tail = 0U'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 99,
+          "endLine": 99,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 4462591,
+            "currentLine": -1881993150,
+            "nextLine": 1115295,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-13.4",
+      "projects": [],
+      "id": 3743031704
+    },
+    {
+      "code": "V2571",
+      "message": "Pointer to void should not be converted to a pointer to object. Consider inspecting the expression: '(uint32_t *)(void *) ecg_buffer'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 150,
+          "endLine": 150,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 320159,
+            "currentLine": 531901624,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.5",
+      "projects": [],
+      "id": 3132985718
+    },
+    {
+      "code": "V2571",
+      "message": "Pointer to void should not be converted to a pointer to object. Consider inspecting the expression: '(uint32_t *)(void *) sine_wave'.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 159,
+          "endLine": 159,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 1875895928,
+            "currentLine": -813768332,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.5",
+      "projects": [],
+      "id": 17825002
+    },
+    {
+      "code": "V2547",
+      "message": "The return value of non-void function 'HAL_PWREx_ControlVoltageScaling' should be used.",
+      "falseAlarm": true,
+      "level": 2,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 200,
+          "endLine": 200,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": -450049678,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-17.7",
+      "projects": [],
+      "id": 1987779300
+    },
+    {
+      "code": "V2568",
+      "message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'.",
+      "falseAlarm": true,
+      "level": 2,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 212,
+          "endLine": 212,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 1484812093,
+            "currentLine": -741666508,
+            "nextLine": 1485760625,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-10.4",
+      "projects": [],
+      "id": 3277730118
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 240,
+          "endLine": 240,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 2012394028,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3786216994
+    },
+    {
+      "code": "V2506",
+      "message": "The 'return' statement should be the last statement of a function.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 238,
+          "endLine": 238,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 123139,
+            "currentLine": -1699060141,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 246,
+          "endLine": 246,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 1336356980
+    },
+    {
+      "code": "V2571",
+      "message": "Conversions between pointers and integer types should not be performed.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 266,
+          "endLine": 266,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 123,
+            "currentLine": 2012394028,
+            "nextLine": 123,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-11.4",
+      "projects": [],
+      "id": 3707730534
+    },
+    {
+      "code": "V2506",
+      "message": "The 'return' statement should be the last statement of a function.",
+      "falseAlarm": false,
+      "level": 3,
+      "positions": [
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 264,
+          "endLine": 264,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 123139,
+            "currentLine": -1339585005,
+            "nextLine": 123,
+            "columns": 0
+          }
+        },
+        {
+          "column": 1,
+          "endColumn": 1,
+          "line": 272,
+          "endLine": 272,
+          "file": "C:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\Core\\Src\\main.c",
+          "navigation": {
+            "previousLine": 0,
+            "currentLine": 0,
+            "nextLine": 0,
+            "columns": 0
+          }
+        }
+      ],
+      "cwe": 0,
+      "sastId": "MISRA-C-2012-15.5",
+      "projects": [],
+      "id": 1842365652
+    }
+  ]
+}

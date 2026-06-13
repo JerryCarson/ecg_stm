@@ -1,0 +1,22 @@
+{
+  "compilationDump": "c:\\Users\\Jougasaki_\\Desktop\\ecg_stm_proj\\.PVS-Studio\\lastMonitoring.zip",
+  "pvsconfig": ""
+}
+
+
+// If necessary, set additional analysis parameters in JSON format here, for example:
+// 
+// {
+//   "compilationDump": "/path/to/monitoring/compilation/dump/file.zip",
+//   "pvsconfig": "/path/to/directory/with/pvsconfig/files/or/file/with/extention.pvsconfig"
+// }
+// 
+// Parameters description:
+// 
+// These parameters are similar to the arguments passed to the analyzer from the command line in the 'analyze' and 'analyzeFromDump' modes. More information
+// can be found in the documentation: https://pvs-studio.com/en/docs/manual/0031/
+// 
+// compilationDump - Path to the compilation monitoring dump file on which the analysis will be performed or to which the compilation monitoring dump will
+// be saved before running the analysis after monitoring or before stopping monitoring.
+// 
+// pvsconfig - Path to the .pvsconfig diagnostic configuration file or to the directory from which the .pvsconfig diagnostic configuration files will be used.

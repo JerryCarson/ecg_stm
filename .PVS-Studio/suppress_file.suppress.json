@@ -1,0 +1,302 @@
+{
+  "version": 2,
+  "primary": false,
+  "warnings": [
+    {
+      "CodeCurrent": 3282498222,
+      "CodeNext": 94582942,
+      "CodePrev": 2524515,
+      "ErrorCode": "V2547",
+      "FileName": "adc.c",
+      "Message": "The return value of non-void function 'HAL_DMA_DeInit' should be used."
+    },
+    {
+      "CodeCurrent": 4196031,
+      "CodeNext": 2843321703,
+      "CodePrev": 2022871153,
+      "ErrorCode": "V2568",
+      "FileName": "adc.c",
+      "Message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'."
+    },
+    {
+      "CodeCurrent": 3314118278,
+      "CodeNext": 2925575311,
+      "CodePrev": 4205727415,
+      "ErrorCode": "V2568",
+      "FileName": "adc.c",
+      "Message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'."
+    },
+    {
+      "CodeCurrent": 3805697225,
+      "CodeNext": 486374541,
+      "CodePrev": 2231188324,
+      "ErrorCode": "V2568",
+      "FileName": "adc.c",
+      "Message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'."
+    },
+    {
+      "CodeCurrent": 4267984324,
+      "CodeNext": 0,
+      "CodePrev": 530990309,
+      "ErrorCode": "V2615",
+      "FileName": "adc.c",
+      "Message": "A compatible declaration should be visible when an object or function with external linkage is defined."
+    },
+    {
+      "CodeCurrent": 5449,
+      "CodeNext": 0,
+      "CodePrev": 259913,
+      "ErrorCode": "V2573",
+      "FileName": "adc.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__ADC_H__' identifier."
+    },
+    {
+      "CodeCurrent": 152783895,
+      "CodeNext": 2675447062,
+      "CodePrev": 2616941180,
+      "ErrorCode": "V2568",
+      "FileName": "crc.c",
+      "Message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'."
+    },
+    {
+      "CodeCurrent": 3639775353,
+      "CodeNext": 2616941180,
+      "CodePrev": 3068217975,
+      "ErrorCode": "V2568",
+      "FileName": "crc.c",
+      "Message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'."
+    },
+    {
+      "CodeCurrent": 5897,
+      "CodeNext": 0,
+      "CodePrev": 259337,
+      "ErrorCode": "V2573",
+      "FileName": "crc.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__CRC_H__' identifier."
+    },
+    {
+      "CodeCurrent": 5289,
+      "CodeNext": 0,
+      "CodePrev": 259753,
+      "ErrorCode": "V2573",
+      "FileName": "dac.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__DAC_H__' identifier."
+    },
+    {
+      "CodeCurrent": 5385,
+      "CodeNext": 0,
+      "CodePrev": 259849,
+      "ErrorCode": "V2573",
+      "FileName": "dma.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__DMA_H__' identifier."
+    },
+    {
+      "CodeCurrent": 2667192001,
+      "CodeNext": 0,
+      "CodePrev": 4032609579,
+      "ErrorCode": "V2572",
+      "FileName": "gpio.c",
+      "Message": "Value of the expression should not be converted to the narrower essential 'unsigned' type."
+    },
+    {
+      "CodeCurrent": 3231909904,
+      "CodeNext": 0,
+      "CodePrev": 4032609579,
+      "ErrorCode": "V2572",
+      "FileName": "gpio.c",
+      "Message": "Value of the expression should not be converted to the narrower essential 'unsigned' type."
+    },
+    {
+      "CodeCurrent": 3234008598,
+      "CodeNext": 0,
+      "CodePrev": 4032609579,
+      "ErrorCode": "V2572",
+      "FileName": "gpio.c",
+      "Message": "Value of the expression should not be converted to the narrower essential 'unsigned' type."
+    },
+    {
+      "CodeCurrent": 795777812,
+      "CodeNext": 1801961466,
+      "CodePrev": 785051347,
+      "ErrorCode": "V2596",
+      "FileName": "gpio.c",
+      "Message": "Value of composite expression should not be assigned to object of wider essential type. Inspect the expression of the 'unsigned short' type that is assigned to the 'GPIO_InitStruct.Pin' variable of the 'unsigned long' type."
+    },
+    {
+      "CodeCurrent": 3500799000,
+      "CodeNext": 1801961466,
+      "CodePrev": 3114915232,
+      "ErrorCode": "V2596",
+      "FileName": "gpio.c",
+      "Message": "Value of composite expression should not be assigned to object of wider essential type. Inspect the expression of the 'unsigned short' type that is assigned to the 'GPIO_InitStruct.Pin' variable of the 'unsigned long' type."
+    },
+    {
+      "CodeCurrent": 3501192312,
+      "CodeNext": 1801961466,
+      "CodePrev": 3115308384,
+      "ErrorCode": "V2596",
+      "FileName": "gpio.c",
+      "Message": "Value of composite expression should not be assigned to object of wider essential type. Inspect the expression of the 'unsigned short' type that is assigned to the 'GPIO_InitStruct.Pin' variable of the 'unsigned long' type."
+    },
+    {
+      "CodeCurrent": 11369,
+      "CodeNext": 0,
+      "CodePrev": 518249,
+      "ErrorCode": "V2573",
+      "FileName": "gpio.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__GPIO_H__' identifier."
+    },
+    {
+      "CodeCurrent": 121849,
+      "CodeNext": 0,
+      "CodePrev": 2241443095,
+      "ErrorCode": "V2547",
+      "FileName": "main.c",
+      "Message": "The return value of non-void function 'HAL_Init' should be used."
+    },
+    {
+      "CodeCurrent": 2412974146,
+      "CodeNext": 1115295,
+      "CodePrev": 4462591,
+      "ErrorCode": "V2609",
+      "FileName": "main.c",
+      "Message": "Undefined behaviour should not occur. The variable is modified while being used twice between sequence points."
+    },
+    {
+      "CodeCurrent": 304221,
+      "CodeNext": 123,
+      "CodePrev": 123,
+      "ErrorCode": "V2615",
+      "FileName": "main.c",
+      "Message": "A compatible declaration should be visible when an object or function with external linkage is defined."
+    },
+    {
+      "CodeCurrent": 2412974146,
+      "CodeNext": 1115295,
+      "CodePrev": 4462591,
+      "ErrorCode": "V2667",
+      "FileName": "main.c",
+      "Message": "There should be no more than one modification access with an volatile-qualified or atomic type between sequence points."
+    },
+    {
+      "CodeCurrent": 2412974146,
+      "CodeNext": 1115295,
+      "CodePrev": 4462591,
+      "ErrorCode": "V567",
+      "FileName": "main.c",
+      "Message": "There should be no more than one modification access with an volatile-qualified or atomic type between sequence points."
+    },
+    {
+      "CodeCurrent": 2934,
+      "CodeNext": 0,
+      "CodePrev": 129654,
+      "ErrorCode": "V2573",
+      "FileName": "main.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__MAIN_H' identifier."
+    },
+    {
+      "CodeCurrent": 3627161599,
+      "CodeNext": 123,
+      "CodePrev": 125,
+      "ErrorCode": "V2516",
+      "FileName": "spi.c",
+      "Message": "The 'if' ... 'else if' construct should be terminated with an 'else' statement."
+    },
+    {
+      "CodeCurrent": 1011905606,
+      "CodeNext": 1011905654,
+      "CodePrev": 2106723,
+      "ErrorCode": "V2547",
+      "FileName": "spi.c",
+      "Message": "The return value of non-void function 'HAL_DMA_DeInit' should be used."
+    },
+    {
+      "CodeCurrent": 1011905606,
+      "CodeNext": 1011905654,
+      "CodePrev": 2112867,
+      "ErrorCode": "V2547",
+      "FileName": "spi.c",
+      "Message": "The return value of non-void function 'HAL_DMA_DeInit' should be used."
+    },
+    {
+      "CodeCurrent": 1011905654,
+      "CodeNext": 96057502,
+      "CodePrev": 1011905606,
+      "ErrorCode": "V2547",
+      "FileName": "spi.c",
+      "Message": "The return value of non-void function 'HAL_DMA_DeInit' should be used."
+    },
+    {
+      "CodeCurrent": 1011905654,
+      "CodeNext": 96065694,
+      "CodePrev": 1011905606,
+      "ErrorCode": "V2547",
+      "FileName": "spi.c",
+      "Message": "The return value of non-void function 'HAL_DMA_DeInit' should be used."
+    },
+    {
+      "CodeCurrent": 225972272,
+      "CodeNext": 4158948583,
+      "CodePrev": 1005948767,
+      "ErrorCode": "V2568",
+      "FileName": "spi.c",
+      "Message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'."
+    },
+    {
+      "CodeCurrent": 230166576,
+      "CodeNext": 4158949351,
+      "CodePrev": 1006014303,
+      "ErrorCode": "V2568",
+      "FileName": "spi.c",
+      "Message": "Both operands of the '=' operator should have the same essential type. The current types are: 'unsigned' and 'signed'."
+    },
+    {
+      "CodeCurrent": 4079100228,
+      "CodeNext": 4079100252,
+      "CodePrev": 419841355,
+      "ErrorCode": "V2615",
+      "FileName": "spi.c",
+      "Message": "A compatible declaration should be visible when an object or function with external linkage is defined."
+    },
+    {
+      "CodeCurrent": 4079100252,
+      "CodeNext": 4079100276,
+      "CodePrev": 4079100228,
+      "ErrorCode": "V2615",
+      "FileName": "spi.c",
+      "Message": "A compatible declaration should be visible when an object or function with external linkage is defined."
+    },
+    {
+      "CodeCurrent": 4079100268,
+      "CodeNext": 0,
+      "CodePrev": 4079100276,
+      "ErrorCode": "V2615",
+      "FileName": "spi.c",
+      "Message": "A compatible declaration should be visible when an object or function with external linkage is defined."
+    },
+    {
+      "CodeCurrent": 4079100276,
+      "CodeNext": 4079100268,
+      "CodePrev": 4079100252,
+      "ErrorCode": "V2615",
+      "FileName": "spi.c",
+      "Message": "A compatible declaration should be visible when an object or function with external linkage is defined."
+    },
+    {
+      "CodeCurrent": 5097,
+      "CodeNext": 0,
+      "CodePrev": 258537,
+      "ErrorCode": "V2573",
+      "FileName": "spi.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__SPI_H__' identifier."
+    },
+    {
+      "CodeCurrent": 4425,
+      "CodeNext": 0,
+      "CodePrev": 258889,
+      "ErrorCode": "V2573",
+      "FileName": "tim.h",
+      "Message": "Identifiers that start with '__' or '_[A-Z]' are reserved. Consider inspecting the '__TIM_H__' identifier."
+    }
+  ]
+}
