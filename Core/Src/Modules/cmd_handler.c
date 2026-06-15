@@ -4,18 +4,51 @@
 #include "uplink_buffer.h"
 #include "utility_functions.h"
 
-const CommandEntry cmd_table[CMD_TABLE_SIZE] = {{RESET_LATCHES, reset_latches},
-                                                {STOP_ALL_ANALOG, stop_all},
-                                                {EXT_ADC_RST_CFG, EXT_ADC_RST_RECONFIG},
-                                                {EN_DAC, enable_internal_DAC},
-                                                {READ_ALL_CHANNELS, enable_both_external_ADC},
-                                                {READ_I_CH_ONLY, enable_external_ADC_I},
-                                                {READ_II_CH_ONLY, enable_external_ADC_II},
-                                                {READ_ECG_ONLY, read_ecg_only},
-                                                {IGNORE_LO_DISRUPT, ignore_LO_disrupt},
-                                                {DISIGNORE_LO_DISRUPT, disignore_LO_disrupt},
-                                                {TEST_SEND_SPI_DATA, test_send_spi_data},
-                                                {READ_EXT_ADCs_REGS, read_ext_adc_regs}};
+const CommandEntry cmd_table[] = {{RESET_LATCHES, reset_latches},
+                                  {STOP_ALL_ANALOG, stop_all},
+                                  {EXT_ADC_RST_CFG, EXT_ADC_RST_RECONFIG},
+                                  {EN_DAC, enable_internal_DAC},
+                                  {READ_ALL_CHANNELS, enable_both_external_ADC},
+                                  {READ_I_CH_ONLY, enable_external_ADC_I},
+                                  {READ_II_CH_ONLY, enable_external_ADC_II},
+                                  {READ_ECG_ONLY, read_ecg_only},
+                                  {IGNORE_LO_DISRUPT, ignore_LO_disrupt},
+                                  {DISIGNORE_LO_DISRUPT, disignore_LO_disrupt},
+                                  {TEST_SEND_SPI_DATA, test_send_spi_data},
+                                  {READ_EXT_ADCs_REGS, read_ext_adc_regs},
+                                  {CONFIG_EXT_ADC, config_ext_adc}};
+
+#define CONF_REGS_AMOUNT 13
+#define FIRST_CONF_REG_ADDR 0x03U
+uint8_t ext_adc_configs[CONF_REGS_AMOUNT] = {0};
+
+void config_ext_adc()
+{
+
+    // Disable EXTI interrupts to prevent DRDY ISR firing
+    NVIC_DisableIRQ(adc1_ctx.drdy_irq);
+    NVIC_DisableIRQ(adc2_ctx.drdy_irq);
+    NVIC_DisableIRQ(adc1_ctx.rx_irq);
+    NVIC_DisableIRQ(adc2_ctx.rx_irq);
+
+    // Stop DMA channels if running
+    adc1_ctx.rx->CCR &= ~DMA_CCR_EN;
+    adc2_ctx.tx->CCR &= ~DMA_CCR_EN;
+
+    for (size_t i = 0; i < CONF_REGS_AMOUNT; i++)
+    {
+        if (ext_adc_configs[i] != 0xFF)
+        {
+            ADC_set_reg(&adc1_ctx, i + FIRST_CONF_REG_ADDR, ext_adc_configs[i]);
+            ADC_set_reg(&adc2_ctx, i + FIRST_CONF_REG_ADDR, ext_adc_configs[i]);
+        }
+    }
+
+    NVIC_EnableIRQ(adc1_ctx.drdy_irq);
+    NVIC_EnableIRQ(adc2_ctx.drdy_irq);
+    NVIC_EnableIRQ(adc1_ctx.rx_irq);
+    NVIC_EnableIRQ(adc2_ctx.rx_irq);
+}
 
 /**
  * @private
@@ -52,7 +85,7 @@ void read_ext_adc_regs(void)
     NVIC_DisableIRQ(DMA1_Channel2_IRQn);
     NVIC_DisableIRQ(DMA2_Channel1_IRQn);
     // const uint8_t regs_count = 9;
-    for (uint8_t i = 0U; i < 9U; i++)
+    for (uint8_t i = 0U; i < ADC_TM_REGS; i++)
     {
         adc_telemetry.adc1_reg_data[i] = request_ADC_reg_data(&adc1_ctx, i);
         adc_telemetry.adc2_reg_data[i] = request_ADC_reg_data(&adc2_ctx, i);
@@ -169,8 +202,12 @@ void process_command(const uint8_t *payload, uint16_t len) //-V2506
     }
 
     uint8_t cmd = payload[0];
+    if ((cmd == CONFIG_EXT_ADC) && (len == CONF_REGS_AMOUNT + 1))
+    {
+        memmove(ext_adc_configs, &payload[1], CONF_REGS_AMOUNT);
+    }
 
-    for (uint32_t i = 0U; i < CMD_TABLE_SIZE; i++)
+    for (uint32_t i = 0U; i < sizeof(cmd_table) / sizeof(*cmd_table); i++)
     {
         if (cmd_table[i].cmd_id == cmd)
         {

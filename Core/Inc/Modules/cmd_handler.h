@@ -14,7 +14,7 @@
  * @def CMD_TABLE_SIZE
  * @brief Размер таблицы команд (количество поддерживаемых команд).
  */
-#define CMD_TABLE_SIZE 12U
+// #define CMD_TABLE_SIZE 12U
 
 /**
  * @enum CommandID
@@ -34,7 +34,8 @@ typedef enum CommandID
     DISIGNORE_LO_DISRUPT, /**< Не игнорировать отрыв электродов */
     RESET_LATCHES,        /**< Включить всё (выставить все @ref Latches в 0) */
     TEST_SEND_SPI_DATA,   /**< Тестовая команда для отправки данных по SPI */
-    READ_EXT_ADCs_REGS,    /**< Прочитать регистры обоих внешних ADC. Данные отправляются в @ref adc_telemetry */
+    READ_EXT_ADCs_REGS,   /**< Прочитать регистры обоих внешних ADC. Данные отправляются в @ref adc_telemetry */
+    CONFIG_EXT_ADC
 } CommandID;
 
 /**
@@ -93,6 +94,8 @@ void disignore_LO_disrupt(void);
 /** @brief Тест отправки данных по SPI */
 void test_send_spi_data(void);
 
+void config_ext_adc(void);
+
 /** @brief Обработчик команд от ПК. Ищет полученный от ПК id команды и исполняет команду
  * с таким id если он будет найден.
  * @param[in] payload Указатель на буфер с данными от ПК.
@@ -102,7 +105,7 @@ void test_send_spi_data(void);
 void process_command(const uint8_t *payload, uint16_t len);
 
 /** @brief Таблица команд (константная, размещается в Flash). */
-extern const CommandEntry cmd_table[CMD_TABLE_SIZE];
+extern const CommandEntry cmd_table[];
 
 /** @} */
 #endif

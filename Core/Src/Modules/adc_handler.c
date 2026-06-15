@@ -32,6 +32,9 @@ adc_dma_context_t adc1_ctx =
         .rx = DMA1_Channel2,
         .tx = DMA1_Channel3,
 
+        .rx_irq = DMA1_Channel2_IRQn, //TODO везде заменить на контекст
+        .drdy_irq = EXTI15_10_IRQn,
+
         .spi = SPI1,
 
         .cs_port = CS_1_GPIO_Port,
@@ -65,6 +68,9 @@ adc_dma_context_t adc2_ctx =
         .rx = DMA2_Channel1,
         .tx = DMA2_Channel2,
 
+        .rx_irq = DMA2_Channel1_IRQn,
+        .drdy_irq = EXTI15_10_IRQn,
+
         .spi = SPI2,
 
         .cs_port = CS_2_GPIO_Port,
@@ -90,7 +96,7 @@ void ADC_Handler_Init(void)
        CubeMX should have initialized SPI, DMA, and GPIO.
        We only ensure DMA is disabled initially so we can control it manually.
     */
-
+    // TODO переделать, вызывать из контекста
     /* Disable DMA Channels initially */
     DMA1_Channel2->CCR &= ~DMA_CCR_EN; // SPI1 RX
     DMA1_Channel3->CCR &= ~DMA_CCR_EN; // SPI1 TX
@@ -104,6 +110,9 @@ void ADC_Handler_Init(void)
     // adc1_ctx.spi->DR
     adc1_ctx.tx->CPAR = (uint32_t)&adc1_ctx.spi->DR; // Peripheral address is SPI data register
     adc1_ctx.rx->CPAR = (uint32_t)&adc1_ctx.spi->DR; // TODO Попробовать переместить настройку CPAR регистров в Init-функцию для ускорения работы
+
+    adc2_ctx.tx->CPAR = (uint32_t)&adc2_ctx.spi->DR;
+    adc2_ctx.rx->CPAR = (uint32_t)&adc2_ctx.spi->DR;
 
     SPI1->CR1 |= SPI_CR1_SPE;
     SPI2->CR1 |= SPI_CR1_SPE;
@@ -196,13 +205,15 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, //-V2506
 
 static const uint16_t ADC_setup_regs[] =
     {
-        //0x0260U,
+        // 0x0260U,
         0x0358U,
         0x0400U,
         0x0500U,
         0x0614U,
-        0x0701U,
-        0x0800U};
+        0x0708U,
+        0x0800U,
+        // 0x0908U
+};
 
 void ADC_setup(adc_dma_context_t *ctx)
 {
@@ -319,4 +330,56 @@ void ADC_setup(adc_dma_context_t *ctx)
     // ctx->start_port->BSRR = (uint32_t)ctx->start_pin << 16U; // Pull START LOW
     // HAL_Delay(100);
     // ctx->start_port->BSRR = ctx->start_pin;
+}
+
+void ADC_set_reg(adc_dma_context_t *ctx, uint8_t reg_addr, uint8_t reg_val)
+{
+    static uint8_t tx_buf[2];   // TX buffer for 1 register
+    static uint8_t rx_dummy[2]; // dummy RX buffer
+
+    tx_buf[0] = (uint8_t)(((reg_addr) & 0xFFU) + 0x80U); // 0x80 sets WRITE operation
+    tx_buf[1] = (uint8_t)(reg_val & 0xFFU);
+
+    // Set DMA addresses and counts for this 2-byte transfer
+    ctx->tx->CMAR = (uint32_t)tx_buf;
+    ctx->tx->CNDTR = 2U;
+    ctx->rx->CMAR = (uint32_t)rx_dummy;
+    ctx->rx->CNDTR = 2U;
+    // Clear pending DMA flags
+    ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
+                     ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
+
+    // Clear SPI flags properly (read, don't write)
+    (void)ctx->spi->SR;
+    (void)ctx->spi->DR; // Flush any stale data
+
+    // Pull CS LOW for this register
+    ctx->cs_port->BSRR = (uint32_t)ctx->cs_pin << 16U;
+    __DSB();
+    // Enable DMA channels
+    ctx->rx->CCR |= DMA_CCR_EN;
+    ctx->tx->CCR |= DMA_CCR_EN;
+
+    while (((ctx->dma->ISR & ctx->tcif_tx_ch) == 0U) && ((ctx->dma->ISR & ctx->tcif_rx_ch) == 0U))
+    {
+    };
+
+    while ((ctx->spi->SR & SPI_SR_TXE) == 0U)
+    {
+    };
+
+    while ((ctx->spi->SR & SPI_SR_BSY) != 0U)
+    {
+    };
+
+    __DSB();
+
+    ctx->cs_port->BSRR = ctx->cs_pin;
+
+    // Clear DMA flags
+    ctx->dma->IFCR = ctx->tcif_tx_ch | ctx->teif_tx_ch | ctx->htif_tx_ch |
+                     ctx->tcif_rx_ch | ctx->teif_rx_ch | ctx->htif_rx_ch;
+
+    ctx->rx->CCR &= ~DMA_CCR_EN;
+    ctx->tx->CCR &= ~DMA_CCR_EN;
 }

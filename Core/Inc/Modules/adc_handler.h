@@ -89,6 +89,8 @@ typedef struct adc_dma_context_t
    uint32_t htif_tx_ch;              /**< Флаг Half Transfer Complete для канала TX*/
    DMA_Channel_TypeDef *rx;          /**< Адрес RX DMA-канала */
    DMA_Channel_TypeDef *tx;          /**< Адрес TX DMA-канала */
+   IRQn_Type rx_irq;
+   IRQn_Type drdy_irq;
    SPI_TypeDef *spi;                 /**< Адрес периферии SPI */
    GPIO_TypeDef *cs_port;            /**< Адрес порта, на котором находится пин CS */
    uint16_t cs_pin;                  /**< Адрес пина CS */
@@ -390,5 +392,7 @@ FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx)
       }
    }
 }
+
+void ADC_set_reg(adc_dma_context_t *ctx, uint8_t reg_addr, uint8_t reg_val);
 /** @} */
 #endif /* ADC_HANDLER_H */
