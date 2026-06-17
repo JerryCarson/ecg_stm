@@ -15,7 +15,11 @@
  * @def MAX_QUEUE
  * @brief Максимальное количество пакетов в очереди. Должно быть степенью двойки.
  */
-#define MAX_QUEUE 32U
+#define MAX_QUEUE 8U
+#define SIZEOF_UPLINK_BUF MAX_PACKET_SIZE + HEADER_SIZE + CRC_SIZE
+
+_Static_assert(SIZEOF_UPLINK_BUF <= MAX_USB_PACKET_SIZE,
+               "MAX_QUEUE must be power of two");
 
 _Static_assert((MAX_QUEUE & (MAX_QUEUE - 1U)) == 0U,
                "MAX_QUEUE must be power of two");
@@ -54,7 +58,7 @@ typedef struct Uplink_USB_Stream
  * @warning Если очередь полна, пакет будет молча отброшен. Вызывающий код должен
  *          контролировать заполненность буфера или обрабатывать потерю данных.
  */
-void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet); // TODO Перепроверить реентрантность
+RAMFUNC void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet); // TODO Перепроверить реентрантность
 
 /**
  * @brief Возвращает указатель на пакет в хвосте очереди без изменения индексов.
@@ -62,7 +66,7 @@ void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet); // TODO Пе
  * @return Указатель на следующий пакет для отправки.
  * @retval NULL Если очередь пуста.
  */
-StreamPacket_t *peekPacket(Uplink_USB_Stream *stream);
+RAMFUNC StreamPacket_t *peekPacket(Uplink_USB_Stream *stream);
 
 /**
  * @brief Удаляет пакет из хвоста очереди (продвигает индекс чтения).
@@ -71,7 +75,7 @@ StreamPacket_t *peekPacket(Uplink_USB_Stream *stream);
  *       после успешной отправки пакета, полученного через @ref peekPacket
  *       или для удаления из очереди слишком длинного пакета.
  */
-void consumePacket(Uplink_USB_Stream *stream);
+RAMFUNC void consumePacket(Uplink_USB_Stream *stream);
 
 /**
  * @brief Формирование и отправка пакетов в исходящий поток (MCU → PC).
@@ -82,7 +86,7 @@ void consumePacket(Uplink_USB_Stream *stream);
  * @note Сбрасывает конфигурацию CRC при каждом вызове. Не гарантирует
  *       успешную отправку, если USB-стек занят (требует внешней проверки статуса).
  */
-void stream_data_uplink(Uplink_USB_Stream *stream);
+RAMFUNC void stream_data_uplink(Uplink_USB_Stream *stream);
 
 /** @brief Очередь пакетов для I ADC */
 extern Uplink_USB_Stream EXT_ADC1_Stream;

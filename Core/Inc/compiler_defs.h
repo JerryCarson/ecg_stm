@@ -7,6 +7,7 @@
 #else
     /* Для компилятора (GCC/Clang) */
     #define FORCE_INLINE static inline __attribute__((always_inline))
+    #define RAMFUNC __attribute__((section(".RamFunc")))
 #endif
 
 #endif

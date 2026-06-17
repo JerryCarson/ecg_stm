@@ -7,8 +7,10 @@ Uplink_USB_Stream EXT_ADC2_Stream = {.queueHead = 0,
 Uplink_USB_Stream INT_ADC_Stream = {.queueHead = 0,
                                     .queueTail = 0};
 
+static uint32_t errs = 0;
 static inline bool queueFull(Uplink_USB_Stream *stream)
 {
+    // errs++;
     return ((stream->queueHead + 1U) & (MAX_QUEUE - 1U)) == stream->queueTail;
 }
 
@@ -19,7 +21,7 @@ static inline bool queueEmpty(Uplink_USB_Stream *stream)
     return head == tail; // TODO проверить работоспособность
 }
 
-StreamPacket_t *peekPacket(Uplink_USB_Stream *stream) //-V2506
+RAMFUNC StreamPacket_t *peekPacket(Uplink_USB_Stream *stream) //-V2506
 {
     if (queueEmpty(stream))
     {
@@ -29,7 +31,7 @@ StreamPacket_t *peekPacket(Uplink_USB_Stream *stream) //-V2506
     return &(stream->packetQueue[stream->queueTail]);
 }
 
-void consumePacket(Uplink_USB_Stream *stream)
+RAMFUNC void consumePacket(Uplink_USB_Stream *stream)
 {
     // __disable_irq();
     if (!queueEmpty(stream))
@@ -50,6 +52,10 @@ void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet)
         idx = stream->queueHead;
         stream->queueHead = (uint8_t)((stream->queueHead + 1U) & (MAX_QUEUE - 1U));
     }
+    else
+    {
+        ++errs;
+    }
     __enable_irq();
 
     if (!full)
@@ -60,11 +66,12 @@ void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet)
         (void)memcpy(qPacket->data, packet->data, qPacket->length);
     }
 }
-
-void stream_data_uplink(Uplink_USB_Stream *stream) // TODO Возможно стоит перенести в ring_buffer
+static uint32_t errors;
+RAMFUNC void stream_data_uplink(Uplink_USB_Stream *stream) // TODO Возможно стоит перенести в ring_buffer
 {
     StreamPacket_t *pkt = peekPacket(stream);
     __DMB();
+    
     if (pkt != NULL)
     {
         if (pkt->length > MAX_PACKET_SIZE)
@@ -105,6 +112,10 @@ void stream_data_uplink(Uplink_USB_Stream *stream) // TODO Возможно ст
         if (CDC_Transmit_FS(buf, (uint16_t)(pkt->length + HEADER_SIZE + CRC_SIZE)) == USBD_OK)
         {
             consumePacket(stream);
+        }
+        else
+        {
+            ++errors;
         }
     }
 }

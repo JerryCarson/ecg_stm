@@ -131,7 +131,7 @@ void Error_Handler(void);
 #define SINE_WAVE_SAMPLES 50U
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
-#define MAX_PACKET_SIZE 128U /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
+#define MAX_PACKET_SIZE 400U /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
 
 #define ECG_BUF_SIZE 128U /** Задает размер DMA буфера для внутреннего АЦП */
 
@@ -142,6 +142,7 @@ void Error_Handler(void);
 #define HEADER_SIZE 4U                                /**< Размер заголовка пакета: [SYNC][TYPE][LEN_H][LEN_L] [байт]. */
 #define CRC_SIZE 1U                                   /**< Размер контрольной суммы CRC-8 [байт]. */
 #define MIN_PACKET_SIZE (HEADER_SIZE + CRC_SIZE + 1U) /**< Минимальный валидный размер пакета [байт]. */
+#define MAX_USB_PACKET_SIZE 512                       // Bytes
 
     extern uint8_t SPI_Request[];
     extern uint8_t SPI_Answer[3];

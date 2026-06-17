@@ -327,7 +327,7 @@ void USB_LP_IRQHandler(void)
 /**
   * @brief This function handles EXTI line[15:10] interrupts.
   */
-void EXTI15_10_IRQHandler(void)
+RAMFUNC void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
     if ((EXTI->PR1 & EXTI_PR1_PIF15) != 0U) // Для ADCII
