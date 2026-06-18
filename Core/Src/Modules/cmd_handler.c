@@ -4,50 +4,37 @@
 #include "uplink_buffer.h"
 #include "utility_functions.h"
 
-const CommandEntry cmd_table[] = {{RESET_LATCHES, reset_latches},
-                                  {STOP_ALL_ANALOG, stop_all},
-                                  {EXT_ADC_RST_CFG, EXT_ADC_RST_RECONFIG},
-                                  {EN_DAC, enable_internal_DAC},
-                                  {READ_ALL_CHANNELS, enable_both_external_ADC},
-                                  {READ_I_CH_ONLY, enable_external_ADC_I},
-                                  {READ_II_CH_ONLY, enable_external_ADC_II},
-                                  {READ_ECG_ONLY, read_ecg_only},
-                                  {IGNORE_LO_DISRUPT, ignore_LO_disrupt},
-                                  {DISIGNORE_LO_DISRUPT, disignore_LO_disrupt},
-                                  {TEST_SEND_SPI_DATA, test_send_spi_data},
-                                  {READ_EXT_ADCs_REGS, read_ext_adc_regs},
-                                  {CONFIG_EXT_ADC, config_ext_adc}};
+const CommandEntry cmd_table[] = {
+    {RESET_LATCHES, reset_latches},
+    {STOP_ALL_ANALOG, stop_all},
+    {EXT_ADC_RST_CFG, EXT_ADC_RST_RECONFIG},
+    {EN_DAC, enable_internal_DAC},
+    {READ_ALL_CHANNELS, enable_both_external_ADC},
+    {READ_I_CH_ONLY, enable_external_ADC_I},
+    {READ_II_CH_ONLY, enable_external_ADC_II},
+    {READ_ECG_ONLY, read_ecg_only},
+    {IGNORE_LO_DISRUPT, ignore_LO_disrupt},
+    {DISIGNORE_LO_DISRUPT, disignore_LO_disrupt},
+    {TEST_SEND_SPI_DATA, test_send_spi_data},
+    {EXT_ADC_TM_REQUEST, ext_adc_TM_request},
+    {CONFIG_EXT_ADC_I, config_ext_adc_I},
+    {CONFIG_EXT_ADC_II, config_ext_adc_II}
+};
 
 #define CONF_REGS_AMOUNT 13
 #define FIRST_CONF_REG_ADDR 0x03U
 uint8_t ext_adc_configs[CONF_REGS_AMOUNT] = {0};
 
-void config_ext_adc()
+static void disable_IRQs(adc_context *ctx)
 {
+    NVIC_DisableIRQ(ctx->drdy_irq);
+    NVIC_DisableIRQ(ctx->rx_irq);
+}
 
-    // Disable EXTI interrupts to prevent DRDY ISR firing
-    NVIC_DisableIRQ(adc1_ctx.drdy_irq);
-    NVIC_DisableIRQ(adc2_ctx.drdy_irq);
-    NVIC_DisableIRQ(adc1_ctx.rx_irq);
-    NVIC_DisableIRQ(adc2_ctx.rx_irq);
-
-    // Stop DMA channels if running
-    adc1_ctx.rx->CCR &= ~DMA_CCR_EN;
-    adc2_ctx.tx->CCR &= ~DMA_CCR_EN;
-
-    for (size_t i = 0; i < CONF_REGS_AMOUNT; i++)
-    {
-        if (ext_adc_configs[i] != 0xFF)
-        {
-            ADC_set_reg(&adc1_ctx, i + FIRST_CONF_REG_ADDR, ext_adc_configs[i]);
-            ADC_set_reg(&adc2_ctx, i + FIRST_CONF_REG_ADDR, ext_adc_configs[i]);
-        }
-    }
-
-    NVIC_EnableIRQ(adc1_ctx.drdy_irq);
-    NVIC_EnableIRQ(adc2_ctx.drdy_irq);
-    NVIC_EnableIRQ(adc1_ctx.rx_irq);
-    NVIC_EnableIRQ(adc2_ctx.rx_irq);
+static void enable_IRQs(adc_context *ctx)
+{
+    NVIC_EnableIRQ(ctx->drdy_irq);
+    NVIC_EnableIRQ(ctx->rx_irq);
 }
 
 /**
@@ -58,7 +45,7 @@ void config_ext_adc()
  * @retval uint8_t Значение прочитанного регистра.
  * @note Использует синхронный SPI-DMA обмен. Блокирует поток до завершения.
  */
-static uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
+static uint8_t request_ADC_reg_data(adc_context *ctx, uint8_t reg)
 {
     uint8_t SPI_Request_loc[2] = {(0x40U + reg), 0x00U};
     uint8_t SPI_Answer_loc[2] = {0U, 0U};
@@ -78,14 +65,40 @@ static uint8_t request_ADC_reg_data(adc_dma_context_t *ctx, uint8_t reg)
     return SPI_Answer1[0];
 }
 
-void read_ext_adc_regs(void)
+void config_ext_adc_I()
 {
-    NVIC_DisableIRQ(EXTI4_IRQn);
-    NVIC_DisableIRQ(EXTI15_10_IRQn);
-    NVIC_DisableIRQ(DMA1_Channel2_IRQn);
-    NVIC_DisableIRQ(DMA2_Channel1_IRQn);
+    disable_IRQs(&adc1_ctx);
+    adc1_ctx.rx->CCR &= ~DMA_CCR_EN;
+    for (size_t i = 0; i < CONF_REGS_AMOUNT; i++)
+    {
+        if (ext_adc_configs[i] != 0xFF)
+        {
+            ADC_set_reg(&adc1_ctx, i + FIRST_CONF_REG_ADDR, ext_adc_configs[i]);
+        }
+    }
+    enable_IRQs(&adc1_ctx);
+}
+
+void config_ext_adc_II()
+{
+    disable_IRQs(&adc2_ctx);
+    adc2_ctx.tx->CCR &= ~DMA_CCR_EN;
+    for (size_t i = 0; i < CONF_REGS_AMOUNT; i++)
+    {
+        if (ext_adc_configs[i] != 0xFF)
+        {
+            ADC_set_reg(&adc2_ctx, i + FIRST_CONF_REG_ADDR, ext_adc_configs[i]);
+        }
+    }
+    enable_IRQs(&adc2_ctx);
+}
+
+void ext_adc_TM_request(void)
+{
+    disable_IRQs(&adc1_ctx);
+    disable_IRQs(&adc2_ctx);
     // const uint8_t regs_count = 9;
-    for (uint8_t i = 0U; i < ADC_TM_REGS; i++)
+    for (uint8_t i = 3U; i < ADC_TM_REGS; i++)
     {
         adc_telemetry.adc1_reg_data[i] = request_ADC_reg_data(&adc1_ctx, i);
         adc_telemetry.adc2_reg_data[i] = request_ADC_reg_data(&adc2_ctx, i);
@@ -95,14 +108,12 @@ void read_ext_adc_regs(void)
     (void)memcpy(&packet.data, adc_telemetry.adc1_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC1_Stream, &packet);
 
-    // StreamPacket_t packet1 = create_packet(DATA_TM_II_ADC, (uint16_t)ADC_TM_REGS);
-    // (void)memcpy(&packet1.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
-    // pushPacket(&EXT_ADC2_Stream, &packet1);
+    packet = create_packet(DATA_TM_II_ADC, (uint16_t)ADC_TM_REGS);
+    (void)memcpy(&packet.data, adc_telemetry.adc2_reg_data, ADC_TM_REGS);
+    pushPacket(&EXT_ADC2_Stream, &packet);
 
-    NVIC_EnableIRQ(EXTI4_IRQn);
-    NVIC_EnableIRQ(EXTI15_10_IRQn);
-    NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-    NVIC_EnableIRQ(DMA2_Channel1_IRQn);
+    enable_IRQs(&adc1_ctx);
+    enable_IRQs(&adc2_ctx);
 }
 
 void reset_latches(void)
@@ -129,9 +140,9 @@ void EXT_ADC_RST_RECONFIG(void)
 {
     ADC_setup(&adc1_ctx);
     ADC_setup(&adc2_ctx);
-} // TODO Проверить работоспособность
+}
 
-void stop_all(void) // TODO дописать управление пинами START
+void stop_all(void)
 {
     Latches.EXTERNAL_ADC_I_IsLocked = (bool)true;
     Latches.EXTERNAL_ADC_II_IsLocked = (bool)true;
@@ -190,7 +201,7 @@ void test_send_spi_data(void)
     const uint8_t SPI_Request_loc[3] = {0xAAU, 0xBBU, 0xCCU};
     volatile uint8_t SPI_Answer_loc[3] = {0U, 0U, 0U};
 
-    adc_dma_context_t *ctx = &adc2_ctx; // Example: using ADC1 context for this test
+    adc_context *ctx = &adc2_ctx; // Example: using ADC1 context for this test
     SPI_DMA_TX_RX_byte_array(ctx, SPI_Request_loc, SPI_Answer_loc, 3, false);
 }
 
@@ -202,7 +213,7 @@ void process_command(const uint8_t *payload, uint16_t len) //-V2506
     }
 
     uint8_t cmd = payload[0];
-    if ((cmd == CONFIG_EXT_ADC) && (len == CONF_REGS_AMOUNT + 1))
+    if ((cmd == CONFIG_EXT_ADC_I) && (len == CONF_REGS_AMOUNT + 1))
     {
         memmove(ext_adc_configs, &payload[1], CONF_REGS_AMOUNT);
     }

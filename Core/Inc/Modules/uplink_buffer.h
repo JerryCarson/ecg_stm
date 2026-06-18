@@ -13,9 +13,17 @@
 
 /**
  * @def MAX_QUEUE
- * @brief Максимальное количество пакетов в очереди. Должно быть степенью двойки.
+ * @brief Максимальное количество пакетов в очереди \ref Uplink_USB_Stream
+ * Должно быть степенью двойки.
  */
 #define MAX_QUEUE 8U
+
+/**
+ * @def MAX_PACKET_SIZE
+ * @brief Задает максимальный размер пакета данных в элементе \ref StreamPacket_t
+ */
+#define MAX_PACKET_SIZE 500U /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
+
 #define SIZEOF_UPLINK_BUF MAX_PACKET_SIZE + HEADER_SIZE + CRC_SIZE
 
 _Static_assert(SIZEOF_UPLINK_BUF <= MAX_USB_PACKET_SIZE,
@@ -23,6 +31,9 @@ _Static_assert(SIZEOF_UPLINK_BUF <= MAX_USB_PACKET_SIZE,
 
 _Static_assert((MAX_QUEUE & (MAX_QUEUE - 1U)) == 0U,
                "MAX_QUEUE must be power of two");
+
+_Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2U,
+               "Too large ECG_BUF_SIZE"); // TODO перепроверить и выяснить нужно ли
 
 /**
  * @brief Структура пакета данных для отправки на ПК.

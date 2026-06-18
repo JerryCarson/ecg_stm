@@ -1,6 +1,6 @@
 #include "utility_functions.h"
 
-void DRDY_no_responce_timeout_handle(adc_dma_context_t *ctx)
+void DRDY_no_responce_timeout_handle(adc_context *ctx)
 {
     if (ctx->DRDY_IsLow)
     {
@@ -92,7 +92,7 @@ StreamPacket_t create_packet(StreamDataType t, uint16_t len)
     return s;
 }
 
-void processAdcBatches(adc_dma_context_t *ctx)
+void processAdcBatches(adc_context *ctx)
 {
     if (*(ctx->batch_IsReady))
     {

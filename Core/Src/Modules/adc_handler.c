@@ -20,7 +20,7 @@ volatile uint32_t g_adc2_error_count = 0;
 AdcRingBuffer_t adc1_buf;
 AdcRingBuffer_t adc2_buf;
 
-adc_dma_context_t adc1_ctx =
+adc_context adc1_ctx =
     {
         .dma = DMA1,
         .teif_rx_ch = DMA_ISR_TEIF2,
@@ -56,7 +56,7 @@ adc_dma_context_t adc1_ctx =
         .data_type = DATA_SPI_1,
         .uplink_stream = &EXT_ADC1_Stream};
 
-adc_dma_context_t adc2_ctx =
+adc_context adc2_ctx =
     {
         .dma = DMA2,
         .teif_rx_ch = DMA_ISR_TEIF1,
@@ -127,7 +127,7 @@ void ADC_Handler_Init(void)
     CS_2_GPIO_Port->BSRR = (uint32_t)CS_2_Pin;
 }
 
-void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx, //-V2506
+void SPI_DMA_TX_RX_byte_array(adc_context *ctx, //-V2506
                               const uint8_t *tx_buf,
                               volatile uint8_t *rx_buf,
                               uint8_t len,
@@ -217,7 +217,7 @@ static const uint16_t ADC_setup_regs[] =
         // 0x0908U
 };
 
-void ADC_setup(adc_dma_context_t *ctx)
+void ADC_setup(adc_context *ctx)
 {
     static uint8_t tx_buf[2];   // TX buffer for 1 register
     static uint8_t rx_dummy[2]; // dummy RX buffer
@@ -334,7 +334,7 @@ void ADC_setup(adc_dma_context_t *ctx)
     // ctx->start_port->BSRR = ctx->start_pin;
 }
 
-void ADC_set_reg(adc_dma_context_t *ctx, uint8_t reg_addr, uint8_t reg_val)
+void ADC_set_reg(adc_context *ctx, uint8_t reg_addr, uint8_t reg_val)
 {
     static uint8_t tx_buf[2];   // TX buffer for 1 register
     static uint8_t rx_dummy[2]; // dummy RX buffer

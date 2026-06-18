@@ -34,8 +34,9 @@ typedef enum CommandID
     DISIGNORE_LO_DISRUPT, /**< Не игнорировать отрыв электродов */
     RESET_LATCHES,        /**< Включить всё (выставить все @ref Latches в 0) */
     TEST_SEND_SPI_DATA,   /**< Тестовая команда для отправки данных по SPI */
-    READ_EXT_ADCs_REGS,   /**< Прочитать регистры обоих внешних ADC. Данные отправляются в @ref adc_telemetry */
-    CONFIG_EXT_ADC
+    EXT_ADC_TM_REQUEST,   /**< Прочитать регистры обоих внешних ADC. Данные отправляются в @ref adc_telemetry */
+    CONFIG_EXT_ADC_I,
+    CONFIG_EXT_ADC_II,
 } CommandID;
 
 /**
@@ -56,7 +57,7 @@ typedef struct CommandEntry
  * @attention Функция временно отключает прерывания EXTI4 и EXTI15_10.
  *            Блокирует поток данных до завершения чтения регистров.
  */
-void read_ext_adc_regs(void);
+void ext_adc_TM_request(void);
 
 /** @brief Остановить работу аналоговой периферии. */
 void stop_all(void);
@@ -94,7 +95,9 @@ void disignore_LO_disrupt(void);
 /** @brief Тест отправки данных по SPI */
 void test_send_spi_data(void);
 
-void config_ext_adc(void);
+void config_ext_adc_I(void);
+
+void config_ext_adc_II(void);
 
 /** @brief Обработчик команд от ПК. Ищет полученный от ПК id команды и исполняет команду
  * с таким id если он будет найден.

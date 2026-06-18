@@ -32,7 +32,7 @@
  * @brief Порог количества сэмплов внешнего ADC в кольцевом буфере @ref AdcRingBuffer_t,
  * после которого значения из него отправляются в буфер @ref Uplink_USB_Stream для дальнейшей отправки на ПК.
  */
-#define ADC_BATCH_SIZE 130U // Send 42 pairs per USB packet
+#define ADC_BATCH_SIZE 165U // Send 165 samples (500 bytes) per USB packet
 
 /**
  * @def ADC_BUFFER_ELEMENTS
@@ -78,7 +78,7 @@ typedef struct AdcRingBuffer_t
  * Содержит адреса регистров, указатели и переменные для конкретного SPI и DMA канала,
  * которые используются при работе с конкретным внешним ADC.
  */
-typedef struct adc_dma_context_t
+typedef struct adc_context
 {
    DMA_TypeDef *dma;                 /**< Адрес периферии DMA */
    uint32_t teif_rx_ch;              /**< Флаг Transfer Error для канала RX*/
@@ -104,13 +104,13 @@ typedef struct adc_dma_context_t
    volatile bool DRDY_IsLow;         /**< Флаг срабатывания DRDY */
    StreamDataType data_type;         /**< Тип данных, привязанный к контексту, необходим для маркировки пакета данных при отправке на ПК */
    Uplink_USB_Stream *uplink_stream; /**< Указатель на буфер, из которого данные отправляются на ПК */
-} adc_dma_context_t;
+} adc_context;
 
 /** @brief Контекст для обработки прерываний от I ADC */
-extern adc_dma_context_t adc1_ctx;
+extern adc_context adc1_ctx;
 
 /** @brief Контекст для обработки прерываний от II ADC */
-extern adc_dma_context_t adc2_ctx;
+extern adc_context adc2_ctx;
 
 /**
  * @brief Счетчик ошибок первого внешнего ADC.
@@ -180,9 +180,9 @@ void ADC_Handler_Init(void);
 
 /**
  * @brief Настраивает регистры внешнего ADC
- * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param ctx Указатель на контекст @ref adc_context конкретного ADC.
  */
-void ADC_setup(adc_dma_context_t *ctx);
+void ADC_setup(adc_context *ctx);
 
 /**
  * @brief Добавляет новый сэмпл в кольцевой буфер.
@@ -229,7 +229,7 @@ RAMFUNC FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data) 
 /**
  * @brief Отправляет массив данных по SPI интерфейсу, используется для взаимодействия
  * с внешними ADC.
- * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param ctx Указатель на контекст @ref adc_context конкретного ADC.
  * @param tx_buf Указатель на массив отправляемых данных.
  * @param rx_buf Указатель на массив принимаемых данных.
  * @param len Длина обоих массивов.
@@ -239,7 +239,7 @@ RAMFUNC FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data) 
  * Требуется для корректной обработки данных от внешнего ADC. Если требуется
  * просто отправить данные - устанавливается в false.
  */
-void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
+void SPI_DMA_TX_RX_byte_array(adc_context *ctx,
                               const uint8_t *tx_buf,
                               volatile uint8_t *rx_buf,
                               uint8_t len,
@@ -251,12 +251,12 @@ void SPI_DMA_TX_RX_byte_array(adc_dma_context_t *ctx,
  * * Добавлен спецификатор inline во избежание траты тактов на вызов функции
  *
  * Используется для работы в обработчике прерывания.
- * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param ctx Указатель на контекст @ref adc_context конкретного ADC.
  * @param tx_buf Указатель на массив отправляемых данных.
  * @param rx_buf Указатель на массив принимаемых данных.
  */
 //+ PVS-Studio: function_type = interrupt_handler
-RAMFUNC FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_dma_context_t *ctx, // TODO На всякий случай перепроверить на реентрантность
+RAMFUNC FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_context *ctx, // TODO На всякий случай перепроверить на реентрантность
                                                const uint8_t *tx_buf,
                                                volatile uint8_t *rx_buf)
 {
@@ -301,12 +301,11 @@ RAMFUNC FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_dma_context_t *ctx, /
  * - Настраивает DMA для приёма сэмпла.
  * - Активирует SPI и пин CS для выбранного ADC.
  *
- * При обнаружении ошибки увеличивает счётчик ошибок в @ref adc_dma_context_t.
+ * При обнаружении ошибки увеличивает счётчик ошибок в @ref adc_context.
  *
- * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param ctx Указатель на контекст @ref adc_context конкретного ADC.
  */
-//+ PVS-Studio: function_type = interrupt_handler
-RAMFUNC FORCE_INLINE void ADC_DRDY_ISR(adc_dma_context_t *ctx)
+RAMFUNC FORCE_INLINE void ADC_DRDY_ISR(adc_context *ctx)
 {
    ctx->DRDY_IsLow = (bool)1;
    SPI_DMA_TX_RX_byte_array_isr(ctx, SPI_DUMMY_TX, ctx->spi_buf);
@@ -325,10 +324,10 @@ RAMFUNC FORCE_INLINE void ADC_DRDY_ISR(adc_dma_context_t *ctx)
  *
  * В случае переполнения буфера или ошибок SPI/DMA увеличивает счетчик ошибок.
  *
- * @param ctx Указатель на контекст @ref adc_dma_context_t конкретного ADC.
+ * @param ctx Указатель на контекст @ref adc_context конкретного ADC.
  */
 //+ PVS-Studio: function_type = interrupt_handler
-RAMFUNC FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx)
+RAMFUNC FORCE_INLINE void adc_dma_isr(adc_context *ctx)
 {
    ctx->DRDY_IsLow = (bool)0;
    uint32_t isr = ctx->dma->ISR;
@@ -396,6 +395,6 @@ RAMFUNC FORCE_INLINE void adc_dma_isr(adc_dma_context_t *ctx)
    }
 }
 
-void ADC_set_reg(adc_dma_context_t *ctx, uint8_t reg_addr, uint8_t reg_val);
+void ADC_set_reg(adc_context *ctx, uint8_t reg_addr, uint8_t reg_val);
 /** @} */
 #endif /* ADC_HANDLER_H */

@@ -64,6 +64,8 @@ extern DMA_HandleTypeDef hdma_spi1_rx;
 extern DMA_HandleTypeDef hdma_spi1_tx;
 extern DMA_HandleTypeDef hdma_spi2_rx;
 extern DMA_HandleTypeDef hdma_spi2_tx;
+extern DMA_HandleTypeDef hdma_spi3_rx;
+extern DMA_HandleTypeDef hdma_spi3_tx;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -327,7 +329,7 @@ void USB_LP_IRQHandler(void)
 /**
   * @brief This function handles EXTI line[15:10] interrupts.
   */
-RAMFUNC void EXTI15_10_IRQHandler(void)
+void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
     if ((EXTI->PR1 & EXTI_PR1_PIF15) != 0U) // Для ADCII
@@ -368,6 +370,34 @@ void DMA2_Channel1_IRQHandler(void)
   /* USER CODE BEGIN DMA2_Channel1_IRQn 1 */
 
   /* USER CODE END DMA2_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 channel3 global interrupt.
+  */
+void DMA2_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel3_IRQn 0 */
+
+  /* USER CODE END DMA2_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi3_rx);
+  /* USER CODE BEGIN DMA2_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 channel4 global interrupt.
+  */
+void DMA2_Channel4_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel4_IRQn 0 */
+
+  /* USER CODE END DMA2_Channel4_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi3_tx);
+  /* USER CODE BEGIN DMA2_Channel4_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel4_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

@@ -81,9 +81,9 @@ void Error_Handler(void);
 #define DRDY_1_EXTI_IRQn EXTI15_10_IRQn
 #define CS_1_Pin GPIO_PIN_11
 #define CS_1_GPIO_Port GPIOC
-#define RESET_1_Pin GPIO_PIN_3
-#define RESET_1_GPIO_Port GPIOB
-#define START_1_Pin GPIO_PIN_4
+#define CS_3_Pin GPIO_PIN_6
+#define CS_3_GPIO_Port GPIOB
+#define START_1_Pin GPIO_PIN_7
 #define START_1_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
@@ -120,7 +120,7 @@ void Error_Handler(void);
         DATA_TM_II_ADC
     } StreamDataType;
 
-#define ADC_TM_REGS 10U
+#define ADC_TM_REGS 16U
 
     typedef struct ADC_Telemetry
     {
@@ -131,12 +131,7 @@ void Error_Handler(void);
 #define SINE_WAVE_SAMPLES 50U
 #define DAC_RESOLUTION 4095.0 // 12-bit DAC
 
-#define MAX_PACKET_SIZE 400U /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
-
 #define ECG_BUF_SIZE 128U /** Задает размер DMA буфера для внутреннего АЦП */
-
-    _Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2U,
-                   "Too large ECG_BUF_SIZE");
 
 #define CMD_HEADER 0xAAU                              /** Заголовочный байт пакетов */
 #define HEADER_SIZE 4U                                /**< Размер заголовка пакета: [SYNC][TYPE][LEN_H][LEN_L] [байт]. */
