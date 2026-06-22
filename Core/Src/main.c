@@ -173,7 +173,7 @@ int main(void)
     parse_downlink_data(&usbStream);
     DRDY_no_responce_timeout_handle(&adc1_ctx);
     DRDY_no_responce_timeout_handle(&adc2_ctx);
-    processAdcBatches(&adc1_ctx);
+    processAdcBatches1(&adc1_ctx);
     processAdcBatches(&adc2_ctx);
     stream_data_uplink(&EXT_ADC1_Stream);
     stream_data_uplink(&EXT_ADC2_Stream);
@@ -250,7 +250,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
     }
     // TODO Перепроверить, возможно схлопнуть в один колбэк
 
-    StreamPacket_t packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
+    Uplink_Packet packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
 
     for (uint16_t i = 0; i < ECG_BUF_SIZE / 2U; i++)
     {
@@ -274,7 +274,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
         return;
       }
     }
-    StreamPacket_t packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
+    Uplink_Packet packet = create_packet(DATA_ADC_ECG, (uint16_t)ECG_BUF_SIZE);
 
     for (uint16_t i = 0U; i < ECG_BUF_SIZE / 2U; i++)
     {

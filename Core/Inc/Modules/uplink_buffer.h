@@ -20,9 +20,9 @@
 
 /**
  * @def MAX_PACKET_SIZE
- * @brief Задает максимальный размер пакета данных в элементе \ref StreamPacket_t
+ * @brief Задает максимальный размер пакета данных в элементе \ref Uplink_Packet
  */
-#define MAX_PACKET_SIZE 500U /** Задает максимальный размер пакета данных в элементе \ref StreamPacket_t */
+#define MAX_PACKET_SIZE 500 /** Задает максимальный размер пакета данных в элементе \ref Uplink_Packet */
 
 #define SIZEOF_UPLINK_BUF MAX_PACKET_SIZE + HEADER_SIZE + CRC_SIZE
 
@@ -32,8 +32,8 @@ _Static_assert(SIZEOF_UPLINK_BUF <= MAX_USB_PACKET_SIZE,
 _Static_assert((MAX_QUEUE & (MAX_QUEUE - 1U)) == 0U,
                "MAX_QUEUE must be power of two");
 
-_Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2U,
-               "Too large ECG_BUF_SIZE"); // TODO перепроверить и выяснить нужно ли
+// _Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2U,
+//                "Too large ECG_BUF_SIZE"); // TODO перепроверить и выяснить нужно ли
 
 /**
  * @brief Структура пакета данных для отправки на ПК.
@@ -44,17 +44,17 @@ _Static_assert(MAX_PACKET_SIZE >= ECG_BUF_SIZE / 2U,
  * @note Все поля структуры должны быть корректно инициализированы перед
  *       передачей в @ref pushPacket.
  */
-typedef struct StreamPacket_t
+typedef struct Uplink_Packet
 {
     StreamDataType dataType;       /**< Тип данных в пакете */
     uint16_t length;               /**< Длина полезной нагрузки в байтах. */
     uint8_t data[MAX_PACKET_SIZE]; /**< Массив полезной нагрузки. */
-} StreamPacket_t;
+} Uplink_Packet;
 
 /** @brief Структура очереди пакетов для передачи по USB. */
 typedef struct Uplink_USB_Stream
 {
-    StreamPacket_t packetQueue[MAX_QUEUE]; /**< Массив пакетов данных */
+    Uplink_Packet packetQueue[MAX_QUEUE]; /**< Массив пакетов данных */
     volatile uint8_t queueHead;            /**< Индекс записи (следующая свободная ячейка) */
     volatile uint8_t queueTail;            /**< Индекс чтения (следующий байт для отправки) */
 } Uplink_USB_Stream;
@@ -69,7 +69,7 @@ typedef struct Uplink_USB_Stream
  * @warning Если очередь полна, пакет будет молча отброшен. Вызывающий код должен
  *          контролировать заполненность буфера или обрабатывать потерю данных.
  */
-RAMFUNC void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet); // TODO Перепроверить реентрантность
+RAMFUNC void pushPacket(Uplink_USB_Stream *stream, Uplink_Packet *packet);
 
 /**
  * @brief Возвращает указатель на пакет в хвосте очереди без изменения индексов.
@@ -77,7 +77,7 @@ RAMFUNC void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet); // T
  * @return Указатель на следующий пакет для отправки.
  * @retval NULL Если очередь пуста.
  */
-RAMFUNC StreamPacket_t *peekPacket(Uplink_USB_Stream *stream);
+RAMFUNC Uplink_Packet *peekPacket(Uplink_USB_Stream *stream);
 
 /**
  * @brief Удаляет пакет из хвоста очереди (продвигает индекс чтения).

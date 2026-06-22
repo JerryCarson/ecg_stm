@@ -28,7 +28,7 @@ static inline void stream_consume(Downlink_USB_Stream *s, uint32_t count)
     s->tail = (s->tail + count) & (PARSER_BUFFER_SIZE - 1U);
 }
 
-void parse_downlink_data(Downlink_USB_Stream *s) //-V2506
+RAMFUNC void parse_downlink_data(Downlink_USB_Stream *s) //-V2506
 {
     if (!s)
     {

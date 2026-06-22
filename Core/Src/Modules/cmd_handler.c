@@ -104,7 +104,7 @@ void ext_adc_TM_request(void)
         adc_telemetry.adc2_reg_data[i] = request_ADC_reg_data(&adc2_ctx, i);
     }
     __DSB();
-    StreamPacket_t packet = create_packet(DATA_TM_I_ADC, (uint16_t)ADC_TM_REGS);
+    Uplink_Packet packet = create_packet(DATA_TM_I_ADC, (uint16_t)ADC_TM_REGS);
     (void)memcpy(&packet.data, adc_telemetry.adc1_reg_data, ADC_TM_REGS);
     pushPacket(&EXT_ADC1_Stream, &packet);
 

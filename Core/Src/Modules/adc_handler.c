@@ -3,8 +3,6 @@
 #include <stdbool.h>
 // #include "stm32g4xx_dmamux.h"
 
-uint32_t pusherr = 0;
-
 volatile bool adc1_batch_size_reached = false;
 volatile bool adc2_batch_size_reached = false;
 

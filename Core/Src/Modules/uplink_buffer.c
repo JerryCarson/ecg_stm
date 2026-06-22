@@ -21,7 +21,7 @@ static inline bool queueEmpty(Uplink_USB_Stream *stream)
     return head == tail; // TODO проверить работоспособность
 }
 
-RAMFUNC StreamPacket_t *peekPacket(Uplink_USB_Stream *stream) //-V2506
+RAMFUNC Uplink_Packet *peekPacket(Uplink_USB_Stream *stream) //-V2506
 {
     if (queueEmpty(stream))
     {
@@ -41,7 +41,7 @@ RAMFUNC void consumePacket(Uplink_USB_Stream *stream)
     // __enable_irq();
 }
 
-void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet)
+RAMFUNC void pushPacket(Uplink_USB_Stream *stream, Uplink_Packet *packet)
 {
     bool full;
     uint8_t idx;
@@ -60,16 +60,16 @@ void pushPacket(Uplink_USB_Stream *stream, StreamPacket_t *packet)
 
     if (!full)
     {
-        StreamPacket_t *qPacket = &(stream->packetQueue[idx]);
+        Uplink_Packet *qPacket = &(stream->packetQueue[idx]);
         qPacket->dataType = packet->dataType;
         qPacket->length = (uint16_t)(packet->length > MAX_PACKET_SIZE ? MAX_PACKET_SIZE : packet->length);
         (void)memcpy(qPacket->data, packet->data, qPacket->length);
     }
 }
 static uint32_t errors;
-RAMFUNC void stream_data_uplink(Uplink_USB_Stream *stream) // TODO Возможно стоит перенести в ring_buffer
+RAMFUNC void stream_data_uplink(Uplink_USB_Stream *stream)
 {
-    StreamPacket_t *pkt = peekPacket(stream);
+    Uplink_Packet *pkt = peekPacket(stream);
     __DMB();
     
     if (pkt != NULL)

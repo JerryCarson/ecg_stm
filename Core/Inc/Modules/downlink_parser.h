@@ -44,7 +44,7 @@ typedef struct Downlink_USB_Stream
  *          валидного маркера @ref CMD_HEADER.
  * @param[in] s Указатель на структуру входящего потока. Не должен быть @c NULL.
  */
-void parse_downlink_data(Downlink_USB_Stream *s);
+RAMFUNC void parse_downlink_data(Downlink_USB_Stream *s);
 
 /**
  * @brief Безопасная запись данных в кольцевой буфер входящего потока.

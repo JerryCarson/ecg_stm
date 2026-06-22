@@ -85,9 +85,9 @@ void internal_ADC_EN_DIS_mgr(void)
     }
 }
 
-StreamPacket_t create_packet(StreamDataType t, uint16_t len)
+Uplink_Packet create_packet(StreamDataType t, uint16_t len)
 {
-    StreamPacket_t s = {.dataType = t,
+    Uplink_Packet s = {.dataType = t,
                         .length = len};
     return s;
 }
@@ -98,18 +98,60 @@ void processAdcBatches(adc_context *ctx)
     {
         *(ctx->batch_IsReady) = (bool)false;
         __DMB();
-        StreamPacket_t packet = create_packet(ctx->data_type, (uint16_t)(ADC_BATCH_SIZE * ADC_BYTES_PER_SAMPLE));
+        Uplink_Packet packet = create_packet(ctx->data_type, (uint16_t)(ADC_SAMPLES_THRESHOLD * ADC_SAMPLE_SIZE));
 
-        for (uint32_t i = 0; i < ADC_BATCH_SIZE; i++)
+        for (uint32_t i = 0; i < ADC_SAMPLES_THRESHOLD; i++)
         {
             uint32_t idx = (ctx->adc_buf->tail + i) & (ADC_BUFFER_ELEMENTS - 1U);
-            (void)memcpy(&packet.data[i * ADC_BYTES_PER_SAMPLE], ctx->adc_buf->buffer[idx].data, ADC_BYTES_PER_SAMPLE);
+            (void)memcpy(&packet.data[i * ADC_SAMPLE_SIZE], ctx->adc_buf->buffer[idx].data, ADC_SAMPLE_SIZE);
         }
 
         // advance tail
-        ctx->adc_buf->tail = (ctx->adc_buf->tail + ADC_BATCH_SIZE) & (ADC_BUFFER_ELEMENTS - 1U);
+        ctx->adc_buf->tail = (ctx->adc_buf->tail + ADC_SAMPLES_THRESHOLD) & (ADC_BUFFER_ELEMENTS - 1U);
 
         pushPacket(ctx->uplink_stream, &packet);
+    }
+}
+
+void processAdcBatches1(adc_context *ctx)
+{
+    if (*(ctx->batch_IsReady))
+    {
+        *(ctx->batch_IsReady) = (bool)false;
+        __DSB();
+
+        Uplink_USB_Stream *stream = ctx->uplink_stream;
+        uint8_t head = stream->queueHead;
+        uint8_t next = (uint8_t)((head + 1U) & (MAX_QUEUE - 1U));
+
+        if (next == stream->queueTail) return;
+
+        Uplink_Packet *qPacket = &(stream->packetQueue[head]);
+        qPacket->dataType = ctx->data_type;
+        qPacket->length = (uint16_t)(ADC_SAMPLES_THRESHOLD * 3); // Ровно 3 байта на сэмпл
+
+        uint32_t rb_tail = ctx->adc_buf->tail;
+        uint8_t *dst = qPacket->data;
+
+        for (uint32_t i = 0; i < ADC_SAMPLES_THRESHOLD; i++)
+        {
+            uint32_t idx = (rb_tail + i) & (ADC_BUFFER_ELEMENTS - 1U);
+            
+            // Читаем 4 байта (выровнено и быстро)
+            uint32_t sample = *(uint32_t*)(&ctx->adc_buf->buffer[idx]);
+            // TODO проверить работоспособность такого решения
+            // // Пишем по 1 байту (без пробелов и безопасно для памяти)
+            // *dst++ = (uint8_t)(sample);         // Младший байт
+            // *dst++ = (uint8_t)(sample >> 8);    // Средний байт
+            // *dst++ = (uint8_t)(sample >> 16);   // Старший байт
+
+            // Продвигаем указатель только на 3 байта!
+            *(uint32_t*)dst = sample; 
+            dst += 3;
+        }
+
+        ctx->adc_buf->tail = (rb_tail + ADC_SAMPLES_THRESHOLD) & (ADC_BUFFER_ELEMENTS - 1U);
+        __atomic_store_n(&stream->queueHead, next, __ATOMIC_RELEASE);
     }
 }
 

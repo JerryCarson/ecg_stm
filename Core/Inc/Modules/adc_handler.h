@@ -22,17 +22,17 @@
 #include "uplink_buffer.h"
 
 /**
- * @def ADC_BYTES_PER_SAMPLE
+ * @def ADC_SAMPLE_SIZE
  * @brief Размер пакета данных в байтах для общения с внешним ADC.
  */
-#define ADC_BYTES_PER_SAMPLE 3U
+#define ADC_SAMPLE_SIZE 4U
 
 /**
- * @def ADC_BATCH_SIZE
+ * @def ADC_SAMPLES_THRESHOLD
  * @brief Порог количества сэмплов внешнего ADC в кольцевом буфере @ref AdcRingBuffer_t,
  * после которого значения из него отправляются в буфер @ref Uplink_USB_Stream для дальнейшей отправки на ПК.
  */
-#define ADC_BATCH_SIZE 165U // Send 165 samples (500 bytes) per USB packet
+#define ADC_SAMPLES_THRESHOLD (uint8_t)((MAX_PACKET_SIZE-5)/3) // Send 42 pairs per USB packet
 
 /**
  * @def ADC_BUFFER_ELEMENTS
@@ -49,17 +49,17 @@
 _Static_assert((ADC_BUFFER_ELEMENTS & (ADC_BUFFER_ELEMENTS - 1U)) == 0U,
                "ADC_BUFFER_ELEMENTS must be power of two");
 
-_Static_assert(ADC_BATCH_SIZE < MAX_PACKET_SIZE,
-               "ADC_BATCH_SIZE must fit in StreamPacket_t max packet size");
+_Static_assert(ADC_SAMPLES_THRESHOLD < MAX_PACKET_SIZE,
+               "ADC_SAMPLES_THRESHOLD must fit in Uplink_Packet max packet size");
 
 /**
  * @brief Структура сэмпла внешнего ADC.
  * В составе кольцевого буфера @ref AdcRingBuffer_t хранит получаемые от внешних ADC сэмплов.
  */
-typedef struct AdcSample_t
+typedef struct __attribute__((aligned(4))) AdcSample_t
 {
-   uint8_t data[ADC_BYTES_PER_SAMPLE]; /**< Массив для хранения сэмпла */
-} AdcSample_t;
+   uint8_t data[ADC_SAMPLE_SIZE]; /**< Массив для хранения сэмпла */
+} AdcSample_t; // TODO попробовать переделать под uint32_t 
 
 /**
  * @brief Структура кольцевого буфера для хранения сэмплов внешнего АЦП.
@@ -99,7 +99,7 @@ typedef struct adc_context
    volatile uint32_t *error_count;   /**< Счетчик ошибок */
    AdcRingBuffer_t *adc_buf;         /**< Указатель на кольцевой буфер */
    volatile uint32_t batch_count;    /**< Счетчик количества сэмплов в буфере @ref AdcRingBuffer_t */
-   volatile bool *batch_IsReady;     /**< Флаг достижения в буфере количества сэмплов, равного @ref ADC_BATCH_SIZE*/
+   volatile bool *batch_IsReady;     /**< Флаг достижения в буфере количества сэмплов, равного @ref ADC_SAMPLES_THRESHOLD*/
    volatile uint8_t *spi_buf;        /**< Указатель на массив, в который поступают данные от DMA RX канала */
    volatile bool DRDY_IsLow;         /**< Флаг срабатывания DRDY */
    StreamDataType data_type;         /**< Тип данных, привязанный к контексту, необходим для маркировки пакета данных при отправке на ПК */
@@ -127,16 +127,16 @@ extern volatile uint32_t g_adc1_error_count;
 extern volatile uint32_t g_adc2_error_count;
 
 /**
- * @brief Флаг достижения ADC_BATCH_SIZE для первого ADC.
+ * @brief Флаг достижения ADC_SAMPLES_THRESHOLD для первого ADC.
  * Устанавливается в true, когда кольцевой буфер adc1_buf накопил достаточное
- * количество сэмплов для формирования пакета StreamPacket_t. После обработки батча флаг сбрасывается.
+ * количество сэмплов для формирования пакета Uplink_Packet. После обработки батча флаг сбрасывается.
  */
 extern volatile bool adc1_batch_size_reached;
 
 /**
- * @brief Флаг достижения ADC_BATCH_SIZE для второго ADC.
+ * @brief Флаг достижения ADC_SAMPLES_THRESHOLD для второго ADC.
  * Устанавливается в true, когда кольцевой буфер adc2_buf накопил достаточное
- * количество сэмплов для формирования пакета StreamPacket_t. После обработки батча флаг сбрасывается.
+ * количество сэмплов для формирования пакета Uplink_Packet. После обработки батча флаг сбрасывается.
  */
 extern volatile bool adc2_batch_size_reached;
 
@@ -191,14 +191,13 @@ void ADC_setup(adc_context *ctx);
  * новый сэмпл не добавляется, предотвращая перезапись непрочитанных данных.
  *
  * @param[in]  rb   Указатель на структуру кольцевого буфера.
- * @param[in]  data Указатель на массив данных сэмпла размером @ref ADC_BYTES_PER_SAMPLE байт.
+ * @param[in]  data Указатель на массив данных сэмпла размером @ref ADC_SAMPLE_SIZE байт.
  * @retval true     Сэмпл успешно записан в буфер.
  * @retval false    Буфер заполнен, запись отменена.
  *
  * @note Вызывается из контекста ISR/DMA @ref adc_dma_isr. Не содержит блокирующих операций и аллокаций памяти.
  */
 //+ PVS-Studio: function_type = interrupt_handler
-extern uint32_t pusherr;
 
 RAMFUNC FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data) //-V2506
 {
@@ -210,7 +209,6 @@ RAMFUNC FORCE_INLINE bool adc_push(AdcRingBuffer_t *rb, volatile uint8_t *data) 
    uint32_t tail = (uint32_t)__atomic_load_n(&rb->tail, __ATOMIC_RELAXED);
    if (next == tail)
    {
-      ++pusherr;
       return false;
    }
 
@@ -305,6 +303,7 @@ RAMFUNC FORCE_INLINE void SPI_DMA_TX_RX_byte_array_isr(adc_context *ctx, // TODO
  *
  * @param ctx Указатель на контекст @ref adc_context конкретного ADC.
  */
+//+ PVS-Studio: function_type = interrupt_handler
 RAMFUNC FORCE_INLINE void ADC_DRDY_ISR(adc_context *ctx)
 {
    ctx->DRDY_IsLow = (bool)1;
@@ -320,7 +319,7 @@ RAMFUNC FORCE_INLINE void ADC_DRDY_ISR(adc_context *ctx)
  * - Освобождение пина CS для ADC.
  * - Считывание данных из SPI.
  * - Добавление сэмпла в кольцевой буфер через @ref adc_push.
- * - Логику формирования батча: если @ref ADC_BATCH_SIZE достигнут, выставляет флаг готовности.
+ * - Логику формирования батча: если @ref ADC_SAMPLES_THRESHOLD достигнут, выставляет флаг готовности.
  *
  * В случае переполнения буфера или ошибок SPI/DMA увеличивает счетчик ошибок.
  *
@@ -387,7 +386,7 @@ RAMFUNC FORCE_INLINE void adc_dma_isr(adc_context *ctx)
 
       /* Batch logic */
       ctx->batch_count++;
-      if (ctx->batch_count >= ADC_BATCH_SIZE)
+      if (ctx->batch_count >= ADC_SAMPLES_THRESHOLD)
       {
          *(ctx->batch_IsReady) = (bool)true;
          ctx->batch_count = 0U;
